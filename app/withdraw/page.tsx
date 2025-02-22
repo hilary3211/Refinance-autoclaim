@@ -231,7 +231,7 @@ const WithdrawPage = () => {
       transactions
     });
     
-     (products2);
+
   }
 
 

@@ -222,7 +222,7 @@ function getMinAmountOut2(jsonStr : any) {
         const products2 = await wallet.signAndSendTransactions({
           transactions,
         });
-        console.log(products2);
+       
       
       }else {
         const minAmountOut = getMinAmountOut(datagotten[0].functionCalls[0].args.msg);
@@ -341,7 +341,7 @@ function getMinAmountOut2(jsonStr : any) {
           transactions
         });
         
-        console.log(products2);
+   
       }
     } catch (error) {
       console.error("Swap failed:", error);
@@ -363,7 +363,7 @@ function getMinAmountOut2(jsonStr : any) {
       gas: "300000000000000",
       deposit: "0",
     });
-    // console.log(getuserdata)
+
     try {
       const response = await fetch("https://us-central1-almond-1b205.cloudfunctions.net/autoclaim/swapdata", {
         method: "POST",
@@ -380,7 +380,7 @@ function getMinAmountOut2(jsonStr : any) {
 
         const result : any = await response.json()
         const datagotten = result.data
-       console.log(datagotten);
+      
        
         if (getuserdata !== null){
           await handleSwap(datagotten)

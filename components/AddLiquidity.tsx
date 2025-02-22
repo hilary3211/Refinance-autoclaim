@@ -271,7 +271,7 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
       transactions
     });
     
-    console.log(products2);
+ 
   }
 
 

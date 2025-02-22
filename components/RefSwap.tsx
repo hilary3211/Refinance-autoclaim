@@ -18,30 +18,30 @@ const RefSwap = () => {
       return;
     }
 
-    try {
-      const response = await fetch('/api/swap', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          signedAccountId,
-          wallet,
-          amountIn,
-        }),
-      });
+    // try {
+    //   const response = await fetch('/api/swap', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //       signedAccountId,
+    //       wallet,
+    //       amountIn,
+    //     }),
+    //   });
 
-      const data = await response.json();
+    //   const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
+    //   if (!response.ok) {
+    //     throw new Error(data.message);
+    //   }
 
-      setSwapResult(data.result); // Store the result
-    } catch (e: any) {
-      console.error("Swap error:", e);
-      setError(e.message || "An error occurred during the swap.");
-    }
+    //   setSwapResult(data.result); // Store the result
+    // } catch (e: any) {
+    //   console.error("Swap error:", e);
+    //   setError(e.message || "An error occurred during the swap.");
+    // }
   };
 
   return (
