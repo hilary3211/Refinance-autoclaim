@@ -24,7 +24,7 @@ const Finance = () => {
       contractId: "auto-claim-main.near",
       method: "get_user",
       args: {
-        wallet_id:"hillary321.near",
+        wallet_id: signedAccountId,
       },
       gas: "300000000000000",
       deposit: "0",
