@@ -103,22 +103,7 @@ export function Stake({poolType1, poolType2, poolTypeID1, poolTypeID2, Poolid}: 
 
     const transactions =[
 
-        {
-            receiverId: "auto-claim-main.near",
-            actions: [
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "update_preferences", // Missing methodName
-                  args: {
-                    prefs : preferences
-                  },
-                  gas: "300000000000000", // Gas for transaction execution
-                  deposit: "0",
-                },
-              },
-            ],
-          },
+        
     
 
         {
@@ -133,6 +118,23 @@ export function Stake({poolType1, poolType2, poolTypeID1, poolTypeID2, Poolid}: 
                     lp_token_amount:  amountA,
                     gassing : "50",
                     useracc: `${getuserdata.username}.auto-claim-main.near`
+                  },
+                  gas: "300000000000000", // Gas for transaction execution
+                  deposit: "0",
+                },
+              },
+            ],
+          },
+
+          {
+            receiverId: "auto-claim-main.near",
+            actions: [
+              {
+                type: "FunctionCall",
+                params: {
+                  methodName: "update_preferences", // Missing methodName
+                  args: {
+                    prefs : preferences
                   },
                   gas: "300000000000000", // Gas for transaction execution
                   deposit: "0",
@@ -178,7 +180,7 @@ export function Stake({poolType1, poolType2, poolTypeID1, poolTypeID2, Poolid}: 
                     seed_id: `v2.ref-finance.near@${Poolid}`,
                     withdraw_amount:  amountB,
                     gassing : "50",
-                    tokenname: poolType1
+                    tokenname: poolTypeID1 === "wrap.near" ? poolTypeID2 : poolTypeID1
                 },
                 gas: "300000000000000", // Gas for transaction execution
                 deposit: "0",

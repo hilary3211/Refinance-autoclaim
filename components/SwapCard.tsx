@@ -101,6 +101,10 @@ function getMinAmountOut2(jsonStr : any) {
       if (datagotten.length > 1){
         const minAmountOut = getMinAmountOut(datagotten[1].functionCalls[0].args.msg);
         const amountIn = getMinAmountOut2(datagotten[1].functionCalls[0].args.msg);
+        console.log(minAmountOut, "dwje")
+        console.log(amountIn,  "dwje")
+        console.log(datagotten, "dwje")
+
         const transactions = [
           
 
@@ -109,6 +113,18 @@ function getMinAmountOut2(jsonStr : any) {
             actions: [
               ...(datagotten[0].receiverId === "wrap.near"
               ? [
+                {
+                  type: "FunctionCall",
+                  params: {
+                    methodName: "storage_deposit",
+                    args: {
+                      account_id: signedAccountId, 
+                      registration_only: true
+                    },
+                    gas: "25000000000000",
+                    deposit: "125000000000000000000000", // Adjust based on storage cost
+                  },
+                },
                   {
                     type: "FunctionCall",
                     params: {
@@ -120,21 +136,48 @@ function getMinAmountOut2(jsonStr : any) {
                   },
                 ]
               : []),
+             
               {
                 type: "FunctionCall",
                 params: {
                   methodName: datagotten[0].functionCalls[0].methodName,
                   args: datagotten[0].functionCalls[0].args,
                   gas: "85000000000000",
-                  deposit: "125000000000000000000000",
+                  deposit: "12500000000000000000000",
                 },
               },
             ],
           },
+
+
         
           {
             receiverId: datagotten[1].receiverId,
             actions: [
+              // {
+              //   type: "FunctionCall",
+              //   params: {
+              //     methodName: "storage_deposit",
+              //     args: {
+              //       account_id: signedAccountId, 
+              //       registration_only: true
+              //     },
+              //     gas: "85000000000000",
+              //     deposit: "12500000000000000000000", // Adjust based on storage cost
+              //   },
+              // },
+              {
+                type: "FunctionCall",
+                params: {
+                  methodName: "storage_deposit",
+                  args: {
+                    account_id: signedAccountId, 
+                    registration_only: true
+                  },
+                  gas: "25000000000000",
+                  deposit: "12500000000000000000000", // Adjust based on storage cost
+                },
+              },
               {
                 type: "FunctionCall",
                 params: {
@@ -158,7 +201,7 @@ function getMinAmountOut2(jsonStr : any) {
                     registration_only: true,
                   },
                   gas: "85000000000000",
-                  deposit: "125000000000000000000000",
+                  deposit: "12500000000000000000000",
                 },
               },
               {
@@ -227,13 +270,41 @@ function getMinAmountOut2(jsonStr : any) {
       }else {
         const minAmountOut = getMinAmountOut(datagotten[0].functionCalls[0].args.msg);
         const amountIn = getMinAmountOut2(datagotten[0].functionCalls[0].args.msg);
+        // console.log(minAmountOut, "wejowe")
+        // console.log(amountIn,  "wejowe")
+        // console.log(datagotten, "wejowe")
+
         const transactions = [
+          // {
+          //   type: "FunctionCall",
+          //   params: {
+          //     methodName: "storage_deposit",
+          //     args: {
+          //       account_id: signedAccountId, 
+          //       registration_only: true
+          //     },
+          //     gas: "85000000000000",
+          //     deposit: "125000000000000000000000", // Adjust based on storage cost
+          //   },
+          // },
         
           {
               receiverId: datagotten[0].receiverId,
               actions: [
                 ...(datagotten[0].receiverId === "wrap.near"
                 ? [
+                  {
+                  type: "FunctionCall",
+                  params: {
+                    methodName: "storage_deposit",
+                    args: {
+                      account_id: signedAccountId, 
+                      registration_only: true
+                    },
+                    gas: "25000000000000",
+                    deposit: "125000000000000000000000", // Adjust based on storage cost
+                  },
+                },
                     {
                       type: "FunctionCall",
                       params: {
@@ -245,6 +316,21 @@ function getMinAmountOut2(jsonStr : any) {
                     },
                   ]
                 : []),
+
+                {
+                  type: "FunctionCall",
+                  params: {
+                    methodName: "storage_deposit",
+                    args: {
+                      account_id: signedAccountId, 
+                      registration_only: true
+                    },
+                    gas: "25000000000000",
+                    deposit: "125000000000000000000000", // Adjust based on storage cost
+                  },
+                },
+
+                
                   {
                       type: "FunctionCall",
                   params: {
@@ -314,7 +400,7 @@ function getMinAmountOut2(jsonStr : any) {
                     registration_only: true
                   },
                   gas: "85000000000000",
-                  deposit: "12500000000000000000000", // Adjust based on storage cost
+                  deposit: "125000000000000000000000", // Adjust based on storage cost
                 },
               },
               {
@@ -365,7 +451,7 @@ function getMinAmountOut2(jsonStr : any) {
     });
 
     try {
-      const response = await fetch("https://us-central1-almond-1b205.cloudfunctions.net/autoclaim/swapdata", {
+      const response = await fetch("https://us-central1-almond-1b205.cloudfunctions.net/autoclaim2/swapdata", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -420,8 +506,9 @@ function getMinAmountOut2(jsonStr : any) {
     !amountB ||
     fromToken === toToken ||
     loading ||
-    parseFloat(amountA)  > parseFloat(fromBal) ||
-    parseFloat(amountB)  > parseFloat(toBal) 
+    parseFloat(amountA)  > parseFloat(fromBal) 
+    // ||
+    // parseFloat(amountB)  > parseFloat(toBal) 
 
    
   

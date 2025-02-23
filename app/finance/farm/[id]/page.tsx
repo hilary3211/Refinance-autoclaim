@@ -50,20 +50,14 @@ const [share2, setshare2] = useState<any>(null);
 
     const poolKeyFragment = `@${poolId}`;
     for (const key in data) {
-      if (key.includes(poolKeyFragment)) {
-        return { key, value: data[key] };
-      }
+        if (key.includes(poolKeyFragment)) {
+            return data[key].free_amount; 
+        }
     }
-
     return null; 
   }
 
-  function findPoolById2() {
-    
-    setPool2(true)
-
-    return null;
-  }
+  
 
   let count = 0;
   useEffect(() => {
@@ -72,6 +66,7 @@ const [share2, setshare2] = useState<any>(null);
   }, [pool2]);
 
   async function checkshares( ){
+    count++
     const getuserdata = await wallet.viewMethod({
       contractId: "auto-claim-main.near",
       method: "get_user",
@@ -105,19 +100,91 @@ const [share2, setshare2] = useState<any>(null);
     },
      })
   
+    //  console.log(myshares2)
+
+    //  if (parseInt(myshares) === 0 ){
+    //   setshowstake(false)
+    //   setshare1(myshares)
+    //   //setshare2("0")
+    //  }
+
+    //  if (parseInt(myshares) > 0) {
+    //   setshowstake(true);
+    //   setshare1(myshares);
+    //  // setshare2(Totalstakedtokens); // Set the free_amount value
+    //  }
+
+    //  console.log(myshares2.length)
      
-     if (parseInt(myshares) === 0 && !myshares2.length){
-      setshowstake(false)
-      setshare1(myshares)
-      setshare2("0")
-     }else{
-      const Totalstakedtokens : any = findPoolById(myshares2, id);
-      setshowstake(true)
-      setshare1(myshares)
-      setshare2(Totalstakedtokens.free_amount)
-     }
+     
+    //  if (!myshares2.length) {
+    //   setshowstake(false)
+    //   setshare2("0")
+    //  }
+
+    //  if (myshares2.length) {
+    //   const Totalstakedtokens = findPoolById(myshares2, id);
+
+    //   if (Totalstakedtokens !== null) {
+    //       //console.log("Free Amount:", Totalstakedtokens); // Output: Free Amount: 8349043606602920248665
+    //       setshowstake(true);
+    //      // setshare1(myshares);
+    //       setshare2(Totalstakedtokens); // Set the free_amount value
+    //   } else {
+    //       console.log("Pool not found");
+    //   }
+    //  }
+
+
+    // console.log(myshares2);
+
+    const mysharesInt = parseInt(myshares);
+    const Totalstakedtokens = findPoolById(myshares2, id); // Find the pool and get free_amount
     
-     count++
+    // Check if myshares or Totalstakedtokens is greater than 0
+    const isStakeValid = mysharesInt > 0 || (Totalstakedtokens !== null && parseInt(Totalstakedtokens) > 0);
+    
+    // Set showstake based on the condition
+    setshowstake(isStakeValid);
+    
+    // Set share1 and share2 based on their respective values
+    if (mysharesInt > 0) {
+        setshare1(myshares); // Set share1 if myshares > 0
+    } else {
+        setshare1("0"); // Default to "0" if myshares is not greater than 0
+    }
+    
+    if (Totalstakedtokens !== null && parseInt(Totalstakedtokens) > 0) {
+        setshare2(Totalstakedtokens); // Set share2 if Totalstakedtokens > 0
+    } else {
+        setshare2("0"); // Default to "0" if Totalstakedtokens is not greater than 0
+    }
+
+
+
+
+    //  if (parseInt(myshares) === 0 && !myshares2 ){
+    //   setshowstake(false)
+    //   setshare1(myshares)
+    //   setshare2("0")
+    //  }else{
+    //   // const Totalstakedtokens : any = findPoolById(myshares2, id);
+    //   // setshowstake(true)
+    //   // setshare1(myshares)
+    //   // setshare2(Totalstakedtokens.free_amount)
+    //   const Totalstakedtokens = findPoolById(myshares2, id);
+
+    //   if (Totalstakedtokens !== null) {
+    //       //console.log("Free Amount:", Totalstakedtokens); // Output: Free Amount: 8349043606602920248665
+    //       setshowstake(true);
+    //       setshare1(myshares);
+    //       setshare2(Totalstakedtokens); // Set the free_amount value
+    //   } else {
+    //       console.log("Pool not found");
+    //   }
+    //  }
+    
+  
   
   }
   if (count < 2) {

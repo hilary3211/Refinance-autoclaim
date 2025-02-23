@@ -83,7 +83,7 @@ const WithdrawPage = () => {
     }
 
     fetchTokenData().then((tokens) => {
-       ("Fetched tokens:", tokens);
+     
       settoken(tokens)
     });
   
@@ -181,6 +181,8 @@ const WithdrawPage = () => {
   
     return smallestUnit.toString();
   }
+
+  
 
 
   async function Withdraw (){
@@ -311,10 +313,23 @@ const WithdrawPage = () => {
                   variant="ghost"
                   className="w-full justify-start gap-12"
                   onClick={() => {
-                    const accountId = `${getuserdata.username}.auto-claim-main.near`
-                    getTokenBalance(accountId, token.contractId, token.tokenSymbol)
-                    setOpen(false);
-                    settoken2(token.tokenSymbol)
+                    async function gettokbal() {
+                      const getuserdata = await wallet.viewMethod({
+                        contractId: "auto-claim-main.near",
+                        method: "get_user",
+                        args: {
+                          wallet_id: signedAccountId,
+                        },
+                        gas: "300000000000000",
+                        deposit: "0",
+                      });
+                      const accountId = `${getuserdata.username}.auto-claim-main.near`
+                      getTokenBalance(accountId, token.contractId, token.tokenSymbol)
+                      setOpen(false);
+                      settoken2(token.tokenSymbol)
+                    }
+                  
+                    gettokbal()
                   }}
                 >
                   <img

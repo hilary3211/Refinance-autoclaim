@@ -19,6 +19,9 @@ import { NearContext } from '@/wallets/near';
 const page = () => {
   const { signedAccountId, wallet } = useContext(NearContext);
   const [showfarm , setshowstake] = useState<any>(null)
+  const [share1, setshare1] = useState<any>(null);
+const [share2, setshare2] = useState<any>(null);
+
   const router = useRouter()
   const params = useParams();
   const id = params.id as string;
@@ -57,7 +60,20 @@ const page = () => {
   }, [id]);
 
 
+
+  function findPoolById2(data: any, poolId: any) {
+    const poolKeyFragment = `@${poolId}`;
+    for (const key in data) {
+        if (key.includes(poolKeyFragment)) {
+            return data[key].free_amount; // Return the free_amount directly
+        }
+    }
+    return null; // Return null if no matching pool is found
+}
+  
+
   async function checkshares( ){
+    count++
     const getuserdata = await wallet.viewMethod({
       contractId: "auto-claim-main.near",
       method: "get_user",
@@ -74,16 +90,99 @@ const page = () => {
       , method :  "get_pool_shares"
       , 
       args: {
-        pool_id:79, // Pool ID
+        pool_id:parseInt(id), // Pool ID
       account_id: `${getuserdata.username}.auto-claim-main.near`
     },
      })
 
-    // setshare1(myshares)
-    setshowstake(myshares)
+     const myshares2 = await wallet.viewMethod({
+  
+      contractId :"boostfarm.ref-labs.near"
+      , method :  "list_farmer_seeds"
+      , 
+      args: {
+          farmer_id: `${getuserdata.username}.auto-claim-main.near`, // Pool ID
+    
+    },
+     })
+
+    
+    // // setshare1(myshares)
+    // setshowstake(myshares)
+
+    // if (parseInt(myshares) === 0 && !myshares2 ){
+   
+    //   setshowstake(myshares)
+    //   setshare1(myshares)
+    //   setshare2(0)
+    //  }else{
+    //   // const Totalstakedtokens : any = findPoolById2(myshares2, id);
+    //   // setshowstake(myshares)
+    //   // setshare1(myshares)
+    //   // setshare2(Totalstakedtokens.free_amount)
+    //   const Totalstakedtokens = findPoolById2(myshares2, id);
+
+    //   if (Totalstakedtokens !== null) {
+    //       // console.log("Free Amount:", Totalstakedtokens); // Output: Free Amount: 8349043606602920248665
+    //       setshowstake(myshares);
+    //       setshare1(myshares);
+    //       setshare2(Totalstakedtokens); // Set the free_amount value
+    //   } else {
+    //       console.log("Pool not found");
+    //   }
+    //  }
+
+
+
+    const mysharesInt = parseInt(myshares) || 0; // Default to 0 if myshares is undefined or invalid
+
+// Set share1 to myshares (or 0 if undefined/invalid)
+setshare1(mysharesInt.toString());
+
+// Set showstake to the value of share1 (mysharesInt)
+setshowstake(mysharesInt);
+
+// Find Totalstakedtokens if myshares2 exists
+let Totalstakedtokens = 0; // Default to 0
+if (myshares2) {
+    const poolData = findPoolById2(myshares2, id);
+   
+    if (poolData !== null) {
+        Totalstakedtokens = parseInt(poolData) || 0; 
+
+    } else {
+        console.log("Pool not found");
+    }
+}
+
+// Set share2 to Totalstakedtokens (or 0 if undefined/invalid)
+setshare2(Totalstakedtokens.toString());
+
+    // const mysharesInt = parseInt(myshares);
+    // const Totalstakedtokens = findPoolById2(myshares2, id); // Find the pool and get free_amount
+
+    // // Check if myshares or Totalstakedtokens is greater than 0
+    // const isStakeValid = mysharesInt > 0 || (Totalstakedtokens !== null && parseInt(Totalstakedtokens) > 0);
+
+    // // Set showstake based on the condition
+    // setshowstake(myshares);
+
+    // // Set share1 and share2 based on their respective values
+    // if (mysharesInt > 0) {
+    //     setshare1(myshares); // Set share1 if myshares > 0
+    // } else {
+    //     setshare1("0"); // Default to "0" if myshares is not greater than 0
+    // }
+
+    // if (Totalstakedtokens !== null && parseInt(Totalstakedtokens) > 0) {
+    //     setshare2(Totalstakedtokens); // Set share2 if Totalstakedtokens > 0
+    // } else {
+    //     setshare2("0"); // Default to "0" if Totalstakedtokens is not greater than 0
+    // }
+      
   
     
-     count++
+    // count++
   
   }
   if (count < 2) {
@@ -174,7 +273,9 @@ const page = () => {
             </CardFooter>
           </Card>
 
-          {parseInt(showfarm) > 0 && (
+          {parseInt(share1) > 0 
+          //true
+          && (
             <Card className="w-[250px] mt-8">
               <CardHeader>
                 <CardTitle>Remove Liquidity</CardTitle>
@@ -196,7 +297,29 @@ const page = () => {
             </Card>
           )}
 
-          {parseInt(showfarm) > 0 && (
+{(parseInt(share1) > 0 || parseInt(share2) > 0) && (
+  <div className="flex items-center w-[250px] bg-white p-4 rounded-md h-[100px] my-3">
+    <div className="w-[100px] text-black">
+      <p className="font-semibold text-sm">Farm APR</p>
+      <p className="text-sm">12.87%</p>
+    </div>
+    <div className="w-[150px] space-y-2">
+      <p className="font-semibold text-sm text-black">$2.26k/week</p>
+      <Button
+        className="w-full text-white p-3"
+        onClick={() => {
+          router.push(`/finance/farm/${id}`);
+        }}
+      >
+        <p>Farm Now!</p>
+      </Button>
+    </div>
+  </div>
+)}
+
+{/* {parseInt(share1) < 0 && parseInt(share2) <= 0 
+         // true
+          && (
             //true
             <div className="flex items-center w-[250px] bg-white p-4 rounded-md h-[100px] my-3">
               <div className="w-[100px] text-black">
@@ -215,7 +338,7 @@ const page = () => {
                 </Button>
               </div>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>

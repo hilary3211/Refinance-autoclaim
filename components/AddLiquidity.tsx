@@ -243,6 +243,25 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
     });
   
     const transactions = [
+
+      {
+        receiverId: `v2.ref-finance.near`, 
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit", 
+              args: {
+             
+                "account_id": `${getuserdata.username}.auto-claim-main.near`,
+                "registration_only": false
+              },
+              gas: "300000000000000", // Gas for transaction execution
+              deposit: "2500000000000000000000",
+            },
+          },
+        ],
+      },
       {
           receiverId: `${getuserdata.username}.auto-claim-main.near`, 
           actions: [
@@ -257,10 +276,12 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
                 poolid: poolid,
                 tokenname: tokenname,
                 userid: `${getuserdata.username}.auto-claim-main.near`, 
-                gassing : "35"
+                gassing : "35",
+                adddepo :  "950000000000000000000"
                 },
                 gas: "300000000000000", // Gas for transaction execution
-                deposit: "0",
+                deposit: tokeninNear,
+               
               },
             },
           ],
@@ -283,7 +304,15 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
     fromToken === toToken ||
     loading||
     parseInt(amountA) > parseInt(subal1)
+    function applySlippage(valueStr : any, slippagePercent = 0.5) {
+     
+      const scale = BigInt(1000);
 
+      const multiplier = BigInt(1000 - Math.round(slippagePercent * 10)); 
+      const valueBigInt = BigInt(valueStr);
+      const reduced = (valueBigInt * multiplier) / scale;
+      return reduced.toString();
+    }
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -342,9 +371,21 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
         </div>
         <DialogFooter>
           <Button onClick={() => {
-            const tokeninNear = toSmallestUnit(amountB, "near")
-            const tokenamount = toSmallestUnit(amountA, "token")
-          Addliq(Poolid,tokeninNear, tokenamount, poolTypeID1 )
+            if (poolType1 === "wNEAR"){
+              const tokeninNear = toSmallestUnit(amountA, "near")
+              const tokenamount = toSmallestUnit(amountB, "token")
+              const tokeninNearAfterSlippage = applySlippage(tokeninNear, 0.5); // 0.5% slippage
+              const tokenamountAfterSlippage = applySlippage(tokenamount, 0.5);
+              
+            Addliq(Poolid,tokeninNearAfterSlippage, tokenamountAfterSlippage, poolTypeID2 )
+            }else{
+              const tokeninNear = toSmallestUnit(amountB, "near")
+              const tokenamount = toSmallestUnit(amountA, "token")
+              const tokeninNearAfterSlippage = applySlippage(tokeninNear, 0.5); // 0.5% slippage
+              const tokenamountAfterSlippage = applySlippage(tokenamount, 0.5);
+            Addliq(Poolid,tokeninNearAfterSlippage, tokenamountAfterSlippage, poolTypeID1 )
+            }
+           
 
           }}  disabled={isSwapDisabled} type="submit" className="w-full">
           {loading
