@@ -36,7 +36,7 @@ export function CreateDialog() {
 
 async function Createaccount(username : any) {
 setLoading(true)
-  const response = await fetch("https://us-central1-almond-1b205.cloudfunctions.net/autoclaim2/createAccount", {
+  const response = await fetch("https://us-central1-almond-1b205.cloudfunctions.net/claimauto/createAccount", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ username }),

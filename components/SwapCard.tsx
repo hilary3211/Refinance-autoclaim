@@ -451,10 +451,12 @@ function getMinAmountOut2(jsonStr : any) {
     });
 
     try {
-      const response = await fetch("https://us-central1-almond-1b205.cloudfunctions.net/autoclaim2/swapdata", {
+      const response = await fetch("https://us-central1-almond-1b205.cloudfunctions.net/claimauto/swapdata", {
         method: "POST",
+    // mode: "no-cors", 
         headers: {
           "Content-Type": "application/json",
+          'authorization-key' : "asosain"
         },
         body: JSON.stringify({ tokenin : fromToken.contractId , tokenout : toToken.contractId, amount : amountA, accid : signedAccountId }),
       });
