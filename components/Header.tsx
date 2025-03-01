@@ -1,11 +1,10 @@
 "use client";
 
 import "@near-wallet-selector/modal-ui/styles.css";
-import React, { useEffect, useState, useRef,useContext } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import { Button } from "./ui/button";
 
-
-import { NearContext } from '../wallets/near'
+import { NearContext } from "../wallets/near";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { CreateDialog } from "./CreateDialog";
@@ -15,12 +14,10 @@ import { Wallet } from "lucide-react";
 const Header = () => {
   const [account, setAccount] = useState<any | null>(false);
   const { signedAccountId, wallet } = useContext(NearContext);
-  const [action, setAction] = useState<any>(() => { });
-  const [label, setLabel] = useState('Loading...');
+  const [action, setAction] = useState<any>(() => {});
+  const [label, setLabel] = useState("Loading...");
 
-
-  const [isregistered , setisregistered] = useState(true);
-
+  const [isregistered, setisregistered] = useState(true);
 
   let count = 0;
 
@@ -40,34 +37,28 @@ const Header = () => {
       } else {
         setisregistered(true);
       }
-     
     } catch (error) {
       console.error("Error fetching user data:", error);
-     
     }
   }
 
-
   if (count < 2) {
-    getdata()
+    getdata();
   }
-
 
   useEffect(() => {
     if (!wallet) return;
-  
+
     if (signedAccountId) {
       setAction(() => wallet.signOut);
       setLabel(`Disconnect ${signedAccountId}`);
-      setAccount(true)
+      setAccount(true);
     } else {
       setAction(() => wallet.signIn);
-      setLabel('Connect wallet');
-      setAccount(false)
+      setLabel("Connect wallet");
+      setAccount(false);
     }
   }, [signedAccountId, wallet]);
-
-
 
   function SpinningLogo() {
     const groupRef = useRef<THREE.Group>(null);
@@ -118,7 +109,7 @@ const Header = () => {
                 className="text-sm text-green-500 text-center border lg:px-3 py-2 font-semibold bg-white rounded-md"
                 onClick={action}
               >
-                {`${label.slice(0,17)}...${label.slice(-7)}`}
+                {`${label.slice(0, 17)}...${label.slice(-7)}`}
               </div>
               <div className="lg:mx-4 mx-2 flex items-center gap-2">
                 {isregistered && <CreateDialog />}
@@ -137,4 +128,3 @@ const Header = () => {
 };
 
 export default Header;
-

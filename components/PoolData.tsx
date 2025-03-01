@@ -6,33 +6,32 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"; 
+} from "@/components/ui/pagination";
 import SkeletonLoader from "./SkeletonLoader";
 import { useRouter } from "next/navigation";
 
 const formatCurrency = (value: any): string => {
-  const numericValue = Number(value); 
+  const numericValue = Number(value);
 
   if (isNaN(numericValue)) {
     return "$0.00";
   }
 
   if (numericValue >= 1_000_000) {
-    return `$${(numericValue / 1_000_000).toFixed(2)}M`; 
+    return `$${(numericValue / 1_000_000).toFixed(2)}M`;
   } else if (numericValue >= 1_000) {
-    return `$${(numericValue / 1_000).toFixed(2)}K`; 
+    return `$${(numericValue / 1_000).toFixed(2)}K`;
   } else {
-    return `$${numericValue.toFixed(2)}`; 
+    return `$${numericValue.toFixed(2)}`;
   }
 };
 
 const PoolData = ({ data }: { data: any[] }) => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState(""); 
-  const itemsPerPage = 10; 
+  const [searchTerm, setSearchTerm] = useState("");
+  const itemsPerPage = 10;
 
-  
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
@@ -45,15 +44,12 @@ const PoolData = ({ data }: { data: any[] }) => {
 
   const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
-
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-
   const pageNumbers = [];
-  const maxVisiblePages = 5; 
+  const maxVisiblePages = 5;
   const startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
   const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 

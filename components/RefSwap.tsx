@@ -3,45 +3,19 @@ import { useState, useEffect } from "react";
 import { useWallet } from "./zustandStore";
 
 const RefSwap = () => {
-  const [tokenInId, setTokenInId] = useState("ref.fakes.testnet"); // Example: REF
-  const [tokenOutId, setTokenOutId] = useState("wrap.testnet"); // Example: wNEAR
+  const [tokenInId, setTokenInId] = useState("ref.fakes.testnet");
+  const [tokenOutId, setTokenOutId] = useState("wrap.testnet");
   const [amountIn, setAmountIn] = useState("1");
   const [swapResult, setSwapResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const { signedAccountId, wallet } = useWallet();
 
   const handleSwap = async () => {
-    setError(null); // Clear any previous errors
-
+    setError(null);
     if (!signedAccountId || !wallet) {
       setError("Wallet not connected. Please connect your wallet.");
       return;
     }
-
-    // try {
-    //   const response = await fetch('/api/swap', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       signedAccountId,
-    //       wallet,
-    //       amountIn,
-    //     }),
-    //   });
-
-    //   const data = await response.json();
-
-    //   if (!response.ok) {
-    //     throw new Error(data.message);
-    //   }
-
-    //   setSwapResult(data.result); // Store the result
-    // } catch (e: any) {
-    //   console.error("Swap error:", e);
-    //   setError(e.message || "An error occurred during the swap.");
-    // }
   };
 
   return (

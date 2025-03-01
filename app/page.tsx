@@ -10,7 +10,6 @@ import Link from "next/link";
 
 const manrope = Manrope({ subsets: ["latin"] });
 
-
 function AnimatedBox({
   initialPosition,
 }: {

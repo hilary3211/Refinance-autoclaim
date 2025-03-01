@@ -1,4 +1,4 @@
-import { NetworkId, EVMWalletChain } from '@/config';
+import { NetworkId, EVMWalletChain } from "@/config";
 import { reconnect, http, createConfig } from "@wagmi/core";
 import { walletConnect, injected } from "@wagmi/connectors";
 import { createWeb3Modal } from "@web3modal/wagmi";
@@ -26,7 +26,7 @@ const near = {
 };
 
 // Get your projectId at https://cloud.reown.com
-const projectId = '5bb0fe33763b3bea40b8d69e4269b4ae';
+const projectId = "5bb0fe33763b3bea40b8d69e4269b4ae";
 
 export const wagmiConfig = createConfig({
   chains: [near],

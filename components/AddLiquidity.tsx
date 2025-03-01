@@ -10,13 +10,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState,useEffect,useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { NearContext } from '../wallets/near'
+import { NearContext } from "../wallets/near";
 
-
-export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Poolid}: {poolType1: string, poolType2:string, poolTypeID1: string, poolTypeID2: string, Poolid : string}) {
+export function AddLiquidity({
+  poolType1,
+  poolType2,
+  poolTypeID1,
+  poolTypeID2,
+  Poolid,
+}: {
+  poolType1: string;
+  poolType2: string;
+  poolTypeID1: string;
+  poolTypeID2: string;
+  Poolid: string;
+}) {
   const { signedAccountId, wallet } = useContext(NearContext);
   const [fromBal, setfromBal] = useState("");
   const [toBal, settoBal] = useState("");
@@ -30,42 +41,36 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
   const [subal1, setsubal] = useState("");
   const [subal2, setsubal2] = useState("");
 
-
-  function toHumanReadable(amount : any, tokenType = "token") {
+  function toHumanReadable(amount: any, tokenType = "token") {
     const power = tokenType.toLowerCase() === "near" ? 24 : 18;
-  
 
     const amountStr = String(amount).padStart(power + 1, "0");
-  
 
     const integerPart = amountStr.slice(0, -power);
     const fractionalPart = amountStr.slice(-power);
-  
 
     const humanReadable = `${integerPart}.${fractionalPart}`;
-  
 
     const formattedAmount = parseFloat(humanReadable).toFixed(2);
-  
+
     return formattedAmount;
   }
 
   async function fetchTokenDataByContract(poolType1: any, poolType2: any) {
     try {
- 
       const tokenResponse = await fetch("https://api.ref.finance/list-token");
       if (!tokenResponse.ok) {
         throw new Error("Failed to fetch token list");
       }
       const tokenData = await tokenResponse.json();
-  
 
-      const priceResponse = await fetch("https://api.ref.finance/list-token-price");
+      const priceResponse = await fetch(
+        "https://api.ref.finance/list-token-price"
+      );
       if (!priceResponse.ok) {
         throw new Error("Failed to fetch token price list");
       }
       const priceData = await priceResponse.json();
-  
 
       const tokensArray = Object.keys(tokenData).map((contractId) => {
         const token = tokenData[contractId];
@@ -78,12 +83,10 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
         };
       });
 
-      // console.log("Tokens fetched:", tokensArray);
-      setloaded(true)
-     
+      setloaded(true);
+
       const filteredTokens = tokensArray.filter((t) => t.contractId);
-  
-      
+
       const poolToken1 = filteredTokens.find((t) =>
         t.contractId.toLowerCase().includes(poolType1.toLowerCase().trim())
       );
@@ -91,19 +94,15 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
         t.contractId.toLowerCase().includes(poolType2.toLowerCase().trim())
       );
 
-  
       return { poolToken1, poolToken2 };
     } catch (error) {
       console.error("Error fetching token data:", error);
       return { poolToken1: null, poolToken2: null };
     }
   }
-  
-  
-  
 
   useEffect(() => {
-    async function gettoksbal () {
+    async function gettoksbal() {
       const getuserdata = await wallet.viewMethod({
         contractId: "auto-claim-main.near",
         method: "get_user",
@@ -114,82 +113,66 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
         deposit: "0",
       });
 
-      const gettokenin =   await wallet.viewMethod(
-        {  contractId : poolTypeID1,
-          method :    "ft_balance_of",
-          args: {
-          account_id: signedAccountId , // User account
-      }
+      const gettokenin = await wallet.viewMethod({
+        contractId: poolTypeID1,
+        method: "ft_balance_of",
+        args: {
+          account_id: signedAccountId,
         },
-        );
+      });
 
-        const gettokenin2 =   await wallet.viewMethod(
-          {  contractId : poolTypeID1,
-            method :    "ft_balance_of",
-            args: {
-              account_id:`${getuserdata.username}.auto-claim-main.near`, 
-        }
-          },
-          );
-
-         
-  if (poolType1 === "wNEAR"){
-    const gettokenout =  await wallet.getBalance(signedAccountId)
-    settoBal( parseFloat(gettokenout).toFixed(2))
-    setsubal(toHumanReadable(gettokenin2,"near" ))
-  }else{
-    setfromBal(toHumanReadable(gettokenin,"token" ))
-    setsubal(toHumanReadable(gettokenin2,"token" ))
-  }
-       
-    
-      const gettokenout =  await wallet.viewMethod(
-        {  contractId : poolTypeID2,
-          method :    "ft_balance_of",
-          args: {
-          account_id:signedAccountId, // User account
-      }
+      const gettokenin2 = await wallet.viewMethod({
+        contractId: poolTypeID1,
+        method: "ft_balance_of",
+        args: {
+          account_id: `${getuserdata.username}.auto-claim-main.near`,
         },
-        );
+      });
 
-        const gettokenout2 =  await wallet.viewMethod(
-          {  contractId : poolTypeID2,
-            method :    "ft_balance_of",
-            args: {
-              account_id:`${getuserdata.username}.auto-claim-main.near`, 
-        }
-          },
-          );
+      if (poolType1 === "wNEAR") {
+        const gettokenout = await wallet.getBalance(signedAccountId);
+        settoBal(parseFloat(gettokenout).toFixed(2));
+        setsubal(toHumanReadable(gettokenin2, "near"));
+      } else {
+        setfromBal(toHumanReadable(gettokenin, "token"));
+        setsubal(toHumanReadable(gettokenin2, "token"));
+      }
 
-        if (poolType2 === "wNEAR"){
-          const gettokenout =  await wallet.getBalance(signedAccountId)
-    
-          settoBal( parseFloat(gettokenout).toFixed(2))
-          setsubal2(toHumanReadable(gettokenout2,"near" ))
-          
-        }else{
-          settoBal(toHumanReadable(gettokenout,"token" ))
-          setsubal2(toHumanReadable(gettokenout2,"token" ))
-        }
-  
-        //settoBal(gettokenout)
+      const gettokenout = await wallet.viewMethod({
+        contractId: poolTypeID2,
+        method: "ft_balance_of",
+        args: {
+          account_id: signedAccountId,
+        },
+      });
+
+      const gettokenout2 = await wallet.viewMethod({
+        contractId: poolTypeID2,
+        method: "ft_balance_of",
+        args: {
+          account_id: `${getuserdata.username}.auto-claim-main.near`,
+        },
+      });
+
+      if (poolType2 === "wNEAR") {
+        const gettokenout = await wallet.getBalance(signedAccountId);
+
+        settoBal(parseFloat(gettokenout).toFixed(2));
+        setsubal2(toHumanReadable(gettokenout2, "near"));
+      } else {
+        settoBal(toHumanReadable(gettokenout, "token"));
+        setsubal2(toHumanReadable(gettokenout2, "token"));
+      }
     }
-  
-    gettoksbal()
+
+    gettoksbal();
     fetchTokenDataByContract(poolTypeID1, poolTypeID2).then((result) => {
-      setFromToken(result.poolToken1)
-      setToToken(result.poolToken2)
-      // console.log(result);
+      setFromToken(result.poolToken1);
+      setToToken(result.poolToken2);
     });
-  
-  }, [loaded])
+  }, [loaded]);
 
-
-
-
-
-  
-  const handleChangeA = (e : any) => {
+  const handleChangeA = (e: any) => {
     const value = e.target.value;
     setAmountA(value);
     setLastChanged("A");
@@ -197,12 +180,12 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
       setAmountB("");
       return;
     }
-    // Conversion: amountB = (amountA * tokenA.priceUSD) / tokenB.priceUSD
+
     const calculated = (Number(value) * fromToken.price) / toToken.price;
-    setAmountB(calculated.toFixed(6)); // adjust precision as needed
+    setAmountB(calculated.toFixed(6));
   };
 
-  const handleChangeB = (e : any) => {
+  const handleChangeB = (e: any) => {
     const value = e.target.value;
     setAmountB(value);
     setLastChanged("B");
@@ -210,28 +193,31 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
       setAmountA("");
       return;
     }
-  
+
     const calculated = (Number(value) * toToken.price) / fromToken.price;
     setAmountA(calculated.toFixed(6));
   };
 
-
-  function toSmallestUnit(amount : any, tokenType = "token") {
+  function toSmallestUnit(amount: any, tokenType = "token") {
     const power = tokenType.toLowerCase() === "near" ? 24 : 18;
-  
+
     const amountStr = String(amount);
-  
+
     const [integerPart, fractionalPart = ""] = amountStr.split(".");
-  
+
     const paddedFractionalPart = fractionalPart.padEnd(power, "0");
-  
+
     const smallestUnit = BigInt(integerPart + paddedFractionalPart);
-  
+
     return smallestUnit.toString();
   }
 
-
-  async function Addliq (poolid : any, tokeninNear: any, tokenamount: any, tokenname : any){
+  async function Addliq(
+    poolid: any,
+    tokeninNear: any,
+    tokenamount: any,
+    tokenname: any
+  ) {
     const getuserdata = await wallet.viewMethod({
       contractId: "auto-claim-main.near",
       method: "get_user",
@@ -241,60 +227,53 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
       gas: "300000000000000",
       deposit: "0",
     });
-  
-    const transactions = [
 
+    const transactions = [
       {
-        receiverId: `v2.ref-finance.near`, 
+        receiverId: `v2.ref-finance.near`,
         actions: [
           {
             type: "FunctionCall",
             params: {
-              methodName: "storage_deposit", 
+              methodName: "storage_deposit",
               args: {
-             
-                "account_id": `${getuserdata.username}.auto-claim-main.near`,
-                "registration_only": false
+                account_id: `${getuserdata.username}.auto-claim-main.near`,
+                registration_only: false,
               },
-              gas: "300000000000000", // Gas for transaction execution
+              gas: "300000000000000",
               deposit: "2500000000000000000000",
             },
           },
         ],
       },
       {
-          receiverId: `${getuserdata.username}.auto-claim-main.near`, 
-          actions: [
-            {
-              type: "FunctionCall",
-              params: {
-                methodName: "add_liq", 
-                args: {
-               
+        receiverId: `${getuserdata.username}.auto-claim-main.near`,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "add_liq",
+              args: {
                 tokenamount: tokenamount,
-                wrappednearamount:tokeninNear,
+                wrappednearamount: tokeninNear,
                 poolid: poolid,
                 tokenname: tokenname,
-                userid: `${getuserdata.username}.auto-claim-main.near`, 
-                gassing : "35",
-                adddepo :  "950000000000000000000"
-                },
-                gas: "300000000000000", // Gas for transaction execution
-                deposit: tokeninNear,
-               
+                userid: `${getuserdata.username}.auto-claim-main.near`,
+                gassing: "35",
+                adddepo: "950000000000000000000",
               },
+              gas: "300000000000000",
+              deposit: tokeninNear,
             },
-          ],
-        },
-    ]
+          },
+        ],
+      },
+    ];
 
     const products2 = await wallet.signAndSendTransactions({
-      transactions
+      transactions,
     });
-    
- 
   }
-
 
   const isSwapDisabled =
     !fromToken ||
@@ -302,17 +281,16 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
     !amountA ||
     !amountB ||
     fromToken === toToken ||
-    loading||
-    parseInt(amountA) > parseInt(subal1)
-    function applySlippage(valueStr : any, slippagePercent = 0.5) {
-     
-      const scale = BigInt(1000);
+    loading ||
+    parseInt(amountA) > parseInt(subal1);
+  function applySlippage(valueStr: any, slippagePercent = 0.5) {
+    const scale = BigInt(1000);
 
-      const multiplier = BigInt(1000 - Math.round(slippagePercent * 10)); 
-      const valueBigInt = BigInt(valueStr);
-      const reduced = (valueBigInt * multiplier) / scale;
-      return reduced.toString();
-    }
+    const multiplier = BigInt(1000 - Math.round(slippagePercent * 10));
+    const valueBigInt = BigInt(valueStr);
+    const reduced = (valueBigInt * multiplier) / scale;
+    return reduced.toString();
+  }
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -331,7 +309,7 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
               {poolType1}
             </Label>
             <div className=" rounded-md flex ">
-            <div className="flex-1 flex-col items-center justify-start">
+              <div className="flex-1 flex-col items-center justify-start">
                 <p className="font-neuton">User Balance: ${fromBal}</p>
                 <p className="font-neuton">Sub-account Balance: ${subal1}</p>
               </div>
@@ -342,16 +320,14 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
                 onChange={handleChangeA}
                 className="hover:border-2 hover:border-black-500 w-[full] p-2 outline-none border-black focus:ring-0     col-span-9"
               />
-            
             </div>
           </div>
           <div className="flex flex-col space-y-2 mt-5">
             <Label htmlFor="second" className="text-left">
-            
               {poolType2}
             </Label>
             <div className=" rounded-md flex ">
-            <div className="flex-1 flex-col items-center justify-start">
+              <div className="flex-1 flex-col items-center justify-start">
                 <p className="font-neuton">User Balance: ${toBal}</p>
                 <p className="font-neuton">Sub-account Balance: ${subal2}</p>
               </div>
@@ -362,37 +338,59 @@ export function AddLiquidity({poolType1, poolType2, poolTypeID1, poolTypeID2, Po
                 onChange={handleChangeB}
                 className="hover:border-2 hover:border-black-500 w-[full] p-2 outline-none border-black focus:ring-0     col-span-9"
               />
-             
             </div>
           </div>
         </div>
-        <div>
-          
-        </div>
+        <div></div>
         <DialogFooter>
-          <Button onClick={() => {
-            if (poolType1 === "wNEAR"){
-              const tokeninNear = toSmallestUnit(amountA, "near")
-              const tokenamount = toSmallestUnit(amountB, "token")
-              const tokeninNearAfterSlippage = applySlippage(tokeninNear, 0.5); // 0.5% slippage
-              const tokenamountAfterSlippage = applySlippage(tokenamount, 0.5);
-              
-            Addliq(Poolid,tokeninNearAfterSlippage, tokenamountAfterSlippage, poolTypeID2 )
-            }else{
-              const tokeninNear = toSmallestUnit(amountB, "near")
-              const tokenamount = toSmallestUnit(amountA, "token")
-              const tokeninNearAfterSlippage = applySlippage(tokeninNear, 0.5); // 0.5% slippage
-              const tokenamountAfterSlippage = applySlippage(tokenamount, 0.5);
-            Addliq(Poolid,tokeninNearAfterSlippage, tokenamountAfterSlippage, poolTypeID1 )
-            }
-           
+          <Button
+            onClick={() => {
+              if (poolType1 === "wNEAR") {
+                const tokeninNear = toSmallestUnit(amountA, "near");
+                const tokenamount = toSmallestUnit(amountB, "token");
+                const tokeninNearAfterSlippage = applySlippage(
+                  tokeninNear,
+                  0.5
+                );
+                const tokenamountAfterSlippage = applySlippage(
+                  tokenamount,
+                  0.5
+                );
 
-          }}  disabled={isSwapDisabled} type="submit" className="w-full">
-          {loading
-            ? "Adding..."
-            : !fromToken || !toToken
-            ? "Select tokens"
-            : "Add Liquidity"}
+                Addliq(
+                  Poolid,
+                  tokeninNearAfterSlippage,
+                  tokenamountAfterSlippage,
+                  poolTypeID2
+                );
+              } else {
+                const tokeninNear = toSmallestUnit(amountB, "near");
+                const tokenamount = toSmallestUnit(amountA, "token");
+                const tokeninNearAfterSlippage = applySlippage(
+                  tokeninNear,
+                  0.5
+                );
+                const tokenamountAfterSlippage = applySlippage(
+                  tokenamount,
+                  0.5
+                );
+                Addliq(
+                  Poolid,
+                  tokeninNearAfterSlippage,
+                  tokenamountAfterSlippage,
+                  poolTypeID1
+                );
+              }
+            }}
+            disabled={isSwapDisabled}
+            type="submit"
+            className="w-full"
+          >
+            {loading
+              ? "Adding..."
+              : !fromToken || !toToken
+              ? "Select tokens"
+              : "Add Liquidity"}
           </Button>
         </DialogFooter>
       </DialogContent>

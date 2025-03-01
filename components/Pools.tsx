@@ -5,18 +5,17 @@ import { AreaChartData } from "./AreaChart";
 
 const Pools = () => {
   const [data, setData] = useState([]);
+
   const getPools = async () => {
     try {
       const pools = await fetch("https://api.ref.finance/list-top-pools");
       const data = await pools.json();
 
-      
-      const filteredPools = data.filter(pool  => {
-        return pool.token_symbols.includes("wNEAR");
+      const filteredPools = data.filter((pool) => {
+        return pool.tvl > 500;
       });
 
-   
-      setData(filteredPools); 
+      setData(filteredPools);
     } catch (error) {
       console.log(error);
     }
@@ -28,8 +27,8 @@ const Pools = () => {
 
   return (
     <div>
-      <div className="sm:max-w-5xl max-w-sm mx-auto">{/* Chart */}</div>
-      {/* Pools */}
+      <div className="sm:max-w-5xl max-w-sm mx-auto"></div>
+
       <PoolData data={data} />
     </div>
   );

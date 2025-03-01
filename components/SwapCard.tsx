@@ -13,31 +13,26 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TokenSelectButton } from "./TokenSelect";
-import { useState,useEffect,useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useWallet } from "./zustandStore";
-import { NearContext } from '../wallets/near'
+import { NearContext } from "../wallets/near";
 import { utils } from "near-api-js";
 import { ConsoleLogger } from "@near-js/utils";
 import { util } from "zod";
-import { Grid } from 'react-loader-spinner'
+import { Grid } from "react-loader-spinner";
 
 export function SwapCard() {
   const { signedAccountId, wallet } = useContext(NearContext);
   const [fromToken, setFromToken] = useState<any>(null);
   const [toToken, setToToken] = useState<any>(null);
-  // const [fromAmount, setFromAmount] = useState("");
-  // const [toAmount, setToAmount] = useState("");
   const [loading, setLoading] = useState(false);
-  // const { wallet, signedAccountId } = useWallet();
   const [token, settoken] = useState<any[]>([]);
   const [loading2, setLoading2] = useState(false);
-
-
 
   const [amountA, setAmountA] = useState("");
   const [amountB, setAmountB] = useState("");
@@ -45,48 +40,41 @@ export function SwapCard() {
   const [toBal, settoBal] = useState("");
   const [lastChanged, setLastChanged] = useState("A");
 
-
-
-function getMinAmountOut(jsonStr : any) {
-  try {
-    const data = JSON.parse(jsonStr);
-    if (data.actions && Array.isArray(data.actions)) {
-      for (const action of data.actions) {
-        if (action.min_amount_out) {
-          return action.min_amount_out;
+  function getMinAmountOut(jsonStr: any) {
+    try {
+      const data = JSON.parse(jsonStr);
+      if (data.actions && Array.isArray(data.actions)) {
+        for (const action of data.actions) {
+          if (action.min_amount_out) {
+            return action.min_amount_out;
+          }
         }
       }
+      return null;
+    } catch (error) {
+      console.error("Invalid JSON string", error);
+      return null;
     }
-    return null; // Return null if not found
-  } catch (error) {
-    console.error("Invalid JSON string", error);
-    return null;
   }
-}
 
-function getMinAmountOut2(jsonStr : any) {
-  try {
-    const data = JSON.parse(jsonStr);
-    if (data.actions && Array.isArray(data.actions)) {
-      for (const action of data.actions) {
-        if (action.amount_in) {
-          return action.amount_in;
+  function getMinAmountOut2(jsonStr: any) {
+    try {
+      const data = JSON.parse(jsonStr);
+      if (data.actions && Array.isArray(data.actions)) {
+        for (const action of data.actions) {
+          if (action.amount_in) {
+            return action.amount_in;
+          }
         }
       }
+      return null;
+    } catch (error) {
+      console.error("Invalid JSON string", error);
+      return null;
     }
-    return null; // Return null if not found
-  } catch (error) {
-    console.error("Invalid JSON string", error);
-    return null;
   }
-}
 
-
-
-
-
-
-  const handleSwap = async (datagotten : any) => {
+  const handleSwap = async (datagotten: any) => {
     const getuserdata = await wallet.viewMethod({
       contractId: "auto-claim-main.near",
       method: "get_user",
@@ -98,45 +86,47 @@ function getMinAmountOut2(jsonStr : any) {
     });
     try {
       setLoading(true);
-      if (datagotten.length > 1){
-        const minAmountOut = getMinAmountOut(datagotten[1].functionCalls[0].args.msg);
-        const amountIn = getMinAmountOut2(datagotten[1].functionCalls[0].args.msg);
-        console.log(minAmountOut, "dwje")
-        console.log(amountIn,  "dwje")
-        console.log(datagotten, "dwje")
+      if (datagotten.length > 1) {
+        const minAmountOut = getMinAmountOut(
+          datagotten[1].functionCalls[0].args.msg
+        );
+        const amountIn = getMinAmountOut2(
+          datagotten[1].functionCalls[0].args.msg
+        );
+        console.log(minAmountOut, "dwje");
+        console.log(amountIn, "dwje");
+        console.log(datagotten, "dwje");
 
         const transactions = [
-          
-
           {
             receiverId: datagotten[0].receiverId,
             actions: [
               ...(datagotten[0].receiverId === "wrap.near"
-              ? [
-                {
-                  type: "FunctionCall",
-                  params: {
-                    methodName: "storage_deposit",
-                    args: {
-                      account_id: signedAccountId, 
-                      registration_only: true
+                ? [
+                    {
+                      type: "FunctionCall",
+                      params: {
+                        methodName: "storage_deposit",
+                        args: {
+                          account_id: signedAccountId,
+                          registration_only: true,
+                        },
+                        gas: "25000000000000",
+                        deposit: "125000000000000000000000",
+                      },
                     },
-                    gas: "25000000000000",
-                    deposit: "125000000000000000000000", // Adjust based on storage cost
-                  },
-                },
-                  {
-                    type: "FunctionCall",
-                    params: {
-                      methodName: "near_deposit",
-                      args: {},
-                      gas: "85000000000000",
-                      deposit: amountIn,
+                    {
+                      type: "FunctionCall",
+                      params: {
+                        methodName: "near_deposit",
+                        args: {},
+                        gas: "85000000000000",
+                        deposit: amountIn,
+                      },
                     },
-                  },
-                ]
-              : []),
-             
+                  ]
+                : []),
+
               {
                 type: "FunctionCall",
                 params: {
@@ -149,33 +139,19 @@ function getMinAmountOut2(jsonStr : any) {
             ],
           },
 
-
-        
           {
             receiverId: datagotten[1].receiverId,
             actions: [
-              // {
-              //   type: "FunctionCall",
-              //   params: {
-              //     methodName: "storage_deposit",
-              //     args: {
-              //       account_id: signedAccountId, 
-              //       registration_only: true
-              //     },
-              //     gas: "85000000000000",
-              //     deposit: "12500000000000000000000", // Adjust based on storage cost
-              //   },
-              // },
               {
                 type: "FunctionCall",
                 params: {
                   methodName: "storage_deposit",
                   args: {
-                    account_id: signedAccountId, 
-                    registration_only: true
+                    account_id: signedAccountId,
+                    registration_only: true,
                   },
                   gas: "25000000000000",
-                  deposit: "12500000000000000000000", // Adjust based on storage cost
+                  deposit: "12500000000000000000000",
                 },
               },
               {
@@ -190,7 +166,7 @@ function getMinAmountOut2(jsonStr : any) {
             ],
           },
           {
-            receiverId: toToken.contractId, // Token contract for fake tokens
+            receiverId: toToken.contractId,
             actions: [
               {
                 type: "FunctionCall",
@@ -219,7 +195,7 @@ function getMinAmountOut2(jsonStr : any) {
             ],
           },
           {
-            receiverId: fromToken.contractId, // wNEAR contract
+            receiverId: fromToken.contractId,
             actions: [
               ...(fromToken.contractId === "wrap.near"
                 ? [
@@ -229,7 +205,7 @@ function getMinAmountOut2(jsonStr : any) {
                         methodName: "near_deposit",
                         args: {},
                         gas: "85000000000000",
-                        deposit: amountIn
+                        deposit: amountIn,
                       },
                     },
                   ]
@@ -261,50 +237,36 @@ function getMinAmountOut2(jsonStr : any) {
             ],
           },
         ];
-      
+
         const products2 = await wallet.signAndSendTransactions({
           transactions,
         });
-       
-      
-      }else {
-        const minAmountOut = getMinAmountOut(datagotten[0].functionCalls[0].args.msg);
-        const amountIn = getMinAmountOut2(datagotten[0].functionCalls[0].args.msg);
-        // console.log(minAmountOut, "wejowe")
-        // console.log(amountIn,  "wejowe")
-        // console.log(datagotten, "wejowe")
+      } else {
+        const minAmountOut = getMinAmountOut(
+          datagotten[0].functionCalls[0].args.msg
+        );
+        const amountIn = getMinAmountOut2(
+          datagotten[0].functionCalls[0].args.msg
+        );
 
         const transactions = [
-          // {
-          //   type: "FunctionCall",
-          //   params: {
-          //     methodName: "storage_deposit",
-          //     args: {
-          //       account_id: signedAccountId, 
-          //       registration_only: true
-          //     },
-          //     gas: "85000000000000",
-          //     deposit: "125000000000000000000000", // Adjust based on storage cost
-          //   },
-          // },
-        
           {
-              receiverId: datagotten[0].receiverId,
-              actions: [
-                ...(datagotten[0].receiverId === "wrap.near"
+            receiverId: datagotten[0].receiverId,
+            actions: [
+              ...(datagotten[0].receiverId === "wrap.near"
                 ? [
-                  {
-                  type: "FunctionCall",
-                  params: {
-                    methodName: "storage_deposit",
-                    args: {
-                      account_id: signedAccountId, 
-                      registration_only: true
+                    {
+                      type: "FunctionCall",
+                      params: {
+                        methodName: "storage_deposit",
+                        args: {
+                          account_id: signedAccountId,
+                          registration_only: true,
+                        },
+                        gas: "25000000000000",
+                        deposit: "125000000000000000000000",
+                      },
                     },
-                    gas: "25000000000000",
-                    deposit: "125000000000000000000000", // Adjust based on storage cost
-                  },
-                },
                     {
                       type: "FunctionCall",
                       params: {
@@ -317,30 +279,29 @@ function getMinAmountOut2(jsonStr : any) {
                   ]
                 : []),
 
-                {
-                  type: "FunctionCall",
-                  params: {
-                    methodName: "storage_deposit",
-                    args: {
-                      account_id: signedAccountId, 
-                      registration_only: true
-                    },
-                    gas: "25000000000000",
-                    deposit: "125000000000000000000000", // Adjust based on storage cost
+              {
+                type: "FunctionCall",
+                params: {
+                  methodName: "storage_deposit",
+                  args: {
+                    account_id: signedAccountId,
+                    registration_only: true,
                   },
+                  gas: "25000000000000",
+                  deposit: "125000000000000000000000",
                 },
+              },
 
-                
-                  {
-                      type: "FunctionCall",
-                  params: {
-                      methodName: datagotten[0].functionCalls[0].methodName,
-                      args: datagotten[0].functionCalls[0].args,
-                      gas: "85000000000000",
-                      deposit : "1",
-                  } 
-                  }
-              ]
+              {
+                type: "FunctionCall",
+                params: {
+                  methodName: datagotten[0].functionCalls[0].methodName,
+                  args: datagotten[0].functionCalls[0].args,
+                  gas: "85000000000000",
+                  deposit: "1",
+                },
+              },
+            ],
           },
 
           {
@@ -351,12 +312,12 @@ function getMinAmountOut2(jsonStr : any) {
                 params: {
                   methodName: "storage_deposit",
                   args: {
-                    account_id: `${getuserdata.username}.auto-claim-main.near`, // Receiver must be registered to hold wNEAR
-                    registration_only: true
+                    account_id: `${getuserdata.username}.auto-claim-main.near`,
+                    registration_only: true,
                   },
                   gas: "85000000000000",
-                  deposit : "125000000000000000000000",
-                }
+                  deposit: "125000000000000000000000",
+                },
               },
 
               {
@@ -364,43 +325,42 @@ function getMinAmountOut2(jsonStr : any) {
                 params: {
                   methodName: "ft_transfer",
                   args: {
-                    receiver_id: `${getuserdata.username}.auto-claim-main.near`, // Receiver account
-                    amount: minAmountOut// 1 fake token
+                    receiver_id: `${getuserdata.username}.auto-claim-main.near`,
+                    amount: minAmountOut,
                   },
-                  gas: "85000000000000", // 30 TGas
-                  deposit: "1" // 1 yoctoNEAR required
-                }
-              }
-            ]
+                  gas: "85000000000000",
+                  deposit: "1",
+                },
+              },
+            ],
           },
 
-       
           {
-            receiverId: fromToken.contractId, // wNEAR contract
+            receiverId: fromToken.contractId,
             actions: [
               ...(fromToken.contractId === "wrap.near"
-              ? [
-                  {
-                    type: "FunctionCall",
-                    params: {
-                      methodName: "near_deposit",
-                      args: {},
-                      gas: "85000000000000",
-                      deposit: amountIn,
+                ? [
+                    {
+                      type: "FunctionCall",
+                      params: {
+                        methodName: "near_deposit",
+                        args: {},
+                        gas: "85000000000000",
+                        deposit: amountIn,
+                      },
                     },
-                  },
-                ]
-              : []),
+                  ]
+                : []),
               {
                 type: "FunctionCall",
                 params: {
                   methodName: "storage_deposit",
                   args: {
-                    account_id: `${getuserdata.username}.auto-claim-main.near`, 
-                    registration_only: true
+                    account_id: `${getuserdata.username}.auto-claim-main.near`,
+                    registration_only: true,
                   },
                   gas: "85000000000000",
-                  deposit: "125000000000000000000000", // Adjust based on storage cost
+                  deposit: "125000000000000000000000",
                 },
               },
               {
@@ -408,26 +368,19 @@ function getMinAmountOut2(jsonStr : any) {
                 params: {
                   methodName: "ft_transfer",
                   args: {
-                    receiver_id: `${getuserdata.username}.auto-claim-main.near`, // Correct key
-                    amount: amountIn // Ensure this amount is covered by deposit
+                    receiver_id: `${getuserdata.username}.auto-claim-main.near`,
+                    amount: amountIn,
                   },
-                  gas: "85000000000000", // 30 TGas
-                  deposit: "1" // 1 yoctoNEAR required for transfer
-                }
-              }
-            ]
+                  gas: "85000000000000",
+                  deposit: "1",
+                },
+              },
+            ],
           },
-  
-  
-          
-          
-      
-        ]
+        ];
         const products2 = await wallet.signAndSendTransactions({
-          transactions
+          transactions,
         });
-        
-   
       }
     } catch (error) {
       console.error("Swap failed:", error);
@@ -435,7 +388,6 @@ function getMinAmountOut2(jsonStr : any) {
       setLoading(false);
     }
   };
-
 
   const swapToken = async () => {
     setLoading(true);
@@ -451,48 +403,39 @@ function getMinAmountOut2(jsonStr : any) {
     });
 
     try {
-      const response = await fetch("https://us-central1-almond-1b205.cloudfunctions.net/claimauto/swapdata", {
-        method: "POST",
-    // mode: "no-cors", 
-        headers: {
-          "Content-Type": "application/json",
-          'authorization-key' : "asosain"
-        },
-        body: JSON.stringify({ tokenin : fromToken.contractId , tokenout : toToken.contractId, amount : amountA, accid : signedAccountId }),
-      });
+      const response = await fetch(
+        "https://us-central1-almond-1b205.cloudfunctions.net/claimauto/swapdata",
+        {
+          method: "POST",
 
-
-      
-      if (response.ok && response.body) {
-       
-
-        const result : any = await response.json()
-        const datagotten = result.data
-      
-       
-        if (getuserdata !== null){
-          await handleSwap(datagotten)
-         
-              
-        
-      
-      
-            
+          headers: {
+            "Content-Type": "application/json",
+            "authorization-key": "asosain",
+          },
+          body: JSON.stringify({
+            tokenin: fromToken.contractId,
+            tokenout: toToken.contractId,
+            amount: amountA,
+            accid: signedAccountId,
+          }),
         }
+      );
 
+      if (response.ok && response.body) {
+        const result: any = await response.json();
+        const datagotten = result.data;
 
+        if (getuserdata !== null) {
+          await handleSwap(datagotten);
+        }
       } else {
         console.error("Failed to start streaming");
       }
-    } catch (error) {}finally {
+    } catch (error) {
+    } finally {
       setLoading(false);
     }
   };
-
-
-
-
-  
 
   const switchTokens = () => {
     setFromToken(toToken);
@@ -508,98 +451,72 @@ function getMinAmountOut2(jsonStr : any) {
     !amountB ||
     fromToken === toToken ||
     loading ||
-    parseFloat(amountA)  > parseFloat(fromBal) 
-    // ||
-    // parseFloat(amountB)  > parseFloat(toBal) 
+    parseFloat(amountA) > parseFloat(fromBal);
 
-   
-  
-    const handleChangeA = (e : any) => {
-      const value = e.target.value;
-      setAmountA(value);
-      setLastChanged("A");
-      if (!value || isNaN(Number(value))) {
-        setAmountB("");
-        return;
-      }
-      // Conversion: amountB = (amountA * tokenA.priceUSD) / tokenB.priceUSD
-      const calculated = (Number(value) * fromToken.price) / toToken.price;
-      setAmountB(calculated.toFixed(6)); // adjust precision as needed
-    };
-  
-    const handleChangeB = (e : any) => {
-      const value = e.target.value;
-      setAmountB(value);
-      setLastChanged("B");
-      if (!value || isNaN(Number(value))) {
-        setAmountA("");
-        return;
-      }
-      // Conversion: amountA = (amountB * tokenB.priceUSD) / tokenA.priceUSD
-      const calculated = (Number(value) * toToken.price) / fromToken.price;
-      setAmountA(calculated.toFixed(6));
-    };
-
-
-
-//   function yoctoToNear(yoctoValue) {
-//     // Convert yoctoValue to BigInt
-//     const yoctoBigInt = BigInt(yoctoValue);
-//     // 1 NEAR = 10^24 yoctoNEAR
-//     const nearValue = Number(yoctoBigInt / BigInt(1e24));
-//     return nearValue;
-// }
-
-  
-
-useEffect(() => {
-  async function gettoksbal () {
-    let gettokenin
-    let gettokenout
-    if ( fromToken?.contractId === "wrap.near"){
-      gettokenin =  await wallet.getBalance(signedAccountId)
-    }else{
-      gettokenin =   await wallet.viewMethod(
-        {  contractId : fromToken?.contractId,
-          method :    "ft_balance_of",
-          args: {
-          account_id: signedAccountId , // User account
-      }
-        },
-        );
+  const handleChangeA = (e: any) => {
+    const value = e.target.value;
+    setAmountA(value);
+    setLastChanged("A");
+    if (!value || isNaN(Number(value))) {
+      setAmountB("");
+      return;
     }
-   
 
-      
+    const calculated = (Number(value) * fromToken.price) / toToken.price;
+    setAmountB(calculated.toFixed(6));
+  };
 
-      setfromBal(gettokenin)
-  
+  const handleChangeB = (e: any) => {
+    const value = e.target.value;
+    setAmountB(value);
+    setLastChanged("B");
+    if (!value || isNaN(Number(value))) {
+      setAmountA("");
+      return;
+    }
 
-      if ( toToken?.contractId === "wrap.near"){
-        gettokenout =  await wallet.getBalance(signedAccountId)
-      }else{
-         gettokenout =  await wallet.viewMethod(
-          {  contractId : toToken?.contractId,
-            method :    "ft_balance_of",
-            args: {
-            account_id:signedAccountId, // User account
-        }
+    const calculated = (Number(value) * toToken.price) / fromToken.price;
+    setAmountA(calculated.toFixed(6));
+  };
+
+  useEffect(() => {
+    async function gettoksbal() {
+      let gettokenin;
+      let gettokenout;
+      if (fromToken?.contractId === "wrap.near") {
+        gettokenin = await wallet.getBalance(signedAccountId);
+      } else {
+        gettokenin = await wallet.viewMethod({
+          contractId: fromToken?.contractId,
+          method: "ft_balance_of",
+          args: {
+            account_id: signedAccountId,
           },
-          );
+        });
       }
-   
 
-      settoBal(gettokenout)
-  }
+      setfromBal(gettokenin);
 
-  gettoksbal()
+      if (toToken?.contractId === "wrap.near") {
+        gettokenout = await wallet.getBalance(signedAccountId);
+      } else {
+        gettokenout = await wallet.viewMethod({
+          contractId: toToken?.contractId,
+          method: "ft_balance_of",
+          args: {
+            account_id: signedAccountId,
+          },
+        });
+      }
 
-})
-  
-  
+      settoBal(gettokenout);
+    }
+
+    gettoksbal();
+  });
+
   return (
     <Card className="w-full sm:max-w-md max-w-sm mx-auto mt-5">
-      {/* <Button onClick={swapToken} className="w-full">SWAP</Button> */}
       <CardHeader className="flex flex-row items-center justify-between">
         <h2 className="text-2xl font-bold">Swap</h2>
         <Popover>
@@ -656,15 +573,14 @@ useEffect(() => {
             />
           </div>
           {fromToken && (
-     
-             <>
-             <div className="text-sm text-muted-foreground">
-             Price: ${fromToken.price} {fromToken.tokenSymbol}
-           </div>
-           <div className="text-sm text-muted-foreground">
-              Balance: ${fromBal} {fromToken.tokenSymbol}
-            </div>
-           </>
+            <>
+              <div className="text-sm text-muted-foreground">
+                Price: ${fromToken.price} {fromToken.tokenSymbol}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Balance: ${fromBal} {fromToken.tokenSymbol}
+              </div>
+            </>
           )}
         </div>
         <div className="flex items-center justify-center">
@@ -687,25 +603,26 @@ useEffect(() => {
               value={amountB}
               onChange={handleChangeB}
             />
-            <TokenSelectButton selectedToken={toToken} onSelect={setToToken} tokens={token} />
+            <TokenSelectButton
+              selectedToken={toToken}
+              onSelect={setToToken}
+              tokens={token}
+            />
           </div>
           {toToken && (
             <>
               <div className="text-sm text-muted-foreground">
-              Price: ${toToken.price} {toToken.tokenSymbol}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Balance: ${toBal} {toToken.tokenSymbol}
-            </div>
+                Price: ${toToken.price} {toToken.tokenSymbol}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Balance: ${toBal} {toToken.tokenSymbol}
+              </div>
             </>
-
-            
           )}
         </div>
         {fromToken && toToken && (
           <div className="text-sm text-muted-foreground">
-            {/* In a real app, show actual exchange rate */}1 {fromToken.symbol}{" "}
-            = 1 {toToken.symbol}
+            1 {fromToken.symbol} = 1 {toToken.symbol}
           </div>
         )}
       </CardContent>
@@ -726,12 +643,3 @@ useEffect(() => {
     </Card>
   );
 }
-
-
-
-
-
-
-
-
-

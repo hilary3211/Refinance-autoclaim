@@ -13,4 +13,3 @@ export const useWallet = create<walletState>((set) => ({
   wallet: null,
   setWallet: (wallet: any) => set({ wallet }),
 }));
-

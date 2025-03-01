@@ -50,7 +50,6 @@ export function AreaChartData({ data }: { data?: ChartData[] }) {
   return (
     <div className="w-[70%] max-w-[450px] h-[20vh] sm:h-fit">
       <Card className="w-full flex flex-col bg-transparent border-none">
-        
         <CardContent className="p-2 flex-grow min-h-0 h-[16vh] sm:h-fit">
           <ChartContainer config={chartConfig}>
             <ResponsiveContainer width="100%" height="100%">
@@ -89,7 +88,6 @@ export function AreaChartData({ data }: { data?: ChartData[] }) {
             </ResponsiveContainer>
           </ChartContainer>
         </CardContent>
-        
       </Card>
     </div>
   );
