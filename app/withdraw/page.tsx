@@ -280,7 +280,7 @@ const WithdrawPage = () => {
                                   }}
                                 >
                                   <img
-                                    src={token.icon || "/placeholder.svg"}
+                                    src={token.icon || "/toks.png"}
                                     alt={token.tokenSymbol}
                                     width={32}
                                     height={32}

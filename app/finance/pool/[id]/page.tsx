@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useState, useEffect, useContext } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AddLiquidity } from "@/components/AddLiquidity";
+import { TransferLp } from "@/components/TransferLp";
 import { RemoveLiq } from "@/components/RemoveLiq";
 
 import Header from "@/components/Header";
@@ -19,6 +20,7 @@ import { NearContext } from "@/wallets/near";
 const page = () => {
   const { signedAccountId, wallet } = useContext(NearContext);
   const [showfarm, setshowstake] = useState<any>(null);
+  const [mainShare1, setmainShare1] = useState<any>(null);
   const [share1, setshare1] = useState<any>(null);
   const [share2, setshare2] = useState<any>(null);
 
@@ -54,7 +56,7 @@ const page = () => {
       console.log(error);
     }
   };
-  let count = 0;
+
   useEffect(() => {
     fetchPoolById(id);
   }, [id]);
@@ -68,7 +70,7 @@ const page = () => {
     }
     return null;
   }
-
+  let count = 0;
   async function checkshares() {
     count++;
     const getuserdata = await wallet.viewMethod({
@@ -79,6 +81,15 @@ const page = () => {
       },
       gas: "300000000000000",
       deposit: "0",
+    });
+
+    const mainshares = await wallet.viewMethod({
+      contractId: "v2.ref-finance.near",
+      method: "get_pool_shares",
+      args: {
+        pool_id: parseInt(id), // Pool ID
+        account_id: signedAccountId,
+      },
     });
 
     const myshares = await wallet.viewMethod({
@@ -99,10 +110,12 @@ const page = () => {
     });
 
     const mysharesInt = parseInt(myshares) || 0;
+    const mymainSharesInt = parseInt(mainshares) || 0;
 
     setshare1(mysharesInt.toString());
+    setmainShare1(mymainSharesInt.toString());
 
-    setshowstake(mysharesInt);
+    setshowstake(myshares);
 
     let Totalstakedtokens = 0;
     if (myshares2) {
@@ -118,8 +131,11 @@ const page = () => {
     setshare2(Totalstakedtokens.toString());
   }
   if (count < 2) {
-    checkshares();
+    checkshares().catch((err) => {
+      console.log("Checking...");
+    });
   }
+
   return (
     <div className="text-white max-w-4xl mx-auto p-7">
       <div className="h-[20vh]">
@@ -193,19 +209,12 @@ const page = () => {
             <CardHeader>
               <CardTitle>Add Liquidity</CardTitle>
               <CardDescription>
-                Add liquidity to the pool to start trading.
+                Head over to Rhea finance to Add liquidity by clicking the
+                button below.
               </CardDescription>
             </CardHeader>
 
             <CardFooter className="flex justify-between">
-              {/* <AddLiquidity
-                poolType1={pool?.token_symbols[0]}
-                poolType2={pool?.token_symbols[1]}
-                poolTypeID1={pool?.token_account_ids[0]}
-                poolTypeID2={pool?.token_account_ids[1]}
-                Poolid={id}
-              /> */}
-
               <Button
                 className="w-full text-white p-3"
                 onClick={() => {
@@ -216,6 +225,30 @@ const page = () => {
               </Button>
             </CardFooter>
           </Card>
+
+          {parseInt(mainShare1) > 0 && (
+            //true
+            //true
+            <Card className="w-[250px] mt-8">
+              <CardHeader>
+                <CardTitle>Transfer Lp tokens</CardTitle>
+                <CardDescription>
+                  In other to stake with subaccount, transfer Lp tokens to
+                  subaccount
+                </CardDescription>
+              </CardHeader>
+
+              <CardFooter className="flex justify-between">
+                <TransferLp
+                  poolType1={pool?.token_symbols[0]}
+                  poolType2={pool?.token_symbols[1]}
+                  poolTypeID1={pool?.token_account_ids[0]}
+                  poolTypeID2={pool?.token_account_ids[1]}
+                  Poolid={id}
+                />
+              </CardFooter>
+            </Card>
+          )}
 
           {parseInt(share1) > 0 && (
             //true
@@ -233,7 +266,7 @@ const page = () => {
                   poolType2={pool?.token_symbols[1]}
                   poolTypeID1={pool?.token_account_ids[0]}
                   poolTypeID2={pool?.token_account_ids[1]}
-                  sharez={parseInt(showfarm)}
+                  sharez={showfarm}
                   Poolid={id}
                 />
               </CardFooter>

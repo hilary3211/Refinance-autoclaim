@@ -43,7 +43,7 @@ const Header = () => {
   }
 
   if (count < 2) {
-    getdata();
+    getdata().catch((err) => {});
   }
 
   useEffect(() => {

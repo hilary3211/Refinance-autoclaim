@@ -25,6 +25,7 @@ import { utils } from "near-api-js";
 import { ConsoleLogger } from "@near-js/utils";
 import { util } from "zod";
 import { Grid } from "react-loader-spinner";
+import { useParams, useRouter } from "next/navigation";
 
 export function SwapCard() {
   const { signedAccountId, wallet } = useContext(NearContext);
@@ -33,7 +34,7 @@ export function SwapCard() {
   const [loading, setLoading] = useState(false);
   const [token, settoken] = useState<any[]>([]);
   const [loading2, setLoading2] = useState(false);
-
+  const router = useRouter();
   const [amountA, setAmountA] = useState("");
   const [amountB, setAmountB] = useState("");
   const [fromBal, setfromBal] = useState("");
@@ -74,6 +75,235 @@ export function SwapCard() {
     }
   }
 
+  function toHumanReadable(amount: any, tokenType = "token") {
+    const power = tokenType.toLowerCase() === "near" ? 24 : 18;
+
+    const amountStr = String(amount).padStart(power + 1, "0");
+
+    const integerPart = amountStr.slice(0, -power);
+    const fractionalPart = amountStr.slice(-power);
+
+    const humanReadable = `${integerPart}.${fractionalPart}`;
+
+    const formattedAmount = parseFloat(humanReadable).toFixed(2);
+
+    return formattedAmount;
+  }
+
+  function toSmallestUnit(amount: any, tokenType = "token") {
+    const power = tokenType.toLowerCase() === "near" ? 24 : 18;
+
+    const amountStr = String(amount);
+
+    const [integerPart, fractionalPart = ""] = amountStr.split(".");
+
+    const paddedFractionalPart = fractionalPart.padEnd(power, "0");
+
+    const smallestUnit = BigInt(integerPart + paddedFractionalPart);
+
+    return smallestUnit.toString();
+  }
+
+  const handleTransfer = async () => {
+    const getuserdata = await wallet.viewMethod({
+      contractId: "auto-claim-main.near",
+      method: "get_user",
+      args: {
+        wallet_id: signedAccountId,
+      },
+      gas: "300000000000000",
+      deposit: "0",
+    });
+    const minAmountOut =
+      toToken.contractId === "wrap.near"
+        ? toSmallestUnit(amountB, "near")
+        : toSmallestUnit(amountB);
+    const amountIn =
+      fromToken.contractId === "wrap.near"
+        ? toSmallestUnit(amountA, "near")
+        : toSmallestUnit(amountA);
+
+    // const transaction = [
+    //   {
+    //     receiverId: toToken.contractId,
+    //     actions: [
+    //       {
+    //         type: "FunctionCall",
+    //         params: {
+    //           methodName: "storage_deposit",
+    //           args: {
+    //             account_id: `${getuserdata.username}.auto-claim-main.near`,
+    //             registration_only: true,
+    //           },
+    //           gas: "85000000000000",
+    //           deposit: "125000000000000000000000",
+    //         },
+    //       },
+
+    //       {
+    //         type: "FunctionCall",
+    //         params: {
+    //           methodName: "ft_transfer",
+    //           args: {
+    //             receiver_id: `${getuserdata.username}.auto-claim-main.near`,
+    //             amount: minAmountOut,
+    //           },
+    //           gas: "85000000000000",
+    //           deposit: "1",
+    //         },
+    //       },
+    //     ],
+    //   },
+
+    //   {
+    //     receiverId: fromToken.contractId,
+    //     actions: [
+    // ...(fromToken.contractId === "wrap.near"
+    //   ? [
+    //       {
+    //         type: "FunctionCall",
+    //         params: {
+    //           methodName: "near_deposit",
+    //           args: {},
+    //           gas: "85000000000000",
+    //           deposit: amountIn,
+    //         },
+    //       },
+    //     ]
+    //   : []),
+    //       {
+    //         type: "FunctionCall",
+    //         params: {
+    //           methodName: "storage_deposit",
+    //           args: {
+    //             account_id: `${getuserdata.username}.auto-claim-main.near`,
+    //             registration_only: true,
+    //           },
+    //           gas: "85000000000000",
+    //           deposit: "125000000000000000000000",
+    //         },
+    //       },
+    //       {
+    //         type: "FunctionCall",
+    //         params: {
+    //           methodName: "ft_transfer",
+    //           args: {
+    //             receiver_id: `${getuserdata.username}.auto-claim-main.near`,
+    //             amount: amountIn,
+    //           },
+    //           gas: "85000000000000",
+    //           deposit: "1",
+    //         },
+    //       },
+    //     ],
+    //   },
+    // ]
+
+    const transactions = [
+      {
+        receiverId: toToken.contractId,
+        actions: [
+          ...(toToken.contractId === "wrap.near"
+            ? [
+                {
+                  type: "FunctionCall",
+                  params: {
+                    methodName: "near_deposit",
+                    args: {},
+                    gas: "85000000000000", // 85 Tgas
+                    deposit: minAmountOut, // Amount of NEAR to deposit
+                  },
+                },
+              ]
+            : []),
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit",
+              args: {
+                account_id: `${getuserdata.username}.auto-claim-main.near`,
+                registration_only: true,
+              },
+              gas: "85000000000000", // 85 Tgas
+              deposit: "1250000000000000000000", // 0.00125 NEAR
+            },
+          },
+        ],
+      },
+
+      {
+        receiverId: toToken.contractId,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "ft_transfer",
+              args: {
+                receiver_id: `${getuserdata.username}.auto-claim-main.near`,
+                amount: minAmountOut,
+              },
+              gas: "85000000000000", // 85 Tgas
+              deposit: "1", // Minimal deposit
+            },
+          },
+        ],
+      },
+
+      {
+        receiverId: fromToken.contractId,
+        actions: [
+          ...(fromToken.contractId === "wrap.near"
+            ? [
+                {
+                  type: "FunctionCall",
+                  params: {
+                    methodName: "near_deposit",
+                    args: {},
+                    gas: "85000000000000", // 85 Tgas
+                    deposit: amountIn, // Amount of NEAR to deposit
+                  },
+                },
+              ]
+            : []),
+
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit",
+              args: {
+                account_id: `${getuserdata.username}.auto-claim-main.near`,
+                registration_only: true,
+              },
+              gas: "85000000000000", // 85 Tgas
+              deposit: "1250000000000000000000", // 0.00125 NEAR
+            },
+          },
+        ],
+      },
+
+      {
+        receiverId: fromToken.contractId,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "ft_transfer",
+              args: {
+                receiver_id: `${getuserdata.username}.auto-claim-main.near`,
+                amount: amountIn,
+              },
+              gas: "85000000000000", // 85 Tgas
+              deposit: "1", // Minimal deposit
+            },
+          },
+        ],
+      },
+    ];
+    const transfer = await wallet.signAndSendTransactions({
+      transactions,
+    });
+  };
+
   const handleSwap = async (datagotten: any) => {
     const getuserdata = await wallet.viewMethod({
       contractId: "auto-claim-main.near",
@@ -93,9 +323,6 @@ export function SwapCard() {
         const amountIn = getMinAmountOut2(
           datagotten[1].functionCalls[0].args.msg
         );
-        console.log(minAmountOut, "dwje");
-        console.log(amountIn, "dwje");
-        console.log(datagotten, "dwje");
 
         const transactions = [
           {
@@ -453,6 +680,8 @@ export function SwapCard() {
     loading ||
     parseFloat(amountA) > parseFloat(fromBal);
 
+  const isSwapDisabled2 = !fromToken || !toToken || fromToken === toToken;
+
   const handleChangeA = (e: any) => {
     const value = e.target.value;
     setAmountA(value);
@@ -518,7 +747,7 @@ export function SwapCard() {
   return (
     <Card className="w-full sm:max-w-md max-w-sm mx-auto mt-5">
       <CardHeader className="flex flex-row items-center justify-between">
-        <h2 className="text-2xl font-bold">Swap</h2>
+        <h2 className="text-2xl font-bold">Transfer to Subaccount</h2>
         <Popover>
           <PopoverTrigger asChild>
             <Settings className="w-5 h-5 cursor-pointer hover:text-green-900" />
@@ -575,11 +804,25 @@ export function SwapCard() {
           {fromToken && (
             <>
               <div className="text-sm text-muted-foreground">
-                Price: ${fromToken.price} {fromToken.tokenSymbol}
+                Price: ${parseFloat(fromToken.price).toFixed(4)}{" "}
+                {fromToken.tokenSymbol}
               </div>
-              <div className="text-sm text-muted-foreground">
-                Balance: ${fromBal} {fromToken.tokenSymbol}
-              </div>
+
+              {fromToken.tokenSymbol === "wNEAR" ? (
+                <div className="text-sm text-muted-foreground">
+                  Balance: ${parseFloat(fromBal).toFixed(4)} Near
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground">
+                  Balance: $
+                  {parseFloat(toHumanReadable(fromBal, "token")).toFixed(4)}{" "}
+                  {fromToken.tokenSymbol}
+                </div>
+              )}
+
+              {/* <div className="text-sm text-muted-foreground">
+                Balance: ${parseFloat(fromBal).toFixed(4)} {fromToken.tokenSymbol}
+              </div> */}
             </>
           )}
         </div>
@@ -612,11 +855,28 @@ export function SwapCard() {
           {toToken && (
             <>
               <div className="text-sm text-muted-foreground">
+                Price: ${parseFloat(toToken.price).toFixed(4)}{" "}
+                {toToken.tokenSymbol}
+              </div>
+
+              {toToken.tokenSymbol === "wNEAR" ? (
+                <div className="text-sm text-muted-foreground">
+                  Balance: ${parseFloat(toBal).toFixed(4)} Near
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground">
+                  Balance: $
+                  {parseFloat(toHumanReadable(toBal, "token")).toFixed(4)}{" "}
+                  {toToken.tokenSymbol}
+                </div>
+              )}
+
+              {/* <div className="text-sm text-muted-foreground">
                 Price: ${toToken.price} {toToken.tokenSymbol}
               </div>
               <div className="text-sm text-muted-foreground">
                 Balance: ${toBal} {toToken.tokenSymbol}
-              </div>
+              </div> */}
             </>
           )}
         </div>
@@ -631,13 +891,28 @@ export function SwapCard() {
           className="w-full"
           size="lg"
           disabled={isSwapDisabled}
-          onClick={swapToken}
+          onClick={handleTransfer}
         >
           {loading
-            ? "Swapping..."
+            ? "Transfering..."
             : !fromToken || !toToken
             ? "Select tokens"
-            : "Swap"}
+            : "Transfer"}
+        </Button>
+      </CardFooter>
+
+      <CardFooter>
+        <Button
+          className="w-full"
+          size="lg"
+          disabled={isSwapDisabled2}
+          onClick={() => {
+            router.push(
+              `https://dex.rhea.finance/#${fromToken.contractId}|${toToken.contractId}`
+            );
+          }}
+        >
+          Make Swap in Rhea Finance
         </Button>
       </CardFooter>
     </Card>

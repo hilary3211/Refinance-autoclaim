@@ -56,7 +56,7 @@ export function RemoveLiq({
   const [selected, setSelected] = useState("");
 
   const gettoken = async () => {
-    const myshares = toSmallestUnits(amountA);
+    const myshares = amountA;
     const products = await wallet.viewMethod({
       contractId: "v2.ref-finance.near",
       method: "get_pool",
@@ -269,18 +269,34 @@ export function RemoveLiq({
           </DialogHeader>
           <div className="grid gap-1 py-4">
             <div className="flex flex-col space-y-2">
-              <Label htmlFor="first" className="text-left">
-                Lp tokens : {sharez}
-              </Label>
+              <div className="flex flex-row justify-between">
+                <Label htmlFor="first" className="text-left">
+                  Lp tokens : {sharez}
+                </Label>
+                <button
+                  style={{
+                    padding: "2px 4px",
+                    fontSize: "10px",
+                    border: "1px solid #ccc",
+                    borderRadius: "3px",
+                    backgroundColor: "#f0f0f0",
+                  }}
+                  onClick={() => {
+                    setAmountA(sharez);
+                  }}
+                >
+                  Max
+                </button>
+              </div>
               <div className=" rounded-md flex ">
                 <div className="flex-1 flex-col items-center justify-start">
                   <p className="font-neuton">
-                    {poolType1}: ${subal1}
+                    {poolType1} / {poolType2}
                   </p>
-                  <p className="font-neuton">
+                  {/* <p className="font-neuton">
                     {" "}
                     {poolType2} : ${subal2}
-                  </p>
+                  </p> */}
                 </div>
                 <Input
                   id="first"

@@ -229,12 +229,30 @@ export function Stake({
             </DialogHeader>
             <div className="grid gap-1 py-4">
               <div className="flex flex-col space-y-2">
-                <Label htmlFor="first" className="text-left">
-                  Lp tokens
-                </Label>
+                <div className="flex flex-row justify-between">
+                  <Label htmlFor="first" className="text-left">
+                    Lp tokens
+                  </Label>
+                  <button
+                    style={{
+                      padding: "2px 4px",
+                      fontSize: "10px",
+                      border: "1px solid #ccc",
+                      borderRadius: "3px",
+                      backgroundColor: "#f0f0f0",
+                    }}
+                    onClick={() => {
+                      setAmountA(poolType1);
+                    }}
+                  >
+                    Max
+                  </button>
+                </div>
                 <div className=" rounded-md flex ">
                   <div className="flex-1 flex-col items-center justify-start">
-                    <p className="font-neuton">Balance: ${poolType1}</p>
+                    <p className="font-neuton">
+                      Balance: ${toHumanReadable(poolType1)}
+                    </p>
                   </div>
                   <Input
                     id="first"
@@ -292,12 +310,30 @@ export function Stake({
             </DialogHeader>
             <div className="grid gap-1 py-4">
               <div className="flex flex-col space-y-2">
-                <Label htmlFor="first" className="text-left">
-                  Staked Lp token
-                </Label>
+                <div className="flex flex-row justify-between">
+                  <Label htmlFor="first" className="text-left">
+                    Staked Lp token
+                  </Label>
+                  <button
+                    style={{
+                      padding: "2px 4px",
+                      fontSize: "10px",
+                      border: "1px solid #ccc",
+                      borderRadius: "3px",
+                      backgroundColor: "#f0f0f0",
+                    }}
+                    onClick={() => {
+                      setAmountB(poolType2);
+                    }}
+                  >
+                    Max
+                  </button>
+                </div>
                 <div className=" rounded-md flex ">
                   <div className="flex-1 flex-col items-center justify-start">
-                    <p className="font-neuton">Balance: ${poolType2}</p>
+                    <p className="font-neuton">
+                      Balance: ${toHumanReadable(poolType2)}
+                    </p>
                   </div>
                   <Input
                     id="first"

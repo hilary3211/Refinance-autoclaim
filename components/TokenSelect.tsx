@@ -65,25 +65,25 @@ const token: Token[] = [
   {
     symbol: "NEAR",
     name: "NEAR Protocol",
-    icon: "/placeholder.svg?height=32&width=32",
+    icon: "/toks.png?height=32&width=32",
     balance: "100.00",
   },
   {
     symbol: "wNEAR",
     name: "Wrapped NEAR",
-    icon: "/placeholder.svg?height=32&width=32",
+    icon: "/toks.png?height=32&width=32",
     balance: "50.00",
   },
   {
     symbol: "USDT",
     name: "Tether USD",
-    icon: "/placeholder.svg?height=32&width=32",
+    icon: "/toks.png?height=32&width=32",
     balance: "1000.00",
   },
   {
     symbol: "USDC",
     name: "USD Coin",
-    icon: "/placeholder.svg?height=32&width=32",
+    icon: "/toks.png?height=32&width=32",
     balance: "1000.00",
   },
 ];
@@ -121,7 +121,7 @@ export function TokenSelectButton({
           {selectedToken ? (
             <>
               <img
-                src={selectedToken.icon || "/placeholder.svg"}
+                src={selectedToken.icon || "/toks.png"}
                 alt={selectedToken.symbol}
                 width={24}
                 height={24}
@@ -158,7 +158,7 @@ export function TokenSelectButton({
                   }}
                 >
                   <img
-                    src={token.icon || "/placeholder.svg"}
+                    src={token.icon || "/toks.png"}
                     alt={token.tokenSymbol}
                     width={32}
                     height={32}

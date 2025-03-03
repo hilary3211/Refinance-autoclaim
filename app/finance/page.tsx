@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
 import Pools from "@/components/Pools";
+import Pools2 from "@/components/Pools2";
 import Swap from "@/components/Swap";
 import { SwapCard } from "@/components/SwapCard";
 import React, { useEffect, useState, useRef, useContext } from "react";
@@ -40,7 +41,7 @@ const Finance = () => {
   }
 
   if (count < 2) {
-    getdata();
+    getdata().catch((err) => {});
   }
 
   return (
@@ -79,23 +80,32 @@ const Finance = () => {
             </div>
           ) : (
             <Tabs defaultValue="Pools" className="w-full">
-              <TabsList className="grid sm:max-w-xl max-w-sm mx-auto grid-cols-1 my-1">
+              <TabsList className="grid sm:max-w-xl max-w-sm mx-auto grid-cols-3 my-1">
                 <TabsTrigger value="Pools" className="space-x-2">
                   <RocketIcon className="w-4 h-4" />
                   <p>Pools</p>
                 </TabsTrigger>
-                {/* <TabsTrigger value="swap">
-            <RepeatIcon className="w-4 h-4" />
-            <p>Swap</p>
-          </TabsTrigger> */}
+                <TabsTrigger value="swap">
+                  <RepeatIcon className="w-4 h-4" />
+
+                  <p>Swap</p>
+                </TabsTrigger>
+                <TabsTrigger value="pools2">
+                  <RocketIcon className="w-4 h-4" />
+
+                  <p>Burrow Pool</p>
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="Pools">
                 <Pools />
               </TabsContent>
-              {/* <TabsContent value="swap">
-          <SwapCard/>
-         
-        </TabsContent> */}
+
+              <TabsContent value="pools2">
+                <Pools2 />
+              </TabsContent>
+              <TabsContent value="swap">
+                <SwapCard />
+              </TabsContent>
             </Tabs>
           )}
         </>

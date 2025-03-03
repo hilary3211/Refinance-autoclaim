@@ -107,7 +107,7 @@ const page = () => {
     }
   }
   if (count < 2) {
-    checkshares();
+    checkshares().catch((err) => {});
   }
 
   return (
