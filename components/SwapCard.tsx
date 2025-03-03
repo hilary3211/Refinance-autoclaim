@@ -114,14 +114,27 @@ export function SwapCard() {
       gas: "300000000000000",
       deposit: "0",
     });
-    const minAmountOut =
-      toToken.contractId === "wrap.near"
-        ? toSmallestUnit(amountB, "near")
-        : toSmallestUnit(amountB);
-    const amountIn =
-      fromToken.contractId === "wrap.near"
-        ? toSmallestUnit(amountA, "near")
-        : toSmallestUnit(amountA);
+    // const minAmountOut =
+    //   toToken.contractId === "wrap.near"
+    //     ? toSmallestUnit(amountB, "near")
+    //     : toSmallestUnit(amountB);
+    // const amountIn =
+    //   fromToken.contractId === "wrap.near"
+    //     ? toSmallestUnit(amountA, "near")
+    //     : toSmallestUnit(amountA);
+
+    const slippage = 0.005; // 0.5%
+  const minAmountOut =
+    toToken.contractId === "wrap.near"
+      ? toSmallestUnit(amountB, "near")
+      : toSmallestUnit((parseFloat(amountB) * (1 - slippage)).toString());
+  const amountIn =
+    fromToken.contractId === "wrap.near"
+      ? toSmallestUnit(amountA, "near")
+      : toSmallestUnit((parseFloat(amountA) * (1 - slippage)).toString());
+
+
+
 
     // const transaction = [
     //   {

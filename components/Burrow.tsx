@@ -68,6 +68,20 @@ export function Burrow({
     setAmountA(value);
   };
 
+  function toSmallestUnit(amount: any, tokenType = "token") {
+    const power = tokenType.toLowerCase() === "near" ? 24 : 18;
+
+    const amountStr = String(amount);
+
+    const [integerPart, fractionalPart = ""] = amountStr.split(".");
+
+    const paddedFractionalPart = fractionalPart.padEnd(power, "0");
+
+    const smallestUnit = BigInt(integerPart + paddedFractionalPart);
+
+    return smallestUnit.toString();
+  }
+
   useEffect(() => {
     const getsubbalance = async () => {
       const getuserdata = await wallet.viewMethod({
@@ -92,11 +106,76 @@ export function Burrow({
     getsubbalance();
   }, []);
 
+  const depositinburrow = async () => {
+    const getuserdata = await wallet.viewMethod({
+      contractId: "auto-claim-main.near",
+      method: "get_user",
+      args: {
+        wallet_id: signedAccountId,
+      },
+      gas: "300000000000000",
+      deposit: "0",
+    });
+
+    const preferences = [
+      {
+        seed_id: `nill`,
+        token_id: tokenId,
+        smart_contract_name: `${getuserdata.username}.auto-claim-main.near`,
+        is_active: "true",
+        reinvest_to: selected,
+      },
+    ];
+
+    const transactions = [
+      {
+        receiverId: `${getuserdata.username}.auto-claim-main.near`,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "deposit_into_burrow_pool",
+              args: {
+                tokenid: tokenId,
+                deposit_amount:
+                  tokenId === "wrap.near"
+                    ? toSmallestUnit(amountA, "near")
+                    : toSmallestUnit(amountA),
+                gassing: "50",
+              },
+              gas: "85000000000000", // 85 Tgas
+              deposit: "0", // Minimal deposit
+            },
+          },
+        ],
+      },
+      {
+        receiverId: "auto-claim-main.near",
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "update_preferences",
+              args: {
+                prefs: preferences,
+              },
+              gas: "300000000000000",
+              deposit: "0",
+            },
+          },
+        ],
+      },
+    ];
+    const transfer = await wallet.signAndSendTransactions({
+      transactions,
+    });
+  };
+
   const isSwapDisabled =
     !amountA ||
     loading ||
-    parseInt(amountA) > parseInt(userbalance) ||
-    parseInt(amountA) === 0 ||
+    parseFloat(amountA) > parseFloat(userbalance) ||
+    parseFloat(amountA) === 0 ||
     selected === "";
 
   return (
@@ -157,7 +236,7 @@ export function Burrow({
           <DialogFooter>
             <Button
               onClick={() => {
-                //Stake();
+                depositinburrow();
               }}
               disabled={isSwapDisabled}
               type="submit"
