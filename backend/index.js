@@ -231,14 +231,45 @@ async function claimFunction() {
   const decodedValue = Buffer.from(base64Value, "base64").toString("utf-8");
   const users = JSON.parse(decodedValue);
 
+  const executeSwapTransactions = async (transactions) => {
+    for (const tx of transactions) {
+      const { receiverId, functionCalls } = tx;
+
+      for (const call of functionCalls) {
+        const { methodName, args, gas, amount } = call;
+
+        try {
+          const result = await masterAccount.functionCall({
+            contractId: receiverId,
+            methodName,
+            args,
+            gas: "30000000000000",
+            attachedDeposit:
+              methodName === "ft_transfer_call"
+                ? "1"
+                : "125000000000000000000000",
+          });
+
+          console.log(
+            `Transaction successful: ${methodName} on ${receiverId}`,
+            result
+          );
+        } catch (error) {
+          console.error(
+            `Transaction failed: ${methodName} on ${receiverId}`,
+            error
+          );
+          throw error; // Stop execution if any transaction fails
+        }
+      }
+    }
+  };
+
   // Loop over each user
   for (const user of users) {
-    // Check if the user has any preferences
-    //console.log(user)
     if (user.subaccount_id === "auto-claim-main.near") {
     } else {
       if (Array.isArray(user.preferences) && user.preferences.length > 0) {
-        // Loop over each preference in this user
         for (const pref of user.preferences) {
           try {
             // Check the balance of the user's account
@@ -250,7 +281,6 @@ async function claimFunction() {
               attachedDeposit: "0", // No deposit
             });
 
-            // Claim rewards for the user's preference
             const runClaimResult = await masterAccount.functionCall({
               contractId: pref.smart_contract_name,
               methodName: "claim_all_rewards",
@@ -262,6 +292,18 @@ async function claimFunction() {
               gas: "30000000000000", // Gas limit
               attachedDeposit: "0", // No deposit
             });
+
+            // Claim rewards for the user's preference
+            const runClaimResult2 = await masterAccount.functionCall({
+              contractId: pref.smart_contract_name,
+              methodName: "claim_from_burrow",
+              args: {
+                gassing: "50",
+              },
+              gas: "30000000000000", // Gas limit
+              attachedDeposit: "0", // No deposit
+            });
+
             console.log(
               `Claimed rewards for ${user.wallet_id} preference:`,
               pref
@@ -342,6 +384,49 @@ async function claimFunction() {
                   });
 
                   console.log(`Swapped and staked for ${user.wallet_id}`);
+                } else if (pref.reinvest_to) {
+                  // Perform token swap and stake
+                  const amountswap = yoctoToNear(balance);
+
+                  const { ratedPools, unRatedPools, simplePools } =
+                    await fetchAllPools();
+                  const stablePools = unRatedPools.concat(ratedPools);
+                  const stablePoolsDetail = await getStablePools(stablePools);
+                  const tokenIn = await ftGetTokenMetadata("wrap.near");
+                  const tokenOut = await ftGetTokenMetadata(pref.reinvest_to);
+
+                  const swapTodos = await estimateSwap({
+                    tokenIn,
+                    tokenOut,
+                    amountIn: amountswap,
+                    simplePools,
+                  });
+
+                  const transactionsRef = await instantSwap({
+                    tokenIn,
+                    tokenOut,
+                    amountIn: amountswap,
+                    swapTodos,
+                    slippageTolerance: 0.5,
+                    AccountId: pref.smart_contract_name,
+                    referralId: "",
+                  });
+
+                  await executeSwapTransactions(transactionsRef);
+
+                  const depositResult = await masterAccount.functionCall({
+                    contractId: pref.smart_contract_name,
+                    methodName: "deposit_into_burrow_pool",
+                    args: {
+                      tokenid: pref.reinvest_to,
+                      deposit_amount: balance,
+                      gassing: "50",
+                    },
+                    gas: "30000000000000", // Gas limit
+                    attachedDeposit: "0", // No deposit
+                  });
+
+                  console.log(`Swapped and staked for ${user.wallet_id}`);
                 }
               }
             }
@@ -353,7 +438,7 @@ async function claimFunction() {
             );
           }
 
-  
+          // Wait 1 minute before processing the next preference
           await sleep(60000);
         }
       }
