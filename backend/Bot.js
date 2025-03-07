@@ -112,7 +112,7 @@ function getMinAmountOut2(jsonStr) {
   }
 }
 
-async function compound_reinvest() {
+async function autoClaimAndCompound() {
   const near = await getNearConnection(masterKeyStore);
   const masterAccount = await near.account(MASTER_ACCOUNT);
 
@@ -189,7 +189,18 @@ async function compound_reinvest() {
   });
 }
 
-compound_reinvest();
+
+
+const intervalTime = 60 * 60 * 1000;
+  setInterval(async () => {
+    try {
+      console.log("Running autoClaimAndCompound...");
+      await autoClaimAndCompound();
+      console.log("autoClaimAndCompound completed successfully.");
+    } catch (error) {
+      console.error("Error in autoClaimAndCompound:", error);
+    }
+  }, intervalTime);
 
 const PORT = 3000;
 app.listen(PORT, () => {
