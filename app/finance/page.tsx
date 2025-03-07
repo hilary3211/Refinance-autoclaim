@@ -112,11 +112,11 @@ const Finance = () => {
             </div>
           ) : (
             <Tabs defaultValue="Pools" className="w-full">
-              <TabsList className="grid sm:max-w-xl max-w-sm mx-auto grid-cols-3 my-1">
-                <TabsTrigger value="Pools" className="space-x-2">
-                  <RocketIcon className="w-4 h-4" />
-                  <p>Pools</p>
-                </TabsTrigger>
+              <TabsList  className="grid sm:max-w-xl max-w-sm mx-auto grid-cols-3 my-1 bg-grey-500">
+              <TabsTrigger value="Pools"  className="space-x-2  ">
+  <RocketIcon className="w-4 h-4 " />
+  <p>Pools</p>
+</TabsTrigger>
                 <TabsTrigger value="swap">
                   <RepeatIcon className="w-4 h-4" />
 
