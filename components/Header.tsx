@@ -24,7 +24,7 @@ const Header = () => {
   async function getdata() {
     try {
       const getuserdata = await wallet.viewMethod({
-        contractId: "auto-claim-main.near",
+        contractId: "auto-claim-main2.near",
         method: "get_user",
         args: {
           wallet_id: signedAccountId,

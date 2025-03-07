@@ -134,7 +134,7 @@ export function RemoveLiq({
 
   async function Remove() {
     const getuserdata = await wallet.viewMethod({
-      contractId: "auto-claim-main.near",
+      contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -149,7 +149,7 @@ export function RemoveLiq({
       const tokenamt2 = toSmallestUnits(subal2);
       const transactions = [
         {
-          receiverId: `${getuserdata.username}.auto-claim-main.near`,
+          receiverId: `${getuserdata.username}.auto-claim-main2.near`,
           actions: [
             {
               type: "FunctionCall",
@@ -162,7 +162,7 @@ export function RemoveLiq({
                   wrappednearamount: tokenamt2,
                   tokenname: poolTypeID1,
                   tokenname2: poolTypeID2,
-                  gassing: "50",
+                  neargas: 50,
                 },
                 gas: "300000000000000",
                 deposit: "0",
@@ -181,7 +181,7 @@ export function RemoveLiq({
       const tokenamt2 = toSmallestUnits(subal2);
       const transactions = [
         {
-          receiverId: `${getuserdata.username}.auto-claim-main.near`,
+          receiverId: `${getuserdata.username}.auto-claim-main2.near`,
           actions: [
             {
               type: "FunctionCall",
@@ -194,7 +194,7 @@ export function RemoveLiq({
                   wrappednearamount: tokenamt,
                   tokenname: poolTypeID2,
                   tokenname2: poolTypeID1,
-                  gassing: "50",
+                  neargas: 50,
                 },
                 gas: "300000000000000", // Gas for transaction execution
                 deposit: "0",
@@ -212,7 +212,7 @@ export function RemoveLiq({
 
   async function unStake() {
     const getuserdata = await wallet.viewMethod({
-      contractId: "auto-claim-main.near",
+      contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -223,7 +223,7 @@ export function RemoveLiq({
 
     const transactions = [
       {
-        receiverId: `${getuserdata.username}.auto-claim-main.near`,
+        receiverId: `${getuserdata.username}.auto-claim-main2.near`,
         actions: [
           {
             type: "FunctionCall",
@@ -232,7 +232,7 @@ export function RemoveLiq({
               args: {
                 seed_id: `v2.ref-finance.near@${Poolid}`,
                 withdraw_amount: amountB,
-                gassing: "50",
+                neargas: 50,
                 tokenname: poolType1,
               },
               gas: "300000000000000",

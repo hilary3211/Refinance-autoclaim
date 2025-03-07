@@ -37,15 +37,11 @@ export function Burrow({
   const [fromBal, setfromBal] = useState("");
   const [toBal, settoBal] = useState("");
   const [amountA, setAmountA] = useState("");
-  const [amountB, setAmountB] = useState("");
-  const [lastChanged, setLastChanged] = useState("A");
   const [fromToken, setFromToken] = useState<any>(null);
-  const [toToken, setToToken] = useState<any>(null);
-  const [loaded, setloaded] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [userbalance, setuserbalance] = useState("");
-  const [subal2, setsubal2] = useState("");
-  const [stakepage, setstakepage] = useState(true);
+
   const [selected, setSelected] = useState("");
 
   function toHumanReadable(amount: any, tokenType = "token") {
@@ -85,7 +81,7 @@ export function Burrow({
   useEffect(() => {
     const getsubbalance = async () => {
       const getuserdata = await wallet.viewMethod({
-        contractId: "auto-claim-main.near",
+        contractId: "auto-claim-main2.near",
         method: "get_user",
         args: {
           wallet_id: signedAccountId,
@@ -97,7 +93,7 @@ export function Burrow({
       const getbal = await wallet.viewMethod({
         contractId: tokenId,
         method: "ft_balance_of",
-        args: { account_id: `${getuserdata.username}.auto-claim-main.near` },
+        args: { account_id: `${getuserdata.username}.auto-claim-main2.near` },
       });
 
       setuserbalance(toHumanReadable(getbal, "token"));
@@ -108,7 +104,7 @@ export function Burrow({
 
   const depositinburrow = async () => {
     const getuserdata = await wallet.viewMethod({
-      contractId: "auto-claim-main.near",
+      contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -121,7 +117,7 @@ export function Burrow({
       {
         seed_id: `nill`,
         token_id: tokenId,
-        smart_contract_name: `${getuserdata.username}.auto-claim-main.near`,
+        smart_contract_name: `${getuserdata.username}.auto-claim-main2.near`,
         is_active: "true",
         reinvest_to: selected,
       },
@@ -129,7 +125,7 @@ export function Burrow({
 
     const transactions = [
       {
-        receiverId: `${getuserdata.username}.auto-claim-main.near`,
+        receiverId: `${getuserdata.username}.auto-claim-main2.near`,
         actions: [
           {
             type: "FunctionCall",
@@ -141,7 +137,7 @@ export function Burrow({
                   tokenId === "wrap.near"
                     ? toSmallestUnit(amountA, "near")
                     : toSmallestUnit(amountA),
-                gassing: "50",
+                neargas: 50,
               },
               gas: "85000000000000", // 85 Tgas
               deposit: "0", // Minimal deposit
@@ -150,7 +146,7 @@ export function Burrow({
         ],
       },
       {
-        receiverId: "auto-claim-main.near",
+        receiverId: "auto-claim-main2.near",
         actions: [
           {
             type: "FunctionCall",

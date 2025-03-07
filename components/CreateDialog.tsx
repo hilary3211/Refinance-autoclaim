@@ -27,18 +27,20 @@ export function CreateDialog() {
     }
   };
 
-  function stripSuffix(userId: any) {
-    const parts = userId.split(".");
-    return parts.length > 1 ? parts[0] : userId;
+
+
+  function convertNearFormat(username : any) {
+    return username
+      .replace(/\.near\b/g, "-near")
+      .replace(/\.tg\b/g, "-tg");
   }
 
   async function Createaccount(username: any) {
     setLoading(true);
 
     try {
-      // Step 1: Check if the user exists in the contract
       const getuserdata = await wallet.viewMethod({
-        contractId: "auto-claim-main.near",
+        contractId: "auto-claim-main2.near",
         method: "get_user",
         args: {
           wallet_id: signedAccountId,
@@ -48,7 +50,7 @@ export function CreateDialog() {
       if (getuserdata !== null) {
         try {
           const getuserbalance = await wallet.viewMethod({
-            contractId: `${getuserdata.username}.auto-claim-main.near`,
+            contractId: `${getuserdata.username}.auto-claim-main2.near`,
             method: "get_contract_balance",
             args: {},
           });
@@ -74,7 +76,7 @@ export function CreateDialog() {
       } else {
         const transactions = [
           {
-            receiverId: "auto-claim-main.near",
+            receiverId: "auto-claim-main2.near",
             actions: [
               {
                 type: "Transfer",
@@ -87,7 +89,7 @@ export function CreateDialog() {
                 params: {
                   methodName: "store_user",
                   args: {
-                    username: stripSuffix(signedAccountId),
+                    username: convertNearFormat(signedAccountId),
                     subaccount_id: signedAccountId,
                   },
                   gas: "30000000000000",
@@ -106,7 +108,7 @@ export function CreateDialog() {
     } catch (error) {
       console.error("Error in createAccount:", error);
     } finally {
-      setLoading(false);
+      //setLoading(false);
     }
   }
 

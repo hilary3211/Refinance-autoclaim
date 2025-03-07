@@ -219,7 +219,7 @@ async function claimFunction() {
 
   // Fetch all users from the smart contract
   const getUsersResult = await masterAccount.functionCall({
-    contractId: "auto-claim-main.near", // Contract that stores users
+    contractId: "auto-claim-main2.near", // Contract that stores users
     methodName: "get_all_users",
     args: {},
     gas: "30000000000000", // Gas limit
@@ -267,7 +267,7 @@ async function claimFunction() {
 
   // Loop over each user
   for (const user of users) {
-    if (user.subaccount_id === "auto-claim-main.near") {
+    if (user.subaccount_id === "auto-claim-main2.near") {
     } else {
       if (Array.isArray(user.preferences) && user.preferences.length > 0) {
         for (const pref of user.preferences) {
@@ -286,7 +286,7 @@ async function claimFunction() {
               methodName: "claim_all_rewards",
               args: {
                 seed_id: pref.seed_id,
-                gassing: "50",
+                neargas: 50,
                 tokenid: pref.token_id,
               },
               gas: "30000000000000", // Gas limit
@@ -298,7 +298,7 @@ async function claimFunction() {
               contractId: pref.smart_contract_name,
               methodName: "claim_from_burrow",
               args: {
-                gassing: "50",
+                neargas: 50,
               },
               gas: "30000000000000", // Gas limit
               attachedDeposit: "0", // No deposit
@@ -323,7 +323,7 @@ async function claimFunction() {
                     methodName: "deposit_into_burrow",
                     args: {
                       deposit_amount: balance.toString(),
-                      gassing: "50",
+                      neargas: 50,
                     },
                     gas: "30000000000000", // Gas limit
                     attachedDeposit: "0", // No deposit
@@ -365,7 +365,7 @@ async function claimFunction() {
                   const minAmountOut2 = getMinAmountOut2(
                     transactionsRef[0].functionCalls[0].args.msg
                   );
-                  //smart_contract_name: String, transfer_call_args: String, deposit_amount : String , gassing : String
+                  //smart_contract_name: String, transfer_call_args: String, deposit_amount : String , neargas : String
                   const depositResult = await masterAccount.functionCall({
                     contractId: pref.smart_contract_name,
                     methodName: "stake_xRef",
@@ -374,7 +374,7 @@ async function claimFunction() {
                       transfer_call_args:
                         transactionsRef[1].functionCalls[0].args,
                       deposit_amount: balance,
-                      gassing: "50",
+                      neargas: 50,
                       receiver_id: "xtoken.ref-finance.near",
                       min_amount_out: minAmountOut,
                       pool_id: minAmountOut2,
@@ -420,7 +420,7 @@ async function claimFunction() {
                     args: {
                       tokenid: pref.reinvest_to,
                       deposit_amount: balance,
-                      gassing: "50",
+                      neargas: 50,
                     },
                     gas: "30000000000000", // Gas limit
                     attachedDeposit: "0", // No deposit

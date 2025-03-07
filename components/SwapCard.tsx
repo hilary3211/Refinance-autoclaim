@@ -1,6 +1,5 @@
 "use client";
 import { ArrowDown, Settings } from "lucide-react";
-import { Bold, Italic, Underline } from "lucide-react";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
@@ -19,12 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useWallet } from "./zustandStore";
 import { NearContext } from "../wallets/near";
-import { utils } from "near-api-js";
-import { ConsoleLogger } from "@near-js/utils";
-import { util } from "zod";
-import { Grid } from "react-loader-spinner";
 import { useParams, useRouter } from "next/navigation";
 
 export function SwapCard() {
@@ -33,7 +27,6 @@ export function SwapCard() {
   const [toToken, setToToken] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [token, settoken] = useState<any[]>([]);
-  const [loading2, setLoading2] = useState(false);
   const router = useRouter();
   const [amountA, setAmountA] = useState("");
   const [amountB, setAmountB] = useState("");
@@ -106,7 +99,7 @@ export function SwapCard() {
 
   const handleTransfer = async () => {
     const getuserdata = await wallet.viewMethod({
-      contractId: "auto-claim-main.near",
+      contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -114,14 +107,7 @@ export function SwapCard() {
       gas: "300000000000000",
       deposit: "0",
     });
-    // const minAmountOut =
-    //   toToken.contractId === "wrap.near"
-    //     ? toSmallestUnit(amountB, "near")
-    //     : toSmallestUnit(amountB);
-    // const amountIn =
-    //   fromToken.contractId === "wrap.near"
-    //     ? toSmallestUnit(amountA, "near")
-    //     : toSmallestUnit(amountA);
+  
 
     const slippage = 0.005; // 0.5%
   const minAmountOut =
@@ -136,81 +122,6 @@ export function SwapCard() {
 
 
 
-    // const transaction = [
-    //   {
-    //     receiverId: toToken.contractId,
-    //     actions: [
-    //       {
-    //         type: "FunctionCall",
-    //         params: {
-    //           methodName: "storage_deposit",
-    //           args: {
-    //             account_id: `${getuserdata.username}.auto-claim-main.near`,
-    //             registration_only: true,
-    //           },
-    //           gas: "85000000000000",
-    //           deposit: "125000000000000000000000",
-    //         },
-    //       },
-
-    //       {
-    //         type: "FunctionCall",
-    //         params: {
-    //           methodName: "ft_transfer",
-    //           args: {
-    //             receiver_id: `${getuserdata.username}.auto-claim-main.near`,
-    //             amount: minAmountOut,
-    //           },
-    //           gas: "85000000000000",
-    //           deposit: "1",
-    //         },
-    //       },
-    //     ],
-    //   },
-
-    //   {
-    //     receiverId: fromToken.contractId,
-    //     actions: [
-    // ...(fromToken.contractId === "wrap.near"
-    //   ? [
-    //       {
-    //         type: "FunctionCall",
-    //         params: {
-    //           methodName: "near_deposit",
-    //           args: {},
-    //           gas: "85000000000000",
-    //           deposit: amountIn,
-    //         },
-    //       },
-    //     ]
-    //   : []),
-    //       {
-    //         type: "FunctionCall",
-    //         params: {
-    //           methodName: "storage_deposit",
-    //           args: {
-    //             account_id: `${getuserdata.username}.auto-claim-main.near`,
-    //             registration_only: true,
-    //           },
-    //           gas: "85000000000000",
-    //           deposit: "125000000000000000000000",
-    //         },
-    //       },
-    //       {
-    //         type: "FunctionCall",
-    //         params: {
-    //           methodName: "ft_transfer",
-    //           args: {
-    //             receiver_id: `${getuserdata.username}.auto-claim-main.near`,
-    //             amount: amountIn,
-    //           },
-    //           gas: "85000000000000",
-    //           deposit: "1",
-    //         },
-    //       },
-    //     ],
-    //   },
-    // ]
 
     const transactions = [
       {
@@ -234,7 +145,7 @@ export function SwapCard() {
             params: {
               methodName: "storage_deposit",
               args: {
-                account_id: `${getuserdata.username}.auto-claim-main.near`,
+                account_id: `${getuserdata.username}.auto-claim-main2.near`,
                 registration_only: true,
               },
               gas: "85000000000000", // 85 Tgas
@@ -252,7 +163,7 @@ export function SwapCard() {
             params: {
               methodName: "ft_transfer",
               args: {
-                receiver_id: `${getuserdata.username}.auto-claim-main.near`,
+                receiver_id: `${getuserdata.username}.auto-claim-main2.near`,
                 amount: minAmountOut,
               },
               gas: "85000000000000", // 85 Tgas
@@ -284,7 +195,7 @@ export function SwapCard() {
             params: {
               methodName: "storage_deposit",
               args: {
-                account_id: `${getuserdata.username}.auto-claim-main.near`,
+                account_id: `${getuserdata.username}.auto-claim-main2.near`,
                 registration_only: true,
               },
               gas: "85000000000000", // 85 Tgas
@@ -302,7 +213,7 @@ export function SwapCard() {
             params: {
               methodName: "ft_transfer",
               args: {
-                receiver_id: `${getuserdata.username}.auto-claim-main.near`,
+                receiver_id: `${getuserdata.username}.auto-claim-main2.near`,
                 amount: amountIn,
               },
               gas: "85000000000000", // 85 Tgas
@@ -317,365 +228,9 @@ export function SwapCard() {
     });
   };
 
-  const handleSwap = async (datagotten: any) => {
-    const getuserdata = await wallet.viewMethod({
-      contractId: "auto-claim-main.near",
-      method: "get_user",
-      args: {
-        wallet_id: signedAccountId,
-      },
-      gas: "300000000000000",
-      deposit: "0",
-    });
-    try {
-      setLoading(true);
-      if (datagotten.length > 1) {
-        const minAmountOut = getMinAmountOut(
-          datagotten[1].functionCalls[0].args.msg
-        );
-        const amountIn = getMinAmountOut2(
-          datagotten[1].functionCalls[0].args.msg
-        );
 
-        const transactions = [
-          {
-            receiverId: datagotten[0].receiverId,
-            actions: [
-              ...(datagotten[0].receiverId === "wrap.near"
-                ? [
-                    {
-                      type: "FunctionCall",
-                      params: {
-                        methodName: "storage_deposit",
-                        args: {
-                          account_id: signedAccountId,
-                          registration_only: true,
-                        },
-                        gas: "25000000000000",
-                        deposit: "125000000000000000000000",
-                      },
-                    },
-                    {
-                      type: "FunctionCall",
-                      params: {
-                        methodName: "near_deposit",
-                        args: {},
-                        gas: "85000000000000",
-                        deposit: amountIn,
-                      },
-                    },
-                  ]
-                : []),
 
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: datagotten[0].functionCalls[0].methodName,
-                  args: datagotten[0].functionCalls[0].args,
-                  gas: "85000000000000",
-                  deposit: "12500000000000000000000",
-                },
-              },
-            ],
-          },
 
-          {
-            receiverId: datagotten[1].receiverId,
-            actions: [
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "storage_deposit",
-                  args: {
-                    account_id: signedAccountId,
-                    registration_only: true,
-                  },
-                  gas: "25000000000000",
-                  deposit: "12500000000000000000000",
-                },
-              },
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: datagotten[1].functionCalls[0].methodName,
-                  args: datagotten[1].functionCalls[0].args,
-                  gas: "85000000000000",
-                  deposit: "1",
-                },
-              },
-            ],
-          },
-          {
-            receiverId: toToken.contractId,
-            actions: [
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "storage_deposit",
-                  args: {
-                    account_id: `${getuserdata.username}.auto-claim-main.near`,
-                    registration_only: true,
-                  },
-                  gas: "85000000000000",
-                  deposit: "12500000000000000000000",
-                },
-              },
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "ft_transfer",
-                  args: {
-                    receiver_id: `${getuserdata.username}.auto-claim-main.near`,
-                    amount: minAmountOut,
-                  },
-                  gas: "85000000000000",
-                  deposit: "1",
-                },
-              },
-            ],
-          },
-          {
-            receiverId: fromToken.contractId,
-            actions: [
-              ...(fromToken.contractId === "wrap.near"
-                ? [
-                    {
-                      type: "FunctionCall",
-                      params: {
-                        methodName: "near_deposit",
-                        args: {},
-                        gas: "85000000000000",
-                        deposit: amountIn,
-                      },
-                    },
-                  ]
-                : []),
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "storage_deposit",
-                  args: {
-                    account_id: `${getuserdata.username}.auto-claim-main.near`,
-                    registration_only: true,
-                  },
-                  gas: "85000000000000",
-                  deposit: "12500000000000000000000",
-                },
-              },
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "ft_transfer",
-                  args: {
-                    receiver_id: `${getuserdata.username}.auto-claim-main.near`,
-                    amount: amountIn,
-                  },
-                  gas: "85000000000000",
-                  deposit: "1",
-                },
-              },
-            ],
-          },
-        ];
-
-        const products2 = await wallet.signAndSendTransactions({
-          transactions,
-        });
-      } else {
-        const minAmountOut = getMinAmountOut(
-          datagotten[0].functionCalls[0].args.msg
-        );
-        const amountIn = getMinAmountOut2(
-          datagotten[0].functionCalls[0].args.msg
-        );
-
-        const transactions = [
-          {
-            receiverId: datagotten[0].receiverId,
-            actions: [
-              ...(datagotten[0].receiverId === "wrap.near"
-                ? [
-                    {
-                      type: "FunctionCall",
-                      params: {
-                        methodName: "storage_deposit",
-                        args: {
-                          account_id: signedAccountId,
-                          registration_only: true,
-                        },
-                        gas: "25000000000000",
-                        deposit: "125000000000000000000000",
-                      },
-                    },
-                    {
-                      type: "FunctionCall",
-                      params: {
-                        methodName: "near_deposit",
-                        args: {},
-                        gas: "85000000000000",
-                        deposit: amountIn,
-                      },
-                    },
-                  ]
-                : []),
-
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "storage_deposit",
-                  args: {
-                    account_id: signedAccountId,
-                    registration_only: true,
-                  },
-                  gas: "25000000000000",
-                  deposit: "125000000000000000000000",
-                },
-              },
-
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: datagotten[0].functionCalls[0].methodName,
-                  args: datagotten[0].functionCalls[0].args,
-                  gas: "85000000000000",
-                  deposit: "1",
-                },
-              },
-            ],
-          },
-
-          {
-            receiverId: toToken.contractId,
-            actions: [
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "storage_deposit",
-                  args: {
-                    account_id: `${getuserdata.username}.auto-claim-main.near`,
-                    registration_only: true,
-                  },
-                  gas: "85000000000000",
-                  deposit: "125000000000000000000000",
-                },
-              },
-
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "ft_transfer",
-                  args: {
-                    receiver_id: `${getuserdata.username}.auto-claim-main.near`,
-                    amount: minAmountOut,
-                  },
-                  gas: "85000000000000",
-                  deposit: "1",
-                },
-              },
-            ],
-          },
-
-          {
-            receiverId: fromToken.contractId,
-            actions: [
-              ...(fromToken.contractId === "wrap.near"
-                ? [
-                    {
-                      type: "FunctionCall",
-                      params: {
-                        methodName: "near_deposit",
-                        args: {},
-                        gas: "85000000000000",
-                        deposit: amountIn,
-                      },
-                    },
-                  ]
-                : []),
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "storage_deposit",
-                  args: {
-                    account_id: `${getuserdata.username}.auto-claim-main.near`,
-                    registration_only: true,
-                  },
-                  gas: "85000000000000",
-                  deposit: "125000000000000000000000",
-                },
-              },
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "ft_transfer",
-                  args: {
-                    receiver_id: `${getuserdata.username}.auto-claim-main.near`,
-                    amount: amountIn,
-                  },
-                  gas: "85000000000000",
-                  deposit: "1",
-                },
-              },
-            ],
-          },
-        ];
-        const products2 = await wallet.signAndSendTransactions({
-          transactions,
-        });
-      }
-    } catch (error) {
-      console.error("Swap failed:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const swapToken = async () => {
-    setLoading(true);
-
-    const getuserdata = await wallet.viewMethod({
-      contractId: "auto-claim-main.near",
-      method: "get_user",
-      args: {
-        wallet_id: signedAccountId,
-      },
-      gas: "300000000000000",
-      deposit: "0",
-    });
-
-    try {
-      const response = await fetch(
-        "https://us-central1-almond-1b205.cloudfunctions.net/claimauto/swapdata",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json",
-            "authorization-key": "asosain",
-          },
-          body: JSON.stringify({
-            tokenin: fromToken.contractId,
-            tokenout: toToken.contractId,
-            amount: amountA,
-            accid: signedAccountId,
-          }),
-        }
-      );
-
-      if (response.ok && response.body) {
-        const result: any = await response.json();
-        const datagotten = result.data;
-
-        if (getuserdata !== null) {
-          await handleSwap(datagotten);
-        }
-      } else {
-        console.error("Failed to start streaming");
-      }
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const switchTokens = () => {
     setFromToken(toToken);
@@ -833,9 +388,7 @@ export function SwapCard() {
                 </div>
               )}
 
-              {/* <div className="text-sm text-muted-foreground">
-                Balance: ${parseFloat(fromBal).toFixed(4)} {fromToken.tokenSymbol}
-              </div> */}
+       
             </>
           )}
         </div>

@@ -79,7 +79,7 @@ export function Stake({
 
   async function Stake() {
     const getuserdata = await wallet.viewMethod({
-      contractId: "auto-claim-main.near",
+      contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -92,7 +92,7 @@ export function Stake({
       {
         seed_id: `v2.ref-finance.near@${Poolid}`,
         token_id: poolType1,
-        smart_contract_name: `${getuserdata.username}.auto-claim-main.near`,
+        smart_contract_name: `${getuserdata.username}.auto-claim-main2.near`,
         is_active: "true",
         reinvest_to: selected,
       },
@@ -100,7 +100,7 @@ export function Stake({
 
     const transactions = [
       {
-        receiverId: `${getuserdata.username}.auto-claim-main.near`,
+        receiverId: `${getuserdata.username}.auto-claim-main2.near`,
         actions: [
           {
             type: "FunctionCall",
@@ -109,8 +109,8 @@ export function Stake({
               args: {
                 pool_id: `:${Poolid}`,
                 lp_token_amount: amountA,
-                gassing: "50",
-                useracc: `${getuserdata.username}.auto-claim-main.near`,
+                neargas: 50,
+                useracc: `${getuserdata.username}.auto-claim-main2.near`,
               },
               gas: "300000000000000",
               deposit: "0",
@@ -120,7 +120,7 @@ export function Stake({
       },
 
       {
-        receiverId: "auto-claim-main.near",
+        receiverId: "auto-claim-main2.near",
         actions: [
           {
             type: "FunctionCall",
@@ -144,7 +144,7 @@ export function Stake({
 
   async function unStake() {
     const getuserdata = await wallet.viewMethod({
-      contractId: "auto-claim-main.near",
+      contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -155,7 +155,7 @@ export function Stake({
 
     const transactions = [
       {
-        receiverId: `${getuserdata.username}.auto-claim-main.near`,
+        receiverId: `${getuserdata.username}.auto-claim-main2.near`,
         actions: [
           {
             type: "FunctionCall",
@@ -164,7 +164,7 @@ export function Stake({
               args: {
                 seed_id: `v2.ref-finance.near@${Poolid}`,
                 withdraw_amount: amountB,
-                gassing: "50",
+                neargas: 50,
                 tokenname:
                   poolTypeID1 === "wrap.near" ? poolTypeID2 : poolTypeID1,
               },

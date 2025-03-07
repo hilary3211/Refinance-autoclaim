@@ -74,7 +74,7 @@ export function TransferLp({
   async function checkshares() {
     count++;
     const getuserdata = await wallet.viewMethod({
-      contractId: "auto-claim-main.near",
+      contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -103,7 +103,7 @@ export function TransferLp({
 
   async function Tranfertoken() {
     const getuserdata = await wallet.viewMethod({
-      contractId: "auto-claim-main.near",
+      contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -117,7 +117,7 @@ export function TransferLp({
       method: "mft_has_registered",
       args: {
         token_id: `:${Poolid}`, // Pool ID
-        account_id: `${getuserdata.username}.auto-claim-main.near`,
+        account_id: `${getuserdata.username}.auto-claim-main2.near`,
       },
     });
 
@@ -135,7 +135,7 @@ export function TransferLp({
               params: {
                 methodName: "mft_transfer",
                 args: {
-                  receiver_id: `${getuserdata.username}.auto-claim-main.near`,
+                  receiver_id: `${getuserdata.username}.auto-claim-main2.near`,
                   token_id: `:${Poolid}`,
                   amount: amountA,
                   memo: null,
@@ -162,7 +162,7 @@ export function TransferLp({
                 methodName: "mft_register",
                 args: {
                   token_id: `:${Poolid}`,
-                  account_id: `${getuserdata.username}.auto-claim-main.near`,
+                  account_id: `${getuserdata.username}.auto-claim-main2.near`,
                 },
                 gas: "85000000000000",
                 deposit: "20000000000000000000000",
@@ -173,7 +173,7 @@ export function TransferLp({
               params: {
                 methodName: "mft_transfer",
                 args: {
-                  receiver_id: `${getuserdata.username}.auto-claim-main.near`,
+                  receiver_id: `${getuserdata.username}.auto-claim-main2.near`,
                   token_id: `:${Poolid}`,
                   amount: amountA,
                   memo: null,

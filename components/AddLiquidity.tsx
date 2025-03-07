@@ -104,7 +104,7 @@ export function AddLiquidity({
   useEffect(() => {
     async function gettoksbal() {
       const getuserdata = await wallet.viewMethod({
-        contractId: "auto-claim-main.near",
+        contractId: "auto-claim-main2.near",
         method: "get_user",
         args: {
           wallet_id: signedAccountId,
@@ -125,7 +125,7 @@ export function AddLiquidity({
         contractId: poolTypeID1,
         method: "ft_balance_of",
         args: {
-          account_id: `${getuserdata.username}.auto-claim-main.near`,
+          account_id: `${getuserdata.username}.auto-claim-main2.near`,
         },
       });
 
@@ -150,7 +150,7 @@ export function AddLiquidity({
         contractId: poolTypeID2,
         method: "ft_balance_of",
         args: {
-          account_id: `${getuserdata.username}.auto-claim-main.near`,
+          account_id: `${getuserdata.username}.auto-claim-main2.near`,
         },
       });
 
@@ -219,7 +219,7 @@ export function AddLiquidity({
     tokenname: any
   ) {
     const getuserdata = await wallet.viewMethod({
-      contractId: "auto-claim-main.near",
+      contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -237,7 +237,7 @@ export function AddLiquidity({
             params: {
               methodName: "storage_deposit",
               args: {
-                account_id: `${getuserdata.username}.auto-claim-main.near`,
+                account_id: `${getuserdata.username}.auto-claim-main2.near`,
                 registration_only: false,
               },
               gas: "300000000000000",
@@ -247,7 +247,7 @@ export function AddLiquidity({
         ],
       },
       {
-        receiverId: `${getuserdata.username}.auto-claim-main.near`,
+        receiverId: `${getuserdata.username}.auto-claim-main2.near`,
         actions: [
           {
             type: "FunctionCall",
@@ -258,8 +258,8 @@ export function AddLiquidity({
                 wrappednearamount: tokeninNear,
                 poolid: poolid,
                 tokenname: tokenname,
-                userid: `${getuserdata.username}.auto-claim-main.near`,
-                gassing: "35",
+                userid: `${getuserdata.username}.auto-claim-main2.near`,
+                neargas: 35,
                 adddepo: "950000000000000000000",
               },
               gas: "300000000000000",

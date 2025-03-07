@@ -1,5 +1,5 @@
 const contractPerNetwork = {
-    mainnet: 'auto-claim-main.near',
+    mainnet: 'auto-claim-main2.near',
     testnet: 'autoclaimm2.testnet',
   };
   

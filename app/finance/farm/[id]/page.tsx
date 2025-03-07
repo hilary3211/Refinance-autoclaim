@@ -58,7 +58,7 @@ const page = () => {
   async function checkshares() {
     count++;
     const getuserdata = await wallet.viewMethod({
-      contractId: "auto-claim-main.near",
+      contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -72,7 +72,7 @@ const page = () => {
       method: "get_pool_shares",
       args: {
         pool_id: 79, // Pool ID
-        account_id: `${getuserdata.username}.auto-claim-main.near`,
+        account_id: `${getuserdata.username}.auto-claim-main2.near`,
       },
     });
 
@@ -81,7 +81,7 @@ const page = () => {
       contractId: "boostfarm.ref-labs.near",
       method: "list_farmer_seeds",
       args: {
-        farmer_id: `${getuserdata.username}.auto-claim-main.near`, // Pool ID
+        farmer_id: `${getuserdata.username}.auto-claim-main2.near`, // Pool ID
       },
     });
 

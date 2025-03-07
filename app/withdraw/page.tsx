@@ -169,7 +169,7 @@ const WithdrawPage = () => {
 
   async function Withdraw() {
     const getuserdata = await wallet.viewMethod({
-      contractId: "auto-claim-main.near",
+      contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -188,7 +188,7 @@ const WithdrawPage = () => {
 
     const transactions = [
       {
-        receiverId: `${getuserdata.username}.auto-claim-main.near`,
+        receiverId: `${getuserdata.username}.auto-claim-main2.near`,
         actions: [
           {
             type: "FunctionCall",
@@ -197,7 +197,7 @@ const WithdrawPage = () => {
               args: {
                 token_id: tokenid,
                 receiver_id: signedAccountId,
-                gassing: "50",
+                neargas: 50,
                 amount: tokenAmount,
               },
               gas: "300000000000000",
@@ -258,7 +258,7 @@ const WithdrawPage = () => {
                                     async function gettokbal() {
                                       const getuserdata =
                                         await wallet.viewMethod({
-                                          contractId: "auto-claim-main.near",
+                                          contractId: "auto-claim-main2.near",
                                           method: "get_user",
                                           args: {
                                             wallet_id: signedAccountId,
@@ -266,7 +266,7 @@ const WithdrawPage = () => {
                                           gas: "300000000000000",
                                           deposit: "0",
                                         });
-                                      const accountId = `${getuserdata.username}.auto-claim-main.near`;
+                                      const accountId = `${getuserdata.username}.auto-claim-main2.near`;
                                       getTokenBalance(
                                         accountId,
                                         token.contractId,

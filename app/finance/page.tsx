@@ -22,7 +22,7 @@ const Finance = () => {
 
   async function getdata() {
     const getuserdata = await wallet.viewMethod({
-      contractId: "auto-claim-main.near",
+      contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -31,9 +31,38 @@ const Finance = () => {
       deposit: "0",
     });
 
+    console.log(signedAccountId)
+
     if (getuserdata !== null) {
-      setisregistered(false);
-      setLoading(false);
+      try {
+        const getuserbalance = await wallet.viewMethod({
+          contractId: `${getuserdata.username}.auto-claim-main2.near`,
+          method: "get_contract_balance",
+          args: {},
+        });
+        console.log("Balance:", getuserbalance);
+      } catch (error) {
+        if (error.message.includes("doesn't exist")) {
+          const response = await fetch(
+            "https://us-central1-almond-1b205.cloudfunctions.net/claimauto/createAccount",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username : signedAccountId }),
+            }
+          );
+          const apiResult = await response.json();
+          console.log("Account creation result:", apiResult);
+          setLoading(false);
+        } else {
+          setisregistered(false);
+        setLoading(false);
+        }
+      }finally {
+        setisregistered(false);
+        setLoading(false);
+      }
+     
     } else {
       setisregistered(true);
       setLoading(false);
@@ -43,6 +72,9 @@ const Finance = () => {
   if (count < 2) {
     getdata().catch((err) => {});
   }
+
+
+
 
   return (
     <div>
