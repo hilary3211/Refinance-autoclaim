@@ -10,52 +10,37 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { CirclePlusIcon } from "lucide-react";
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import { NearContext } from "@/wallets/near";
 import { Grid } from "react-loader-spinner";
 import Header from "@/components/Header";
+
 export function CreateDialog() {
   const [open, setOpen] = useState(false);
   const { signedAccountId, wallet } = useContext(NearContext);
   const [loading, setLoading] = useState(false);
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setOpen(false);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
-
-
-  function convertNearFormat(username : any) {
-    return username
-      .replace(/\.near\b/g, "-near")
-      .replace(/\.tg\b/g, "-tg");
+  function convertNearFormat(username: string) {
+    return username.replace(/\.near\b/g, "-near").replace(/\.tg\b/g, "-tg");
   }
 
-  async function Createaccount(username: any) {
-    setLoading(true);
-
+  async function Createaccount(username: string) {
     try {
-      const getuserdata = await wallet.viewMethod({
+      const getUserData = await wallet.viewMethod({
         contractId: "auto-claim-main2.near",
         method: "get_user",
-        args: {
-          wallet_id: signedAccountId,
-        },
+        args: { wallet_id: signedAccountId },
       });
 
-      if (getuserdata !== null) {
+      if (getUserData !== null) {
         try {
           const getuserbalance = await wallet.viewMethod({
-            contractId: `${getuserdata.username}.auto-claim-main2.near`,
+            contractId: `${getUserData.subaccount_id}`,
             method: "get_contract_balance",
             args: {},
           });
           console.log("Balance:", getuserbalance);
-        } catch (error) {
+        } catch (error: any) {
           if (error.message.includes("doesn't exist")) {
             const response = await fetch(
               "https://us-central1-almond-1b205.cloudfunctions.net/claimauto/createAccount",
@@ -67,10 +52,8 @@ export function CreateDialog() {
             );
             const apiResult = await response.json();
             console.log("Account creation result:", apiResult);
-            setLoading(false);
           } else {
             console.log("done");
-            setLoading(false);
           }
         }
       } else {
@@ -80,9 +63,7 @@ export function CreateDialog() {
             actions: [
               {
                 type: "Transfer",
-                params: {
-                  deposit: "2000000000000000000000000",
-                },
+                params: { deposit: "2000000000000000000000000" },
               },
               {
                 type: "FunctionCall",
@@ -107,17 +88,30 @@ export function CreateDialog() {
       }
     } catch (error) {
       console.error("Error in createAccount:", error);
-    } finally {
-      //setLoading(false);
     }
   }
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      if (signedAccountId) {
+        await Createaccount(signedAccountId);
+        setOpen(false);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
       {loading ? (
         <div
           style={{ background: "transperent" }}
-          className="flex flex-col items-center justify-center  bg-darkBlue text-white"
+          className="flex flex-col items-center justify-center bg-darkBlue text-white"
         >
           <div className="h-[0vh]">
             <Header />
@@ -129,7 +123,6 @@ export function CreateDialog() {
             color="#4fa94d"
             ariaLabel="grid-loading"
             radius="12.5"
-            wrapperStyle={{}}
             wrapperClass="grid-wrapper"
           />
         </div>
@@ -141,23 +134,15 @@ export function CreateDialog() {
           <DialogContent className="sm:max-w-[425px]">
             <form onSubmit={handleCreate}>
               <DialogHeader>
-                <DialogTitle>Create Subaccount </DialogTitle>
+                <DialogTitle>Create Subaccount</DialogTitle>
                 <DialogDescription>
-                  Welcome to the ref finance auto claim, to continue you are
-                  required to create a subaccount which would cost you 2 Near
-                  tokens, Click the button below to proceed
+                  Welcome to the CompoundX auto claim. To continue, you are
+                  required to create a subaccount which would cost you 2 NEAR
+                  tokens. Click the button below to proceed.
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4"></div>
               <DialogFooter>
-                <Button
-                  onClick={() => {
-                    Createaccount(signedAccountId);
-                  }}
-                  type="submit"
-                >
-                  Create Account
-                </Button>
+                <Button type="submit">Create Account</Button>
               </DialogFooter>
             </form>
           </DialogContent>

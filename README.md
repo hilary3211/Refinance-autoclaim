@@ -1,4 +1,4 @@
-# Ref Finance auto-claim 
+# CompoundX auto-claim 
 
 ## Description
 

@@ -117,6 +117,7 @@ export function TokenSelectButton({
         <Button
           variant="outline"
           className="flex items-center gap-2 px-3 hover:bg-muted"
+          style={{ backgroundColor: "#0c171f" }}
         >
           {selectedToken ? (
             <>
@@ -147,9 +148,9 @@ export function TokenSelectButton({
           />
           <ScrollArea className="h-[300px]">
             <div className="grid gap-2">
-              {filteredTokens?.map((token) => (
+              {filteredTokens?.map((token, index) => (
                 <Button
-                  key={token.symbol}
+                  key={index}
                   variant="ghost"
                   className="w-full justify-start gap-12"
                   onClick={() => {

@@ -118,13 +118,13 @@ export default function Home() {
           The Next Generation of DeFi Staking
         </h1>
         <h2 className="lg:text-xl text-sm mb-10">
-          Experience the Future of DeFi Staking with Auto-Claim Ref Finance
+          Experience the Future of DeFi Staking with Auto-Claim CompoundX
         </h2>
         <Link
           href="/finance"
           className="bg-white text-black font-bold py-3 sm:px-6 px-3 text-sm sm:text-base rounded-md hover:bg-gray-200 transition duration-300"
         >
-          Try Ref Finance Auto-Claim
+          Try CompoundX Auto-Claim
         </Link>
       </div>
       <Canvas

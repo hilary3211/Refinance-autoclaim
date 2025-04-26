@@ -24,35 +24,71 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NearContext } from "../wallets/near";
 
+// Define wallet interface for NearContext
+interface Wallet {
+  viewMethod: (args: {
+    contractId: string;
+    method: string;
+    args: Record<string, any>;
+    gas?: string;
+    deposit?: string;
+  }) => Promise<any>;
+  signAndSendTransactions: (args: {
+    transactions: Array<{
+      receiverId: string;
+      actions: Array<{
+        type: string;
+        params: {
+          methodName: string;
+          args: Record<string, any>;
+          gas: string;
+          deposit: string;
+        };
+      }>;
+    }>;
+  }) => Promise<any>;
+}
+
+interface NearContextType {
+  signedAccountId: string;
+  wallet: Wallet;
+}
+
+// Define props interface
+interface StakeProps {
+  poolType1: string;
+  poolType2: string;
+  poolTypeID1: string;
+  poolTypeID2: string;
+  Poolid: string;
+}
+
 export function Stake({
   poolType1,
   poolType2,
   poolTypeID1,
   poolTypeID2,
   Poolid,
-}: {
-  poolType1: string;
-  poolType2: string;
-  poolTypeID1: string;
-  poolTypeID2: string;
-  Poolid: string;
-}) {
-  const { signedAccountId, wallet } = useContext(NearContext);
-  const [fromBal, setfromBal] = useState("");
-  const [toBal, settoBal] = useState("");
-  const [amountA, setAmountA] = useState("");
-  const [amountB, setAmountB] = useState("");
-  const [lastChanged, setLastChanged] = useState("A");
+}: StakeProps) {
+  const { signedAccountId, wallet } = useContext<NearContextType>(NearContext);
+  const [fromBal, setfromBal] = useState<string>("");
+  const [toBal, settoBal] = useState<string>("");
+  const [amountA, setAmountA] = useState<string>("");
+  const [amountB, setAmountB] = useState<string>("");
+  const [lastChanged, setLastChanged] = useState<string>("A");
   const [fromToken, setFromToken] = useState<any>(null);
   const [toToken, setToToken] = useState<any>(null);
-  const [loaded, setloaded] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [subal1, setsubal] = useState("");
-  const [subal2, setsubal2] = useState("");
-  const [stakepage, setstakepage] = useState(true);
-  const [selected, setSelected] = useState("");
+  const [loaded, setloaded] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [subal1, setsubal] = useState<string>("");
+  const [subal2, setsubal2] = useState<string>("");
+  const [stakepage, setstakepage] = useState<boolean>(true);
+  const [selected, setSelected] = useState<string>("");
 
-  function toHumanReadable(amount: any, tokenType = "token") {
+  function toHumanReadable(
+    amount: string | number,
+    tokenType: string = "token"
+  ): string {
     const power = tokenType.toLowerCase() === "near" ? 24 : 18;
 
     const amountStr = String(amount).padStart(power + 1, "0");
@@ -67,18 +103,18 @@ export function Stake({
     return formattedAmount;
   }
 
-  const handleChangeA = (e: any) => {
+  const handleChangeA = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setAmountA(value);
   };
 
-  const handleChangeB = (e: any) => {
+  const handleChangeB = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setAmountB(value);
   };
 
-  async function Stake() {
-    const getuserdata = await wallet.viewMethod({
+  async function Stake(): Promise<void> {
+    const getUserData = await wallet.viewMethod({
       contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
@@ -92,15 +128,15 @@ export function Stake({
       {
         seed_id: `v2.ref-finance.near@${Poolid}`,
         token_id: poolType1,
-        smart_contract_name: `${getuserdata.username}.auto-claim-main2.near`,
-        is_active: "true",
+        smart_contract_name: `${getUserData.subaccount_id}`,
+        is_active: true,
         reinvest_to: selected,
       },
     ];
 
     const transactions = [
       {
-        receiverId: `${getuserdata.username}.auto-claim-main2.near`,
+        receiverId: `${getUserData.subaccount_id}`,
         actions: [
           {
             type: "FunctionCall",
@@ -109,11 +145,10 @@ export function Stake({
               args: {
                 pool_id: `:${Poolid}`,
                 lp_token_amount: amountA,
-                neargas: 50,
-                useracc: `${getuserdata.username}.auto-claim-main2.near`,
+                user_account: `${getUserData.subaccount_id}`,
               },
               gas: "300000000000000",
-              deposit: "0",
+              deposit: "1000000000000000000000000",
             },
           },
         ],
@@ -142,8 +177,8 @@ export function Stake({
     });
   }
 
-  async function unStake() {
-    const getuserdata = await wallet.viewMethod({
+  async function unStake(): Promise<void> {
+    const getUserData = await wallet.viewMethod({
       contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
@@ -155,7 +190,7 @@ export function Stake({
 
     const transactions = [
       {
-        receiverId: `${getuserdata.username}.auto-claim-main2.near`,
+        receiverId: `${getUserData.subaccount_id}`,
         actions: [
           {
             type: "FunctionCall",
@@ -164,8 +199,7 @@ export function Stake({
               args: {
                 seed_id: `v2.ref-finance.near@${Poolid}`,
                 withdraw_amount: amountB,
-                neargas: 50,
-                tokenname:
+                token_id:
                   poolTypeID1 === "wrap.near" ? poolTypeID2 : poolTypeID1,
               },
               gas: "300000000000000",
@@ -181,14 +215,14 @@ export function Stake({
     });
   }
 
-  const isSwapDisabled =
+  const isSwapDisabled: boolean =
     !amountA ||
     loading ||
     parseInt(amountA) > parseInt(poolType1) ||
     parseInt(amountA) === 0 ||
     selected === "";
 
-  const isSwapDisabled2 =
+  const isSwapDisabled2: boolean =
     !amountB ||
     loading ||
     parseInt(amountB) > parseInt(poolType2) ||
@@ -250,9 +284,7 @@ export function Stake({
                 </div>
                 <div className=" rounded-md flex ">
                   <div className="flex-1 flex-col items-center justify-start">
-                    <p className="font-neuton">
-                      Balance: ${toHumanReadable(poolType1)}
-                    </p>
+                    <p className="font-neuton">Balance: {poolType1}</p>
                   </div>
                   <Input
                     id="first"
@@ -267,7 +299,7 @@ export function Stake({
                 <div className="flex gap-4 my-5 items-center w-full max-w-2xl mx-auto">
                   <div className="text-black flex-1">
                     <Select
-                      onValueChange={(value) => setSelected(value)}
+                      onValueChange={(value: string) => setSelected(value)}
                       value={selected}
                     >
                       <SelectTrigger className="w-full">
@@ -275,7 +307,7 @@ export function Stake({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectItem value="Stake">Stake xRef</SelectItem>
+                          {/* <SelectItem value="Stake">Stake xRef</SelectItem> */}
                           <SelectItem value="Burrow">
                             Deposit into Burrow Pool
                           </SelectItem>

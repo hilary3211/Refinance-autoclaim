@@ -168,7 +168,7 @@ const WithdrawPage = () => {
   }
 
   async function Withdraw() {
-    const getuserdata = await wallet.viewMethod({
+    const getUserData = await wallet.viewMethod({
       contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
@@ -188,7 +188,7 @@ const WithdrawPage = () => {
 
     const transactions = [
       {
-        receiverId: `${getuserdata.username}.auto-claim-main2.near`,
+        receiverId: `${getUserData.subaccount_id}`,
         actions: [
           {
             type: "FunctionCall",
@@ -197,7 +197,6 @@ const WithdrawPage = () => {
               args: {
                 token_id: tokenid,
                 receiver_id: signedAccountId,
-                neargas: 50,
                 amount: tokenAmount,
               },
               gas: "300000000000000",
@@ -256,7 +255,7 @@ const WithdrawPage = () => {
                                   className="w-full justify-start gap-12"
                                   onClick={() => {
                                     async function gettokbal() {
-                                      const getuserdata =
+                                      const getUserData =
                                         await wallet.viewMethod({
                                           contractId: "auto-claim-main2.near",
                                           method: "get_user",
@@ -266,7 +265,7 @@ const WithdrawPage = () => {
                                           gas: "300000000000000",
                                           deposit: "0",
                                         });
-                                      const accountId = `${getuserdata.username}.auto-claim-main2.near`;
+                                      const accountId = `${getUserData.subaccount_id}`;
                                       getTokenBalance(
                                         accountId,
                                         token.contractId,

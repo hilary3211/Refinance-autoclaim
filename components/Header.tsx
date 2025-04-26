@@ -19,11 +19,11 @@ const Header = () => {
 
   const [isregistered, setisregistered] = useState(true);
 
-  let count = 0;
+  const countRef = useRef(0); // <-- using ref to persist value across renders
 
   async function getdata() {
     try {
-      const getuserdata = await wallet.viewMethod({
+      const getUserData = await wallet.viewMethod({
         contractId: "auto-claim-main2.near",
         method: "get_user",
         args: {
@@ -32,7 +32,8 @@ const Header = () => {
         gas: "300000000000000",
         deposit: "0",
       });
-      if (getuserdata !== null) {
+
+      if (getUserData !== null) {
         setisregistered(false);
       } else {
         setisregistered(true);
@@ -42,9 +43,12 @@ const Header = () => {
     }
   }
 
-  if (count < 2) {
-    getdata().catch((err) => {});
-  }
+  useEffect(() => {
+    if (wallet && signedAccountId && countRef.current < 2) {
+      getdata().catch(() => {});
+      countRef.current += 1;
+    }
+  }, [wallet, signedAccountId]);
 
   useEffect(() => {
     if (!wallet) return;
@@ -99,14 +103,14 @@ const Header = () => {
             </Canvas>
           </div>
           <span className="sm:text-2xl font-bold text-green-400 text-lg">
-            Ref Finance
+            CompoundX
           </span>
         </Link>
         {account ? (
           <>
             <div className="flex items-center lg:gap-2">
               <div
-                className="text-sm text-green-500 text-center border lg:px-3 py-2 font-semibold bg-white rounded-md"
+                className="text-sm text-green-500 text-center border lg:px-3 py-2 font-semibold bg-white rounded-md cursor-pointer"
                 onClick={action}
               >
                 {`${label.slice(0, 17)}...${label.slice(-7)}`}

@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+"use client";
+
+import React, { useState, ChangeEvent } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -10,12 +12,11 @@ import {
 import SkeletonLoader from "./SkeletonLoader";
 import { useRouter } from "next/navigation";
 
-const formatCurrency = (value: any): string => {
+// Utility: Format numbers to display TVL (e.g., $1.00K, $2.5M)
+const formatCurrency = (value: number | string): string => {
   const numericValue = Number(value);
 
-  if (isNaN(numericValue)) {
-    return "$0.00";
-  }
+  if (isNaN(numericValue)) return "$0.00";
 
   if (numericValue >= 1_000_000) {
     return `$${(numericValue / 1_000_000).toFixed(2)}M`;
@@ -26,15 +27,26 @@ const formatCurrency = (value: any): string => {
   }
 };
 
-const PoolData = ({ data }: { data: any[] }) => {
-  const router = useRouter();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-  const itemsPerPage = 10;
+// Props type definition
+type PoolDataProps = {
+  data: {
+    id: string;
+    token_symbols: string[];
+    total_fee: number;
+    tvl: number | string;
+  }[];
+};
 
+const PoolData: React.FC<PoolDataProps> = ({ data }) => {
+  const router = useRouter();
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
+  // Filter data by search term
   const filteredData = data.filter((item) =>
     item.token_symbols
       .join(" / ")
@@ -42,50 +54,60 @@ const PoolData = ({ data }: { data: any[] }) => {
       .includes(searchTerm.toLowerCase())
   );
 
+  // Slice current page data
   const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
-  const pageNumbers = [];
+  // Page number range calculation
   const maxVisiblePages = 5;
   const startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
   const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+  const pageNumbers = Array.from(
+    { length: endPage - startPage + 1 },
+    (_, i) => startPage + i
+  );
 
-  for (let i = startPage; i <= endPage; i++) {
-    pageNumbers.push(i);
-  }
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
 
-  const handlePoolClick = (pool: any) => {
-    router.push(`/finance/pool/${pool.id}`);
+  const handlePoolClick = (poolId: string) => {
+    router.push(`/finance/pool/${poolId}`);
   };
 
   return (
     <div className="sm:max-w-5xl max-w-sm mx-auto">
+      {/* Search input */}
       <div className="mb-4 pt-6 w-full flex">
-        <div className="flex-1"></div>
+        <div className="flex-1" />
         <input
           type="text"
           placeholder="Search pools by name..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleSearchChange}
           className="max-w-xl w-full items-end p-2 rounded-md"
         />
       </div>
+
+      {/* Table Headers */}
       <div className="grid grid-cols-5 gap-2 text-[#4f5f64] px-3 text-sm font-semibold py-2">
         <p className="col-span-3">Pair</p>
         <p className="col-span-1">Fee (%)</p>
         <p className="col-span-1">TVL</p>
       </div>
+
+      {/* Loader or Pool List */}
       {data.length === 0 ? (
         <SkeletonLoader />
       ) : (
         <>
-          {currentItems.map((item: any) => (
+          {currentItems.map((item) => (
             <div
-              onClick={() => handlePoolClick(item)}
               key={item.id}
+              onClick={() => handlePoolClick(item.id)}
               className="bg-[#0c171f] px-5 p-5 text-sm hover:bg-[#0c171f]/60 text-white cursor-pointer rounded-md grid grid-cols-5 gap-2 my-2"
             >
               <h1 className="col-span-3 font-semibold">
@@ -110,32 +132,39 @@ const PoolData = ({ data }: { data: any[] }) => {
               <PaginationPrevious
                 className="bg-white"
                 onClick={() => paginate(currentPage - 1)}
-                // @ts-ignore
                 disabled={currentPage === 1}
               />
             </PaginationItem>
             {pageNumbers.map((number) => (
               <PaginationItem key={number}>
                 <PaginationLink
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    paginate(number);
+                  }}
+                  isActive={number === currentPage}
                   className={`${
                     number === currentPage
-                      ? "bg-green-500 border-green-500"
-                      : "bg-white border-white"
+                      ? "bg-green-500 border-green-500 text-white"
+                      : "bg-white border-white text-black"
                   }`}
-                  href="#"
-                  onClick={() => paginate(number)}
-                  isActive={number === currentPage}
                 >
                   {number}
                 </PaginationLink>
               </PaginationItem>
             ))}
+
             <PaginationItem>
               <PaginationNext
-                className="bg-white"
-                onClick={() => paginate(currentPage + 1)}
-                // @ts-ignore
-                disabled={currentPage === totalPages}
+                className={`bg-white ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+                onClick={() => {
+                  if (currentPage < totalPages) paginate(currentPage + 1);
+                }}
               />
             </PaginationItem>
           </PaginationContent>

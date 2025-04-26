@@ -20,7 +20,7 @@ const RefSwap = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-5 bg-gray-800 rounded-lg shadow-lg">
-      <h1 className="text-2xl font-bold text-white mb-4">Ref Finance Swap</h1>
+      <h1 className="text-2xl font-bold text-white mb-4">CompoundX Swap</h1>
       {error && <div className="text-red-500 mb-4">{error}</div>}
 
       <div className="mb-4">

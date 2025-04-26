@@ -24,33 +24,63 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NearContext } from "../wallets/near";
 
+interface Wallet {
+  viewMethod: (args: {
+    contractId: string;
+    method: string;
+    args: Record<string, any>;
+    gas?: string;
+    deposit?: string;
+  }) => Promise<any>;
+  signAndSendTransactions: (args: {
+    transactions: Array<{
+      receiverId: string;
+      actions: Array<{
+        type: string;
+        params: {
+          methodName: string;
+          args: Record<string, any>;
+          gas: string;
+          deposit: string;
+        };
+      }>;
+    }>;
+  }) => Promise<any>;
+}
+
+interface NearContextType {
+  signedAccountId: string;
+  wallet: Wallet;
+}
+
+interface TransferLpProps {
+  poolType1: string;
+  poolType2: string;
+  poolTypeID1: string;
+  poolTypeID2: string;
+  Poolid: string;
+}
+
 export function TransferLp({
   poolType1,
   poolType2,
   poolTypeID1,
   poolTypeID2,
   Poolid,
-}: {
-  poolType1: string;
-  poolType2: string;
-  poolTypeID1: string;
-  poolTypeID2: string;
-  Poolid: string;
-}) {
-  const { signedAccountId, wallet } = useContext(NearContext);
-  const [fromBal, setfromBal] = useState("");
-  const [toBal, settoBal] = useState("");
-  const [amountA, setAmountA] = useState("");
-  const [amountB, setAmountB] = useState("");
-  const [lastChanged, setLastChanged] = useState("A");
+}: TransferLpProps) {
+  const { signedAccountId, wallet } = useContext<NearContextType>(NearContext);
+  const [amountA, setAmountA] = useState<any>("");
   const [fromToken, setFromToken] = useState<any>(null);
 
-  const [loading, setLoading] = useState(false);
-  const [isreg, setisreg] = useState(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isreg, setisreg] = useState<boolean | null>(null);
 
-  const [share1, setshare1] = useState<any>(null);
+  const [share1, setshare1] = useState<string | null>(null);
 
-  function toHumanReadable(amount: any, tokenType = "token") {
+  function toHumanReadable(
+    amount: string | number,
+    tokenType: string = "token"
+  ): string {
     const power = tokenType.toLowerCase() === "near" ? 24 : 18;
 
     const amountStr = String(amount).padStart(power + 1, "0");
@@ -65,15 +95,15 @@ export function TransferLp({
     return formattedAmount;
   }
 
-  const handleChangeA = (e: any) => {
+  const handleChangeA = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setAmountA(value);
   };
 
-  let count = 0;
-  async function checkshares() {
+  let count: number = 0;
+  async function checkshares(): Promise<void> {
     count++;
-    const getuserdata = await wallet.viewMethod({
+    const getUserData = await wallet.viewMethod({
       contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
@@ -101,8 +131,8 @@ export function TransferLp({
     checkshares().catch((err) => {});
   }
 
-  async function Tranfertoken() {
-    const getuserdata = await wallet.viewMethod({
+  async function Tranfertoken(): Promise<void> {
+    const getUserData = await wallet.viewMethod({
       contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
@@ -112,18 +142,14 @@ export function TransferLp({
       deposit: "0",
     });
 
-    const status = await wallet.viewMethod({
+    const status: boolean = await wallet.viewMethod({
       contractId: "v2.ref-finance.near",
       method: "mft_has_registered",
       args: {
         token_id: `:${Poolid}`, // Pool ID
-        account_id: `${getuserdata.username}.auto-claim-main2.near`,
+        account_id: `${getUserData.subaccount_id}`,
       },
     });
-
-    // console.log(status)
-
-    // setisreg(status)
 
     if (status) {
       const transactions = [
@@ -135,7 +161,7 @@ export function TransferLp({
               params: {
                 methodName: "mft_transfer",
                 args: {
-                  receiver_id: `${getuserdata.username}.auto-claim-main2.near`,
+                  receiver_id: `${getUserData.subaccount_id}`,
                   token_id: `:${Poolid}`,
                   amount: amountA,
                   memo: null,
@@ -162,7 +188,7 @@ export function TransferLp({
                 methodName: "mft_register",
                 args: {
                   token_id: `:${Poolid}`,
-                  account_id: `${getuserdata.username}.auto-claim-main2.near`,
+                  account_id: `${getUserData.subaccount_id}`,
                 },
                 gas: "85000000000000",
                 deposit: "20000000000000000000000",
@@ -173,7 +199,7 @@ export function TransferLp({
               params: {
                 methodName: "mft_transfer",
                 args: {
-                  receiver_id: `${getuserdata.username}.auto-claim-main2.near`,
+                  receiver_id: `${getUserData.subaccount_id}`,
                   token_id: `:${Poolid}`,
                   amount: amountA,
                   memo: null,
@@ -192,7 +218,7 @@ export function TransferLp({
     }
   }
 
-  const isSwapDisabled =
+  const isSwapDisabled: boolean =
     !amountA ||
     loading ||
     parseInt(amountA) > parseInt(poolType1) ||
@@ -201,7 +227,12 @@ export function TransferLp({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-full text-white p-3">Transfer</Button>
+        <Button
+          style={{ backgroundColor: "black" }}
+          className="w-full text-white p-3"
+        >
+          Transfer
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <>

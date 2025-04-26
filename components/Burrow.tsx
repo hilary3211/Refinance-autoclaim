@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,13 +11,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState, useEffect, useContext } from "react";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -24,68 +23,53 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NearContext } from "../wallets/near";
 
-export function Burrow({
-  tokenId,
-  tokenName,
-  Data,
-}: {
+interface BurrowProps {
   tokenId: string;
   tokenName: string;
   Data: any;
-}) {
+}
+
+export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
   const { signedAccountId, wallet } = useContext(NearContext);
   const [fromBal, setfromBal] = useState("");
   const [toBal, settoBal] = useState("");
   const [amountA, setAmountA] = useState("");
-  const [fromToken, setFromToken] = useState<any>(null);
+  const [fromToken, setFromToken] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [userbalance, setuserbalance] = useState("");
-
   const [selected, setSelected] = useState("");
 
-  function toHumanReadable(amount: any, tokenType = "token") {
+  function toHumanReadable(amount: string, tokenType = "token") {
     const power = tokenType.toLowerCase() === "near" ? 24 : 18;
-
     const amountStr = String(amount).padStart(power + 1, "0");
-
     const integerPart = amountStr.slice(0, -power);
     const fractionalPart = amountStr.slice(-power);
-
     const humanReadable = `${integerPart}.${fractionalPart}`;
-
     const formattedAmount = parseFloat(humanReadable).toFixed(2);
-
     return formattedAmount;
   }
 
-  const handleChangeA = (e: any) => {
+  const handleChangeA = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setAmountA(value);
   };
 
-  function toSmallestUnit(amount: any, tokenType = "token") {
+  function toSmallestUnit(amount: string, tokenType = "token") {
     const power = tokenType.toLowerCase() === "near" ? 24 : 18;
-
     const amountStr = String(amount);
-
     const [integerPart, fractionalPart = ""] = amountStr.split(".");
-
     const paddedFractionalPart = fractionalPart.padEnd(power, "0");
-
     const smallestUnit = BigInt(integerPart + paddedFractionalPart);
-
     return smallestUnit.toString();
   }
 
   useEffect(() => {
     const getsubbalance = async () => {
-      const getuserdata = await wallet.viewMethod({
+      const getUserData = await wallet.viewMethod({
         contractId: "auto-claim-main2.near",
         method: "get_user",
-        args: {
-          wallet_id: signedAccountId,
-        },
+        args: { wallet_id: signedAccountId },
         gas: "300000000000000",
         deposit: "0",
       });
@@ -93,7 +77,7 @@ export function Burrow({
       const getbal = await wallet.viewMethod({
         contractId: tokenId,
         method: "ft_balance_of",
-        args: { account_id: `${getuserdata.username}.auto-claim-main2.near` },
+        args: { account_id: `${getUserData.subaccount_id}` },
       });
 
       setuserbalance(toHumanReadable(getbal, "token"));
@@ -103,12 +87,10 @@ export function Burrow({
   }, []);
 
   const depositinburrow = async () => {
-    const getuserdata = await wallet.viewMethod({
+    const getUserData = await wallet.viewMethod({
       contractId: "auto-claim-main2.near",
       method: "get_user",
-      args: {
-        wallet_id: signedAccountId,
-      },
+      args: { wallet_id: signedAccountId },
       gas: "300000000000000",
       deposit: "0",
     });
@@ -117,7 +99,7 @@ export function Burrow({
       {
         seed_id: `nill`,
         token_id: tokenId,
-        smart_contract_name: `${getuserdata.username}.auto-claim-main2.near`,
+        smart_contract_name: `${getUserData.subaccount_id}`,
         is_active: "true",
         reinvest_to: selected,
       },
@@ -125,7 +107,7 @@ export function Burrow({
 
     const transactions = [
       {
-        receiverId: `${getuserdata.username}.auto-claim-main2.near`,
+        receiverId: `${getUserData.subaccount_id}`,
         actions: [
           {
             type: "FunctionCall",
@@ -137,10 +119,9 @@ export function Burrow({
                   tokenId === "wrap.near"
                     ? toSmallestUnit(amountA, "near")
                     : toSmallestUnit(amountA),
-                neargas: 50,
               },
-              gas: "85000000000000", // 85 Tgas
-              deposit: "0", // Minimal deposit
+              gas: "85000000000000",
+              deposit: "0",
             },
           },
         ],
@@ -152,9 +133,7 @@ export function Burrow({
             type: "FunctionCall",
             params: {
               methodName: "update_preferences",
-              args: {
-                prefs: preferences,
-              },
+              args: { prefs: preferences },
               gas: "300000000000000",
               deposit: "0",
             },
@@ -162,9 +141,8 @@ export function Burrow({
         ],
       },
     ];
-    const transfer = await wallet.signAndSendTransactions({
-      transactions,
-    });
+
+    const transfer = await wallet.signAndSendTransactions({ transactions });
   };
 
   const isSwapDisabled =
@@ -192,7 +170,7 @@ export function Burrow({
               <Label htmlFor="first" className="text-left">
                 {tokenName}
               </Label>
-              <div className=" rounded-md flex ">
+              <div className="rounded-md flex">
                 <div className="flex-1 flex-col items-center justify-start">
                   <p className="font-neuton">Balance: ${userbalance}</p>
                 </div>
@@ -201,7 +179,7 @@ export function Burrow({
                   type="number"
                   value={amountA}
                   onChange={handleChangeA}
-                  className="hover:border-2 hover:border-black-500 w-[full] p-2 outline-none border-black focus:ring-0     col-span-9"
+                  className="hover:border-2 hover:border-black-500 w-full p-2 outline-none border-black focus:ring-0 col-span-9"
                 />
               </div>
             </div>
@@ -217,7 +195,7 @@ export function Burrow({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectItem value="Stake">Stake xRef</SelectItem>
+                        {/* <SelectItem value="Stake">Stake xRef</SelectItem> */}
                         <SelectItem value={tokenId}>
                           Deposit in {tokenName} Pool & Compound
                         </SelectItem>
@@ -228,12 +206,9 @@ export function Burrow({
               </div>
             </div>
           </div>
-          <div></div>
           <DialogFooter>
             <Button
-              onClick={() => {
-                depositinburrow();
-              }}
+              onClick={depositinburrow}
               disabled={isSwapDisabled}
               type="submit"
               className="w-full"

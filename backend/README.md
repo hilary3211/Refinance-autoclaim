@@ -1,8 +1,8 @@
-# Ref Finance Auto-Claim and Compounding Bot
+# CompoundX Auto-Claim and Compounding Bot
 
 ## Description
 
-This is a Node.js bot (Bot.js) that automates the process of auto-claiming rewards and compounding reinvestments for users on Ref Finance, a decentralized exchange (DEX) on the NEAR blockchain.
+This is a Node.js bot (Bot.js) that automates the process of auto-claiming rewards and compounding reinvestments for users on CompoundX, a decentralized exchange (DEX) on the NEAR blockchain.
 
 
 ## Key Features
@@ -26,7 +26,7 @@ This is a Node.js bot (Bot.js) that automates the process of auto-claiming rewar
 
 2. Auto-Claiming:
 
-- The bot interacts with the Ref Finance smart contract to claim rewards for all users.
+- The bot interacts with the CompoundX smart contract to claim rewards for all users.
 
 3. Compounding:
 

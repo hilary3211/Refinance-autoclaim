@@ -28,45 +28,11 @@ export function SwapCard() {
   const [loading, setLoading] = useState(false);
   const [token, settoken] = useState<any[]>([]);
   const router = useRouter();
-  const [amountA, setAmountA] = useState("");
-  const [amountB, setAmountB] = useState("");
-  const [fromBal, setfromBal] = useState("");
-  const [toBal, settoBal] = useState("");
-  const [lastChanged, setLastChanged] = useState("A");
-
-  function getMinAmountOut(jsonStr: any) {
-    try {
-      const data = JSON.parse(jsonStr);
-      if (data.actions && Array.isArray(data.actions)) {
-        for (const action of data.actions) {
-          if (action.min_amount_out) {
-            return action.min_amount_out;
-          }
-        }
-      }
-      return null;
-    } catch (error) {
-      console.error("Invalid JSON string", error);
-      return null;
-    }
-  }
-
-  function getMinAmountOut2(jsonStr: any) {
-    try {
-      const data = JSON.parse(jsonStr);
-      if (data.actions && Array.isArray(data.actions)) {
-        for (const action of data.actions) {
-          if (action.amount_in) {
-            return action.amount_in;
-          }
-        }
-      }
-      return null;
-    } catch (error) {
-      console.error("Invalid JSON string", error);
-      return null;
-    }
-  }
+  const [amountA, setAmountA] = useState<any>("");
+  const [amountB, setAmountB] = useState<any>("");
+  const [fromBal, setfromBal] = useState<any>("");
+  const [toBal, settoBal] = useState<any>("");
+  const [lastChanged, setLastChanged] = useState<any>("A");
 
   function toHumanReadable(amount: any, tokenType = "token") {
     const power = tokenType.toLowerCase() === "near" ? 24 : 18;
@@ -98,7 +64,7 @@ export function SwapCard() {
   }
 
   const handleTransfer = async () => {
-    const getuserdata = await wallet.viewMethod({
+    const getUserData = await wallet.viewMethod({
       contractId: "auto-claim-main2.near",
       method: "get_user",
       args: {
@@ -107,21 +73,16 @@ export function SwapCard() {
       gas: "300000000000000",
       deposit: "0",
     });
-  
 
     const slippage = 0.005; // 0.5%
-  const minAmountOut =
-    toToken.contractId === "wrap.near"
-      ? toSmallestUnit(amountB, "near")
-      : toSmallestUnit((parseFloat(amountB) * (1 - slippage)).toString());
-  const amountIn =
-    fromToken.contractId === "wrap.near"
-      ? toSmallestUnit(amountA, "near")
-      : toSmallestUnit((parseFloat(amountA) * (1 - slippage)).toString());
-
-
-
-
+    const minAmountOut =
+      toToken.contractId === "wrap.near"
+        ? toSmallestUnit(amountB, "near")
+        : toSmallestUnit((parseFloat(amountB) * (1 - slippage)).toString());
+    const amountIn =
+      fromToken.contractId === "wrap.near"
+        ? toSmallestUnit(amountA, "near")
+        : toSmallestUnit((parseFloat(amountA) * (1 - slippage)).toString());
 
     const transactions = [
       {
@@ -145,7 +106,7 @@ export function SwapCard() {
             params: {
               methodName: "storage_deposit",
               args: {
-                account_id: `${getuserdata.username}.auto-claim-main2.near`,
+                account_id: `${getUserData.subaccount_id}`,
                 registration_only: true,
               },
               gas: "85000000000000", // 85 Tgas
@@ -163,7 +124,7 @@ export function SwapCard() {
             params: {
               methodName: "ft_transfer",
               args: {
-                receiver_id: `${getuserdata.username}.auto-claim-main2.near`,
+                receiver_id: `${getUserData.subaccount_id}`,
                 amount: minAmountOut,
               },
               gas: "85000000000000", // 85 Tgas
@@ -195,7 +156,7 @@ export function SwapCard() {
             params: {
               methodName: "storage_deposit",
               args: {
-                account_id: `${getuserdata.username}.auto-claim-main2.near`,
+                account_id: `${getUserData.subaccount_id}`,
                 registration_only: true,
               },
               gas: "85000000000000", // 85 Tgas
@@ -213,7 +174,7 @@ export function SwapCard() {
             params: {
               methodName: "ft_transfer",
               args: {
-                receiver_id: `${getuserdata.username}.auto-claim-main2.near`,
+                receiver_id: `${getUserData.subaccount_id}`,
                 amount: amountIn,
               },
               gas: "85000000000000", // 85 Tgas
@@ -227,10 +188,6 @@ export function SwapCard() {
       transactions,
     });
   };
-
-
-
-
 
   const switchTokens = () => {
     setFromToken(toToken);
@@ -278,44 +235,57 @@ export function SwapCard() {
 
   useEffect(() => {
     async function gettoksbal() {
-      let gettokenin;
-      let gettokenout;
-      if (fromToken?.contractId === "wrap.near") {
-        gettokenin = await wallet.getBalance(signedAccountId);
-      } else {
-        gettokenin = await wallet.viewMethod({
-          contractId: fromToken?.contractId,
-          method: "ft_balance_of",
-          args: {
-            account_id: signedAccountId,
-          },
-        });
+      try {
+        if (!signedAccountId) {
+          throw new Error("No account signed in");
+        }
+
+        let gettokenin;
+        let gettokenout;
+
+        if (fromToken?.contractId === "wrap.near") {
+          gettokenin = await wallet.getBalance(signedAccountId);
+        } else {
+          gettokenin = await wallet.viewMethod({
+            contractId: fromToken?.contractId,
+            method: "ft_balance_of",
+            args: JSON.stringify({
+              account_id: signedAccountId,
+            }),
+          });
+        }
+        setfromBal(gettokenin);
+
+        if (toToken?.contractId === "wrap.near") {
+          gettokenout = await wallet.getBalance(signedAccountId);
+        } else {
+          console.log("Fetching balance from:", toToken?.contractId);
+          gettokenout = await wallet.viewMethod({
+            contractId: toToken?.contractId,
+            method: "ft_balance_of",
+            args: JSON.stringify({
+              account_id: signedAccountId,
+            }),
+          });
+        }
+        settoBal(gettokenout);
+      } catch (error) {
+        //console.error("Error in gettoksbal:", error);
       }
-
-      setfromBal(gettokenin);
-
-      if (toToken?.contractId === "wrap.near") {
-        gettokenout = await wallet.getBalance(signedAccountId);
-      } else {
-        gettokenout = await wallet.viewMethod({
-          contractId: toToken?.contractId,
-          method: "ft_balance_of",
-          args: {
-            account_id: signedAccountId,
-          },
-        });
-      }
-
-      settoBal(gettokenout);
     }
 
     gettoksbal();
   });
 
   return (
-    <Card className="w-full sm:max-w-md max-w-sm mx-auto mt-5">
+    <Card
+      className="w-full sm:max-w-md max-w-sm mx-auto mt-5"
+      style={{ backgroundColor: "#0c171f" }}
+    >
       <CardHeader className="flex flex-row items-center justify-between">
-        <h2 className="text-2xl font-bold">Transfer to Subaccount</h2>
+        <h2 className="text-2xl text-white font-bold">
+          Transfer to Subaccount
+        </h2>
         <Popover>
           <PopoverTrigger asChild>
             <Settings className="w-5 h-5 cursor-pointer hover:text-green-900" />
@@ -354,7 +324,7 @@ export function SwapCard() {
         </Popover>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <div className="grid gap-2">
+        <div className="grid gap-2 text-white">
           <Label>From</Label>
           <div className="flex gap-2">
             <Input
@@ -387,8 +357,6 @@ export function SwapCard() {
                   {fromToken.tokenSymbol}
                 </div>
               )}
-
-       
             </>
           )}
         </div>
@@ -399,11 +367,11 @@ export function SwapCard() {
             className="rounded-full"
             onClick={switchTokens}
           >
-            <ArrowDown className="h-4 w-4" />
-            <span className="sr-only">Switch tokens</span>
+            <ArrowDown className="h-4 w-4 text-white" />
+            <span className="sr-only text-white">Switch tokens</span>
           </Button>
         </div>
-        <div className="grid gap-2">
+        <div className="grid gap-2 text-white">
           <Label>To</Label>
           <div className="flex gap-2">
             <Input
@@ -456,6 +424,7 @@ export function SwapCard() {
         <Button
           className="w-full"
           size="lg"
+          style={{ backgroundColor: "black" }}
           disabled={isSwapDisabled}
           onClick={handleTransfer}
         >
@@ -471,6 +440,7 @@ export function SwapCard() {
         <Button
           className="w-full"
           size="lg"
+          style={{ backgroundColor: "black" }}
           disabled={isSwapDisabled2}
           onClick={() => {
             router.push(

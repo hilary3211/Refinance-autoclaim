@@ -42,7 +42,7 @@ const SwapPage = () => {
   return (
     <div className="max-w-2xl mx-auto p-5 bg-gray-800 rounded-lg shadow-lg">
       <h1 className="text-2xl font-bold text-white mb-4">
-        Ref Finance Testnet Swap
+        CompoundX Testnet Swap
       </h1>
 
       <div className="mb-4">

@@ -29,12 +29,12 @@ interface ChartData {
   response: number;
 }
 
-const chartConfig = {
+const chartConfig: Record<string, { label: string; color: string }> = {
   desktop: {
     label: "Desktop",
     color: "hsl(var(--chart-1))",
   },
-} satisfies ChartConfig;
+};
 
 const chartData = [
   { month: "January", desktop: 186 },

@@ -10,7 +10,18 @@ import {
 import SkeletonLoader from "./SkeletonLoader";
 import { useRouter } from "next/navigation";
 
-const formatCurrency = (value: any): string => {
+interface PoolItem {
+  token_id: string;
+  token_name: string;
+  supplied: {
+    balance: string;
+  };
+  borrowed: {
+    balance: string;
+  };
+}
+
+const formatCurrency = (value: number | string): string => {
   const numericValue = Number(value);
 
   if (isNaN(numericValue)) {
@@ -27,6 +38,8 @@ const formatCurrency = (value: any): string => {
 };
 
 function formatSuppliedAmount(amount: string): string {
+  if (!amount) return "0";
+
   const num = BigInt(amount);
 
   // Define thresholds:
@@ -56,10 +69,10 @@ function formatSuppliedAmount(amount: string): string {
   }
 }
 
-const PoolData = ({ data }: { data: any[] }) => {
+const PoolData = ({ data }: { data: PoolItem[] }) => {
   const router = useRouter();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const itemsPerPage = 10;
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -75,7 +88,7 @@ const PoolData = ({ data }: { data: any[] }) => {
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-  const pageNumbers = [];
+  const pageNumbers: number[] = [];
   const maxVisiblePages = 5;
   const startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
   const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
@@ -84,7 +97,7 @@ const PoolData = ({ data }: { data: any[] }) => {
     pageNumbers.push(i);
   }
 
-  const handlePoolClick = (pool: any) => {
+  const handlePoolClick = (pool: PoolItem) => {
     router.push(`/finance/burrow/${pool.token_id}AND${pool.token_name}`);
   };
 
@@ -96,7 +109,9 @@ const PoolData = ({ data }: { data: any[] }) => {
           type="text"
           placeholder="Search pools by name..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setSearchTerm(e.target.value)
+          }
           className="max-w-xl w-full items-end p-2 rounded-md"
         />
       </div>
@@ -110,7 +125,7 @@ const PoolData = ({ data }: { data: any[] }) => {
         <SkeletonLoader />
       ) : (
         <>
-          {currentItems.map((item: any) => (
+          {currentItems.map((item: PoolItem) => (
             <div
               onClick={() => handlePoolClick(item)}
               key={item.token_id}
@@ -123,11 +138,12 @@ const PoolData = ({ data }: { data: any[] }) => {
               <h1 className="col-span-1 text-wrap truncate">
                 {formatSuppliedAmount(item.borrowed.balance)}
               </h1>
-
               <h1 className="col-span-1 text-wrap truncate">
                 {formatSuppliedAmount(
-                  parseInt(item.supplied.balance) -
-                    parseInt(item.borrowed.balance)
+                  (
+                    BigInt(item.supplied.balance) -
+                    BigInt(item.borrowed.balance)
+                  ).toString()
                 )}
               </h1>
             </div>
@@ -141,10 +157,12 @@ const PoolData = ({ data }: { data: any[] }) => {
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
-                className="bg-white"
-                onClick={() => paginate(currentPage - 1)}
-                // @ts-ignore
-                disabled={currentPage === 1}
+                className={`bg-white ${
+                  currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                onClick={() => {
+                  if (currentPage === 1) paginate(currentPage - 1);
+                }}
               />
             </PaginationItem>
             {pageNumbers.map((number) => (
@@ -156,7 +174,10 @@ const PoolData = ({ data }: { data: any[] }) => {
                       : "bg-white border-white"
                   }`}
                   href="#"
-                  onClick={() => paginate(number)}
+                  onClick={(e: React.MouseEvent) => {
+                    e.preventDefault();
+                    paginate(number);
+                  }}
                   isActive={number === currentPage}
                 >
                   {number}
@@ -165,9 +186,14 @@ const PoolData = ({ data }: { data: any[] }) => {
             ))}
             <PaginationItem>
               <PaginationNext
-                className="bg-white"
-                onClick={() => paginate(currentPage + 1)}
-                disabled={currentPage === totalPages}
+                className={`bg-white ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+                onClick={() => {
+                  if (currentPage === totalPages) paginate(currentPage + 1);
+                }}
               />
             </PaginationItem>
           </PaginationContent>
