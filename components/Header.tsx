@@ -19,12 +19,12 @@ const Header = () => {
 
   const [isregistered, setisregistered] = useState(true);
 
-  const countRef = useRef(0); // <-- using ref to persist value across renders
+  const countRef = useRef(0);
 
   async function getdata() {
     try {
       const getUserData = await wallet.viewMethod({
-        contractId: "auto-claim-main2.near",
+        contractId: "compoundx.near",
         method: "get_user",
         args: {
           wallet_id: signedAccountId,

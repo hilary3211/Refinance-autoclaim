@@ -127,7 +127,7 @@ export function RemoveLiq({
     try {
       setLoading(true);
       const getUserData = await wallet.viewMethod<UserData>({
-        contractId: "auto-claim-main2.near",
+        contractId: "compoundx.near",
         method: "get_user",
         args: {
           wallet_id: signedAccountId,

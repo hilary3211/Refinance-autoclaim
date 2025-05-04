@@ -8,8 +8,6 @@ const helmet = require("helmet");
 const cors = require("cors");
 const expressSanitizer = require("express-sanitizer");
 
-
-
 const app = express();
 app.use(cors());
 app.options("*", cors());
@@ -38,10 +36,10 @@ async function getNearConnection(keyStore) {
 async function autoClaimAndCompound() {
   try {
     const near = await getNearConnection(masterKeyStore);
-    const masterAccount = await near.account("david.auto-claim-main2.near");
+    const masterAccount = await near.account("david.compoundx.near");
 
     const getuserdata = await masterAccount.functionCall({
-      contractId: "auto-claim-main2.near",
+      contractId: "compoundx.near",
       methodName: "get_user",
       args: {
         wallet_id: MASTER_ACCOUNT_ID,

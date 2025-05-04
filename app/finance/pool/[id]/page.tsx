@@ -99,7 +99,7 @@ const Page = () => {
     count++;
     try {
       const getUserData = await wallet.viewMethod<UserData>({
-        contractId: "auto-claim-main2.near",
+        contractId: "compoundx.near",
         method: "get_user",
         args: {
           wallet_id: signedAccountId,
@@ -228,9 +228,9 @@ const Page = () => {
           </div>
         </div>
         <div>
-          <Card style={{backgroundColor : "#0c171f"}} className="w-[250px]">
+          <Card style={{ backgroundColor: "#0c171f" }} className="w-[250px]">
             <CardHeader>
-              <CardTitle style ={{color : "white"}}>Add Liquidity</CardTitle>
+              <CardTitle style={{ color: "white" }}>Add Liquidity</CardTitle>
               <CardDescription>
                 Head over to Rhea finance to Add liquidity by clicking the
                 button below.
@@ -240,7 +240,7 @@ const Page = () => {
             <CardFooter className="flex justify-between">
               <Button
                 className="w-full text-white p-3"
-                style ={{backgroundColor:"black"}}
+                style={{ backgroundColor: "black" }}
                 onClick={() => {
                   router.push(`https://dex.rhea.finance/pool/${id}`);
                 }}
@@ -250,11 +250,15 @@ const Page = () => {
             </CardFooter>
           </Card>
 
-          {parseInt(mainShare1) > 0 
-          && (
-            <Card style={{backgroundColor : "#0c171f"}}  className="w-[250px] mt-8">
+          {parseInt(mainShare1) > 0 && (
+            <Card
+              style={{ backgroundColor: "#0c171f" }}
+              className="w-[250px] mt-8"
+            >
               <CardHeader>
-                <CardTitle style ={{color : "white"}}>Transfer Lp tokens</CardTitle>
+                <CardTitle style={{ color: "white" }}>
+                  Transfer Lp tokens
+                </CardTitle>
                 <CardDescription>
                   In other to stake with subaccount, transfer Lp tokens to
                   subaccount
@@ -274,9 +278,14 @@ const Page = () => {
           )}
 
           {parseInt(share1) > 0 && (
-            <Card style={{backgroundColor : "#0c171f"}} className="w-[250px] mt-8">
+            <Card
+              style={{ backgroundColor: "#0c171f" }}
+              className="w-[250px] mt-8"
+            >
               <CardHeader>
-                <CardTitle style ={{color : "white"}}>Remove Liquidity</CardTitle>
+                <CardTitle style={{ color: "white" }}>
+                  Remove Liquidity
+                </CardTitle>
                 <CardDescription>
                   Removing liquidty stops auto cliam rewards
                 </CardDescription>
@@ -295,10 +304,11 @@ const Page = () => {
             </Card>
           )}
 
-          {(parseInt(share1) > 0 || parseInt(share2) > 0) 
-          
-          && (
-            <div style={{backgroundColor : "#0c171f"}} className="flex items-center w-[250px] bg-white p-4 rounded-md h-[100px] my-3">
+          {(parseInt(share1) > 0 || parseInt(share2) > 0) && (
+            <div
+              style={{ backgroundColor: "#0c171f" }}
+              className="flex items-center w-[250px] bg-white p-4 rounded-md h-[100px] my-3"
+            >
               <div className="w-[100px] text-white">
                 <p className="font-semibold text-sm">Farm APR</p>
                 <p className="text-sm">12.87%</p>
@@ -306,7 +316,7 @@ const Page = () => {
               <div className="w-[150px] space-y-2 text-white">
                 <p className="font-semibold text-sm text-white">$2.26k/week</p>
                 <Button
-                 style ={{backgroundColor:"black"}}
+                  style={{ backgroundColor: "black" }}
                   className="w-full text-white p-3"
                   onClick={() => {
                     router.push(`/finance/farm/${id}`);
@@ -324,6 +334,3 @@ const Page = () => {
 };
 
 export default Page;
-
-
-

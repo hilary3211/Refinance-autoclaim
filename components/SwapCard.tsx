@@ -65,7 +65,7 @@ export function SwapCard() {
 
   const handleTransfer = async () => {
     const getUserData = await wallet.viewMethod({
-      contractId: "auto-claim-main2.near",
+      contractId: "compoundx.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -74,7 +74,7 @@ export function SwapCard() {
       deposit: "0",
     });
 
-    const slippage = 0.005; // 0.5%
+    const slippage = 0.005;
     const minAmountOut =
       toToken.contractId === "wrap.near"
         ? toSmallestUnit(amountB, "near")
@@ -95,8 +95,8 @@ export function SwapCard() {
                   params: {
                     methodName: "near_deposit",
                     args: {},
-                    gas: "85000000000000", // 85 Tgas
-                    deposit: minAmountOut, // Amount of NEAR to deposit
+                    gas: "85000000000000",
+                    deposit: minAmountOut,
                   },
                 },
               ]
@@ -109,8 +109,8 @@ export function SwapCard() {
                 account_id: `${getUserData.subaccount_id}`,
                 registration_only: true,
               },
-              gas: "85000000000000", // 85 Tgas
-              deposit: "1250000000000000000000", // 0.00125 NEAR
+              gas: "85000000000000",
+              deposit: "1250000000000000000000",
             },
           },
         ],
@@ -127,8 +127,8 @@ export function SwapCard() {
                 receiver_id: `${getUserData.subaccount_id}`,
                 amount: minAmountOut,
               },
-              gas: "85000000000000", // 85 Tgas
-              deposit: "1", // Minimal deposit
+              gas: "85000000000000",
+              deposit: "1",
             },
           },
         ],
@@ -144,8 +144,8 @@ export function SwapCard() {
                   params: {
                     methodName: "near_deposit",
                     args: {},
-                    gas: "85000000000000", // 85 Tgas
-                    deposit: amountIn, // Amount of NEAR to deposit
+                    gas: "85000000000000",
+                    deposit: amountIn,
                   },
                 },
               ]
@@ -159,8 +159,8 @@ export function SwapCard() {
                 account_id: `${getUserData.subaccount_id}`,
                 registration_only: true,
               },
-              gas: "85000000000000", // 85 Tgas
-              deposit: "1250000000000000000000", // 0.00125 NEAR
+              gas: "85000000000000",
+              deposit: "1250000000000000000000",
             },
           },
         ],
@@ -177,8 +177,8 @@ export function SwapCard() {
                 receiver_id: `${getUserData.subaccount_id}`,
                 amount: amountIn,
               },
-              gas: "85000000000000", // 85 Tgas
-              deposit: "1", // Minimal deposit
+              gas: "85000000000000",
+              deposit: "1",
             },
           },
         ],
@@ -269,9 +269,7 @@ export function SwapCard() {
           });
         }
         settoBal(gettokenout);
-      } catch (error) {
-        //console.error("Error in gettoksbal:", error);
-      }
+      } catch (error) {}
     }
 
     gettoksbal();
@@ -342,18 +340,20 @@ export function SwapCard() {
           {fromToken && (
             <>
               <div className="text-sm text-muted-foreground">
-                Price: ${parseFloat(fromToken.price).toFixed(4)}{" "}
+                Price: {parseFloat(fromToken.price).toFixed(4)}{" "}
                 {fromToken.tokenSymbol}
               </div>
 
               {fromToken.tokenSymbol === "wNEAR" ? (
                 <div className="text-sm text-muted-foreground">
-                  Balance: ${parseFloat(fromBal).toFixed(4)} Near
+                  Balance: {parseFloat(fromBal).toFixed(4)} Near
                 </div>
               ) : (
                 <div className="text-sm text-muted-foreground">
-                  Balance: $
-                  {parseFloat(toHumanReadable(fromBal, "token")).toFixed(4)}{" "}
+                  Balance:
+                  {parseFloat(toHumanReadable(fromBal, "token")).toFixed(
+                    4
+                  )}{" "}
                   {fromToken.tokenSymbol}
                 </div>
               )}
@@ -389,28 +389,21 @@ export function SwapCard() {
           {toToken && (
             <>
               <div className="text-sm text-muted-foreground">
-                Price: ${parseFloat(toToken.price).toFixed(4)}{" "}
+                Price: {parseFloat(toToken.price).toFixed(4)}{" "}
                 {toToken.tokenSymbol}
               </div>
 
               {toToken.tokenSymbol === "wNEAR" ? (
                 <div className="text-sm text-muted-foreground">
-                  Balance: ${parseFloat(toBal).toFixed(4)} Near
+                  Balance: {parseFloat(toBal).toFixed(4)} Near
                 </div>
               ) : (
                 <div className="text-sm text-muted-foreground">
-                  Balance: $
+                  Balance:
                   {parseFloat(toHumanReadable(toBal, "token")).toFixed(4)}{" "}
                   {toToken.tokenSymbol}
                 </div>
               )}
-
-              {/* <div className="text-sm text-muted-foreground">
-                Price: ${toToken.price} {toToken.tokenSymbol}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Balance: ${toBal} {toToken.tokenSymbol}
-              </div> */}
             </>
           )}
         </div>

@@ -27,7 +27,7 @@ export function CreateDialog() {
   async function Createaccount(username: string) {
     try {
       const getUserData = await wallet.viewMethod({
-        contractId: "auto-claim-main2.near",
+        contractId: "compoundx.near",
         method: "get_user",
         args: { wallet_id: signedAccountId },
       });
@@ -47,7 +47,10 @@ export function CreateDialog() {
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username }),
+                body: JSON.stringify({
+                  username: convertNearFormat(username),
+                  walletId: signedAccountId,
+                }),
               }
             );
             const apiResult = await response.json();
@@ -59,7 +62,7 @@ export function CreateDialog() {
       } else {
         const transactions = [
           {
-            receiverId: "auto-claim-main2.near",
+            receiverId: "compoundx.near",
             actions: [
               {
                 type: "Transfer",
@@ -70,8 +73,9 @@ export function CreateDialog() {
                 params: {
                   methodName: "store_user",
                   args: {
-                    username: convertNearFormat(signedAccountId),
-                    subaccount_id: signedAccountId,
+                    subaccount_id: `${convertNearFormat(
+                      signedAccountId
+                    )}.compoundx.near`,
                   },
                   gas: "30000000000000",
                   deposit: "0",

@@ -118,7 +118,7 @@ export function AddLiquidity({
     async function getTokenBalances() {
       try {
         const getUserData = await wallet.viewMethod<UserData>({
-          contractId: "auto-claim-main2.near",
+          contractId: "compoundx.near",
           method: "get_user",
           args: { wallet_id: signedAccountId },
           gas: "300000000000000",
@@ -238,7 +238,7 @@ export function AddLiquidity({
     try {
       setLoading(true);
       const getUserData = await wallet.viewMethod<UserData>({
-        contractId: "auto-claim-main2.near",
+        contractId: "compoundx.near",
         method: "get_user",
         args: { wallet_id: signedAccountId },
         gas: "300000000000000",
@@ -334,8 +334,8 @@ export function AddLiquidity({
             </Label>
             <div className="rounded-md flex">
               <div className="flex-1 flex-col items-center justify-start">
-                <p className="font-neuton">User Balance: ${fromBal}</p>
-                <p className="font-neuton">Sub-account Balance: ${subal1}</p>
+                <p className="font-neuton">User Balance: {fromBal}</p>
+                <p className="font-neuton">Sub-account Balance: {subal1}</p>
               </div>
               <Input
                 id="first"
@@ -352,7 +352,7 @@ export function AddLiquidity({
             </Label>
             <div className="rounded-md flex">
               <div className="flex-1 flex-col items-center justify-start">
-                <p className="font-neuton">User Balance: ${toBal}</p>
+                <p className="font-neuton">User Balance: {toBal}</p>
                 <p className="font-neuton">Sub-account Balance: ${subal2}</p>
               </div>
               <Input

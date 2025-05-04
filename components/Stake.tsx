@@ -24,7 +24,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NearContext } from "../wallets/near";
 
-// Define wallet interface for NearContext
 interface Wallet {
   viewMethod: (args: {
     contractId: string;
@@ -80,10 +79,51 @@ export function Stake({
   const [toToken, setToToken] = useState<any>(null);
   const [loaded, setloaded] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [subal1, setsubal] = useState<string>("");
-  const [subal2, setsubal2] = useState<string>("");
+  const [subal1, setsubal] = useState<boolean>(false);
+  const [subal2, setsubal2] = useState<boolean>(false);
+  const [subal3, setsubal3] = useState<boolean>(false);
   const [stakepage, setstakepage] = useState<boolean>(true);
   const [selected, setSelected] = useState<string>("");
+
+  useEffect(() => {
+    const getsubbalance = async () => {
+      const getbal1 = await wallet.viewMethod({
+        contractId: `v2.ref-finance.near`,
+        method: "storage_balance_of",
+        args: {
+          account_id: signedAccountId,
+        },
+        gas: "300000000000000",
+        deposit: "0",
+      });
+
+      const getbal2 = await wallet.viewMethod({
+        contractId: `boostfarm.ref-labs.near`,
+        method: "storage_balance_of",
+        args: {
+          account_id: signedAccountId,
+        },
+        gas: "300000000000000",
+        deposit: "0",
+      });
+
+      const getbal3 = await wallet.viewMethod({
+        contractId: `contract.main.burrow.near`,
+        method: "storage_balance_of",
+        args: {
+          account_id: signedAccountId,
+        },
+        gas: "300000000000000",
+        deposit: "0",
+      });
+
+      setsubal(getbal1.total === "0");
+      setsubal2(getbal2.total === "0");
+      setsubal3(getbal2.total === "0");
+    };
+
+    getsubbalance();
+  }, []);
 
   function toHumanReadable(
     amount: string | number,
@@ -115,7 +155,7 @@ export function Stake({
 
   async function Stake(): Promise<void> {
     const getUserData = await wallet.viewMethod({
-      contractId: "auto-claim-main2.near",
+      contractId: "compoundx.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -124,19 +164,80 @@ export function Stake({
       deposit: "0",
     });
 
-    const preferences = [
-      {
-        seed_id: `v2.ref-finance.near@${Poolid}`,
-        token_id: poolType1,
-        smart_contract_name: `${getUserData.subaccount_id}`,
-        is_active: true,
-        reinvest_to: selected,
+    const preferences = {
+      smart_contract_name: "dera222.compoundx.near",
+      is_active: true,
+      invested_in: {
+        Burrow: {
+          seed_id: `v2.ref-finance.near@${Poolid}`,
+          token_id: poolTypeID1,
+        },
       },
-    ];
+      reinvest_to: {
+        Burrow: {
+          seed_id: `v2.ref-finance.near@${Poolid}`,
+          token_id: poolTypeID1,
+        },
+      },
+    };
 
-    const transactions = [
+    const transactions: any = [
+      subal1 && {
+        receiverId: "v2.ref-finance.near",
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit",
+              args: {
+                account_id: "dera222.compoundx.near",
+                registration_only: true,
+              },
+              gas: "300000000000000",
+              deposit: "2500000000000000000000",
+            },
+          },
+        ],
+      },
+
+      subal2 && {
+        receiverId: "boostfarm.ref-labs.near",
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit",
+              args: {
+                account_id: "dera222.compoundx.near",
+                registration_only: true,
+              },
+              gas: "300000000000000",
+              deposit: "100000000000000000000000",
+            },
+          },
+        ],
+      },
+
+      subal3 && {
+        receiverId: "contract.main.burrow.near",
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit",
+              args: {
+                account_id: "dera222.compoundx.near",
+                registration_only: true,
+              },
+              gas: "300000000000000",
+              deposit: "100000000000000000000000",
+            },
+          },
+        ],
+      },
+
       {
-        receiverId: `${getUserData.subaccount_id}`,
+        receiverId: "dera222.compoundx.near",
         actions: [
           {
             type: "FunctionCall",
@@ -145,7 +246,6 @@ export function Stake({
               args: {
                 pool_id: `:${Poolid}`,
                 lp_token_amount: amountA,
-                user_account: `${getUserData.subaccount_id}`,
               },
               gas: "300000000000000",
               deposit: "1000000000000000000000000",
@@ -155,22 +255,20 @@ export function Stake({
       },
 
       {
-        receiverId: "auto-claim-main2.near",
+        receiverId: "compoundx.near",
         actions: [
           {
             type: "FunctionCall",
             params: {
-              methodName: "update_preferences",
-              args: {
-                prefs: preferences,
-              },
+              methodName: "update_preference",
+              args: preferences,
               gas: "300000000000000",
               deposit: "0",
             },
           },
         ],
       },
-    ];
+    ].filter(Boolean);
 
     const products2 = await wallet.signAndSendTransactions({
       transactions,
@@ -179,7 +277,7 @@ export function Stake({
 
   async function unStake(): Promise<void> {
     const getUserData = await wallet.viewMethod({
-      contractId: "auto-claim-main2.near",
+      contractId: "compoundx.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -202,6 +300,20 @@ export function Stake({
                 token_id:
                   poolTypeID1 === "wrap.near" ? poolTypeID2 : poolTypeID1,
               },
+              gas: "300000000000000",
+              deposit: "0",
+            },
+          },
+        ],
+      },
+      {
+        receiverId: "compoundx.near",
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "delete_preference",
+              args: {},
               gas: "300000000000000",
               deposit: "0",
             },
@@ -364,7 +476,7 @@ export function Stake({
                 <div className=" rounded-md flex ">
                   <div className="flex-1 flex-col items-center justify-start">
                     <p className="font-neuton">
-                      Balance: ${toHumanReadable(poolType2)}
+                      Balance: {toHumanReadable(poolType2)}
                     </p>
                   </div>
                   <Input

@@ -1,13 +1,5 @@
 "use client";
 import Header from "@/components/Header";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Card, CardContent } from "@/components/ui/card";
 import { useState, useEffect, useContext } from "react";
 import {
   Select,
@@ -25,8 +17,8 @@ import { NearContext } from "@/wallets/near";
 const WithdrawPage = () => {
   const { signedAccountId, wallet } = useContext(NearContext);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const totalItems = 20; // Total number of items in the carousel
-  const itemsToShow = 6; // Number of items to show at once
+  const totalItems = 20;
+  const itemsToShow = 6;
   const [share2, setshare2] = useState<any>(null);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
@@ -169,7 +161,7 @@ const WithdrawPage = () => {
 
   async function Withdraw() {
     const getUserData = await wallet.viewMethod({
-      contractId: "auto-claim-main2.near",
+      contractId: "compoundx.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -257,7 +249,7 @@ const WithdrawPage = () => {
                                     async function gettokbal() {
                                       const getUserData =
                                         await wallet.viewMethod({
-                                          contractId: "auto-claim-main2.near",
+                                          contractId: "compoundx.near",
                                           method: "get_user",
                                           args: {
                                             wallet_id: signedAccountId,

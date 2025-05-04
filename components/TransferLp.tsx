@@ -11,15 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useState, useEffect, useContext } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NearContext } from "../wallets/near";
@@ -73,27 +65,9 @@ export function TransferLp({
   const [fromToken, setFromToken] = useState<any>(null);
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [isreg, setisreg] = useState<boolean | null>(null);
+
 
   const [share1, setshare1] = useState<string | null>(null);
-
-  function toHumanReadable(
-    amount: string | number,
-    tokenType: string = "token"
-  ): string {
-    const power = tokenType.toLowerCase() === "near" ? 24 : 18;
-
-    const amountStr = String(amount).padStart(power + 1, "0");
-
-    const integerPart = amountStr.slice(0, -power);
-    const fractionalPart = amountStr.slice(-power);
-
-    const humanReadable = `${integerPart}.${fractionalPart}`;
-
-    const formattedAmount = parseFloat(humanReadable).toFixed(2);
-
-    return formattedAmount;
-  }
 
   const handleChangeA = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -104,7 +78,7 @@ export function TransferLp({
   async function checkshares(): Promise<void> {
     count++;
     const getUserData = await wallet.viewMethod({
-      contractId: "auto-claim-main2.near",
+      contractId: "compoundx.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -133,7 +107,7 @@ export function TransferLp({
 
   async function Tranfertoken(): Promise<void> {
     const getUserData = await wallet.viewMethod({
-      contractId: "auto-claim-main2.near",
+      contractId: "compoundx.near",
       method: "get_user",
       args: {
         wallet_id: signedAccountId,
@@ -146,7 +120,7 @@ export function TransferLp({
       contractId: "v2.ref-finance.near",
       method: "mft_has_registered",
       args: {
-        token_id: `:${Poolid}`, // Pool ID
+        token_id: `:${Poolid}`,
         account_id: `${getUserData.subaccount_id}`,
       },
     });
@@ -266,7 +240,7 @@ export function TransferLp({
 
               <div className=" rounded-md flex ">
                 <div className="flex-1 flex-col items-center justify-start">
-                  <p className="font-neuton">Balance: ${share1}</p>
+                  <p className="font-neuton">Balance: {share1}</p>
                 </div>
                 <Input
                   id="first"

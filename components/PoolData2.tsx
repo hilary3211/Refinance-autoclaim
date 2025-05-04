@@ -42,16 +42,14 @@ function formatSuppliedAmount(amount: string): string {
 
   const num = BigInt(amount);
 
-  // Define thresholds:
-  const millionThreshold = BigInt("1000000000000000000000000"); // 1e24
-  const thousandThreshold = BigInt("1000000000000000000000"); // 1e21
-  const hundredThreshold = BigInt("1000000000000000000"); // 1e18
+  const millionThreshold = BigInt("1000000000000000000000000");
+  const thousandThreshold = BigInt("1000000000000000000000");
+  const hundredThreshold = BigInt("1000000000000000000");
 
-  // Helper to format a number using a given divisor and suffix.
   function formatWithDivisor(divisor: bigint, suffix: string): string {
     const wholePart = num / divisor;
     const remainder = num % divisor;
-    // Calculate two decimal places.
+
     const decimals = (remainder * BigInt(100)) / divisor;
     return `${wholePart.toString()}.${decimals
       .toString()
@@ -151,7 +149,6 @@ const PoolData = ({ data }: { data: PoolItem[] }) => {
         </>
       )}
 
-      {/* Pagination Controls */}
       <div className="flex justify-between items-center my-4">
         <Pagination>
           <PaginationContent>

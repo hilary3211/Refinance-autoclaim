@@ -12,7 +12,6 @@ import {
 import SkeletonLoader from "./SkeletonLoader";
 import { useRouter } from "next/navigation";
 
-// Utility: Format numbers to display TVL (e.g., $1.00K, $2.5M)
 const formatCurrency = (value: number | string): string => {
   const numericValue = Number(value);
 
@@ -27,7 +26,6 @@ const formatCurrency = (value: number | string): string => {
   }
 };
 
-// Props type definition
 type PoolDataProps = {
   data: {
     id: string;
@@ -46,7 +44,6 @@ const PoolData: React.FC<PoolDataProps> = ({ data }) => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
-  // Filter data by search term
   const filteredData = data.filter((item) =>
     item.token_symbols
       .join(" / ")
@@ -54,13 +51,11 @@ const PoolData: React.FC<PoolDataProps> = ({ data }) => {
       .includes(searchTerm.toLowerCase())
   );
 
-  // Slice current page data
   const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
-  // Page number range calculation
   const maxVisiblePages = 5;
   const startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
   const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
@@ -80,7 +75,6 @@ const PoolData: React.FC<PoolDataProps> = ({ data }) => {
 
   return (
     <div className="sm:max-w-5xl max-w-sm mx-auto">
-      {/* Search input */}
       <div className="mb-4 pt-6 w-full flex">
         <div className="flex-1" />
         <input
@@ -92,14 +86,12 @@ const PoolData: React.FC<PoolDataProps> = ({ data }) => {
         />
       </div>
 
-      {/* Table Headers */}
       <div className="grid grid-cols-5 gap-2 text-[#4f5f64] px-3 text-sm font-semibold py-2">
         <p className="col-span-3">Pair</p>
         <p className="col-span-1">Fee (%)</p>
         <p className="col-span-1">TVL</p>
       </div>
 
-      {/* Loader or Pool List */}
       {data.length === 0 ? (
         <SkeletonLoader />
       ) : (
@@ -124,7 +116,6 @@ const PoolData: React.FC<PoolDataProps> = ({ data }) => {
         </>
       )}
 
-      {/* Pagination Controls */}
       <div className="flex justify-between items-center my-4">
         <Pagination>
           <PaginationContent>

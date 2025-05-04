@@ -35,7 +35,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
   const [toBal, settoBal] = useState("");
   const [amountA, setAmountA] = useState("");
   const [fromToken, setFromToken] = useState<string | null>(null);
-
+  const [subal1, setsubal] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [userbalance, setuserbalance] = useState("");
   const [selected, setSelected] = useState("");
@@ -67,7 +67,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
   useEffect(() => {
     const getsubbalance = async () => {
       const getUserData = await wallet.viewMethod({
-        contractId: "auto-claim-main2.near",
+        contractId: "compoundx.near",
         method: "get_user",
         args: { wallet_id: signedAccountId },
         gas: "300000000000000",
@@ -80,6 +80,17 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
         args: { account_id: `${getUserData.subaccount_id}` },
       });
 
+      const getbal1 = await wallet.viewMethod({
+        contractId: `contract.main.burrow.near`,
+        method: "storage_balance_of",
+        args: {
+          account_id: signedAccountId,
+        },
+        gas: "300000000000000",
+        deposit: "0",
+      });
+
+      setsubal(getbal1.total === "0");
       setuserbalance(toHumanReadable(getbal, "token"));
     };
 
@@ -88,7 +99,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
 
   const depositinburrow = async () => {
     const getUserData = await wallet.viewMethod({
-      contractId: "auto-claim-main2.near",
+      contractId: "compoundx.near",
       method: "get_user",
       args: { wallet_id: signedAccountId },
       gas: "300000000000000",
@@ -105,7 +116,24 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
       },
     ];
 
-    const transactions = [
+    const transactions: any = [
+      subal1 && {
+        receiverId: "contract.main.burrow.near",
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit",
+              args: {
+                account_id: `${getUserData.subaccount_id}`,
+                registration_only: true,
+              },
+              gas: "300000000000000",
+              deposit: "100000000000000000000000",
+            },
+          },
+        ],
+      },
       {
         receiverId: `${getUserData.subaccount_id}`,
         actions: [
@@ -120,14 +148,14 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
                     ? toSmallestUnit(amountA, "near")
                     : toSmallestUnit(amountA),
               },
-              gas: "85000000000000",
+              gas: "100000000000000",
               deposit: "0",
             },
           },
         ],
       },
       {
-        receiverId: "auto-claim-main2.near",
+        receiverId: "compoundx.near",
         actions: [
           {
             type: "FunctionCall",
@@ -140,7 +168,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
           },
         ],
       },
-    ];
+    ].filter(Boolean);
 
     const transfer = await wallet.signAndSendTransactions({ transactions });
   };
