@@ -87,11 +87,21 @@ export function Stake({
 
   useEffect(() => {
     const getsubbalance = async () => {
+      const getUserData = await wallet.viewMethod({
+        contractId: "compoundx.near",
+        method: "get_user",
+        args: {
+          wallet_id: signedAccountId,
+        },
+        gas: "300000000000000",
+        deposit: "0",
+      });
+  
       const getbal1 = await wallet.viewMethod({
         contractId: `v2.ref-finance.near`,
         method: "storage_balance_of",
         args: {
-          account_id: signedAccountId,
+          account_id: `${getUserData.subaccount_id}`,
         },
         gas: "300000000000000",
         deposit: "0",
@@ -101,7 +111,7 @@ export function Stake({
         contractId: `boostfarm.ref-labs.near`,
         method: "storage_balance_of",
         args: {
-          account_id: signedAccountId,
+          account_id: `${getUserData.subaccount_id}`,
         },
         gas: "300000000000000",
         deposit: "0",
@@ -111,7 +121,7 @@ export function Stake({
         contractId: `contract.main.burrow.near`,
         method: "storage_balance_of",
         args: {
-          account_id: signedAccountId,
+          account_id:`${getUserData.subaccount_id}`,
         },
         gas: "300000000000000",
         deposit: "0",
@@ -119,7 +129,7 @@ export function Stake({
 
       setsubal(getbal1.total === "0");
       setsubal2(getbal2.total === "0");
-      setsubal3(getbal2.total === "0");
+      setsubal3(getbal3.total === "0");
     };
 
     getsubbalance();
@@ -165,7 +175,7 @@ export function Stake({
     });
 
     const preferences = {
-      smart_contract_name: "dera222.compoundx.near",
+      smart_contract_name: `${getUserData.subaccount_id}`,
       is_active: true,
       invested_in: {
         Burrow: {
@@ -190,7 +200,7 @@ export function Stake({
             params: {
               methodName: "storage_deposit",
               args: {
-                account_id: "dera222.compoundx.near",
+                account_id: `${getUserData.subaccount_id}`,
                 registration_only: true,
               },
               gas: "300000000000000",
@@ -208,7 +218,7 @@ export function Stake({
             params: {
               methodName: "storage_deposit",
               args: {
-                account_id: "dera222.compoundx.near",
+                account_id: `${getUserData.subaccount_id}`,
                 registration_only: true,
               },
               gas: "300000000000000",
@@ -226,7 +236,7 @@ export function Stake({
             params: {
               methodName: "storage_deposit",
               args: {
-                account_id: "dera222.compoundx.near",
+                account_id: `${getUserData.subaccount_id}`,
                 registration_only: true,
               },
               gas: "300000000000000",
@@ -237,7 +247,7 @@ export function Stake({
       },
 
       {
-        receiverId: "dera222.compoundx.near",
+        receiverId: `${getUserData.subaccount_id}`,
         actions: [
           {
             type: "FunctionCall",

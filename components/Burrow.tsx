@@ -84,7 +84,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
         contractId: `contract.main.burrow.near`,
         method: "storage_balance_of",
         args: {
-          account_id: signedAccountId,
+          account_id: `${getUserData.subaccount_id}`,
         },
         gas: "300000000000000",
         deposit: "0",
@@ -237,7 +237,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
           <DialogFooter>
             <Button
               onClick={depositinburrow}
-              disabled={isSwapDisabled}
+             // disabled={isSwapDisabled}
               type="submit"
               className="w-full"
             >
