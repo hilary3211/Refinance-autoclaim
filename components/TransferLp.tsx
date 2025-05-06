@@ -240,7 +240,7 @@ export function TransferLp({
 
               <div className=" rounded-md flex ">
                 <div className="flex-1 flex-col items-center justify-start">
-                  <p className="font-neuton">Balance: {share1}</p>
+                  {/* <p className="font-neuton">Balance: {share1}</p> */}
                 </div>
                 <Input
                   id="first"

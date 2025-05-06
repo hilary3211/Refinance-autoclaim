@@ -41,8 +41,41 @@ const page = () => {
   const id = params.id as string;
 
   const [data, setData] = useState<TokenData | null>(null);
-  const [tokenId, tokenName] = id.split("AND");
+  const decoded = decodeURIComponent(id);
+  const values = decoded.split('&').map(pair => pair.split('=')[1]);
+  const [tokenId, tokenName, apy, yearly] = values;
+ 
 
+  function formatRewards(apy: any, yearly: any) {
+ 
+    const apyValue = parseFloat(apy);
+    const yearlyValue = parseFloat(yearly);
+  
+
+    const saneAPY = apyValue > 1000000 
+      ? apyValue / 1000000 // Handle possible decimal error
+      : apyValue;
+  
+    // Format with reasonable limits
+    return {
+      apy1: Math.min(saneAPY, 10000).toLocaleString('en', { 
+        maximumFractionDigits: 2 
+      }) + '%',
+      yearly1: yearlyValue > 1000
+        ? (yearlyValue / 1000).toLocaleString('en', {
+            maximumFractionDigits: 2
+          }) + 'K'
+        : yearlyValue.toFixed(2)
+    };
+  }
+
+  // console.log(tokenId, tokenName, apy, yearly)
+  
+  // Usage
+  const { apy1, yearly1 } = formatRewards(apy, yearly);
+
+  console.log(apy1, yearly1 )
+ 
   const formatCurrency = (value: any): string => {
     const numericValue = Number(value);
 
@@ -182,6 +215,13 @@ const page = () => {
                           BigInt(data?.borrowed?.balance || "0")
                         ).toString()
                       )}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p>APY / Rewards</p>
+                    <p>
+                      {apy1} / {yearly1}
                     </p>
                   </div>
                 </div>

@@ -142,7 +142,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
             params: {
               methodName: "deposit_into_burrow_pool",
               args: {
-                tokenid: tokenId,
+                token_id: tokenId,
                 deposit_amount:
                   tokenId === "wrap.near"
                     ? toSmallestUnit(amountA, "near")
@@ -200,7 +200,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
               </Label>
               <div className="rounded-md flex">
                 <div className="flex-1 flex-col items-center justify-start">
-                  <p className="font-neuton">Balance: ${userbalance}</p>
+                  {/* <p className="font-neuton">Balance: ${userbalance}</p> */}
                 </div>
                 <Input
                   id="first"

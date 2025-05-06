@@ -20,10 +20,14 @@ export function CreateDialog() {
   const { signedAccountId, wallet } = useContext(NearContext);
   const [loading, setLoading] = useState(false);
 
-  function convertNearFormat(username: string) {
-    return username.replace(/\.near\b/g, "-near").replace(/\.tg\b/g, "-tg");
-  }
+  // function convertNearFormat(username: string) {
+  //   return username.replace(/\.near\b/g, "-near").replace(/\.tg\b/g, "-tg");
+  // }
 
+  function convertNearFormat(username: string) {
+    return username ? username.replace(/\./g, '-') : '';
+  }
+  
   async function Createaccount(username: string) {
     try {
       const getUserData = await wallet.viewMethod({
@@ -48,8 +52,8 @@ export function CreateDialog() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  username: convertNearFormat(username),
-                  walletId: signedAccountId,
+                  username:username ,
+             
                 }),
               }
             );
@@ -64,10 +68,10 @@ export function CreateDialog() {
           {
             receiverId: "compoundx.near",
             actions: [
-              {
-                type: "Transfer",
-                params: { deposit: "2000000000000000000000000" },
-              },
+              // {
+              //   type: "Transfer",
+              //   params: { deposit: "2000000000000000000000000" },
+              // },
               {
                 type: "FunctionCall",
                 params: {
@@ -78,7 +82,7 @@ export function CreateDialog() {
                     )}.compoundx.near`,
                   },
                   gas: "30000000000000",
-                  deposit: "0",
+                  deposit: "2000000000000000000000000",
                 },
               },
             ],

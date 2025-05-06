@@ -203,6 +203,11 @@ const Page = () => {
               <p>Fee </p>
               <p>{(pool?.total_fee ? pool.total_fee / 100 : 0).toFixed(2)}%</p>
             </div>
+            <div className="w-[100px] text-white">
+                <p className="font-semibold text-sm">Farm APR</p>
+                <p className="text-sm">12.87%</p> <p className="font-semibold text-sm text-white">$2.26k/week</p>
+              </div>
+              
           </div>
           <div className="py-4">
             <p className="text-[#4f5f64] text-xl font-semibold py-4">
@@ -287,7 +292,7 @@ const Page = () => {
                   Remove Liquidity
                 </CardTitle>
                 <CardDescription>
-                  Removing liquidty stops auto cliam rewards
+                  Removing liquidty stops auto claim rewards
                 </CardDescription>
               </CardHeader>
 
@@ -307,14 +312,14 @@ const Page = () => {
           {(parseInt(share1) > 0 || parseInt(share2) > 0) && (
             <div
               style={{ backgroundColor: "#0c171f" }}
-              className="flex items-center w-[250px] bg-white p-4 rounded-md h-[100px] my-3"
+              className="flex-col items-center w-[250px] bg-white p-4 rounded-md h-[100px] my-3"
             >
-              <div className="w-[100px] text-white">
-                <p className="font-semibold text-sm">Farm APR</p>
-                <p className="text-sm">12.87%</p>
+              <div className="w-[200px] items-center text-white">
+                <p className="font-semibold text-sm">Stake and Earn! </p>
+               
               </div>
-              <div className="w-[150px] space-y-2 text-white">
-                <p className="font-semibold text-sm text-white">$2.26k/week</p>
+              <div className="w-[150px] items-center mt-4 space-y-2 text-white">
+             
                 <Button
                   style={{ backgroundColor: "black" }}
                   className="w-full text-white p-3"

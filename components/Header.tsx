@@ -50,7 +50,9 @@ const Header = () => {
     }
   }, [wallet, signedAccountId]);
 
+  
   useEffect(() => {
+   
     if (!wallet) return;
 
     if (signedAccountId) {
