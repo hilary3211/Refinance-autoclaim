@@ -19,8 +19,7 @@ interface PoolItem {
   borrowed: {
     balance: string;
   };
-  supply_apr : string
-
+  supply_apr: string;
 }
 
 const formatCurrency = (value: number | string): string => {
@@ -82,7 +81,7 @@ const PoolData = ({ data }: { data: PoolItem[] }) => {
     item.token_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // console.log(filteredData)
+
 
   const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
@@ -101,12 +100,12 @@ const PoolData = ({ data }: { data: PoolItem[] }) => {
 
   function getTokenRewards(data: any) {
     const rewards: any = {};
-    
+
     // Loop through all farms (both Supplied and Borrowed positions)
-    data.farms.forEach(farm => {
-      const farmType = farm.farm_id.Supplied ? 'Supplied' : 'Borrowed';
+    data.farms.forEach((farm) => {
+      const farmType = farm.farm_id.Supplied ? "Supplied" : "Borrowed";
       const tokenId = farm.farm_id[farmType];
-      
+
       // Check if rewards exist for this farm
       if (farm.rewards) {
         Object.entries(farm.rewards).forEach(([rewardTokenId, rewardData]) => {
@@ -116,44 +115,41 @@ const PoolData = ({ data }: { data: PoolItem[] }) => {
               weekly: 0,
               yearly: 0,
               apy: 0,
-              farmType
+              farmType,
             };
           }
-          
+
           // Convert from yoctoNEAR (1e-24) to readable units
           const daily = rewardData?.reward_per_day / 1e24;
-          
+
           rewards[rewardTokenId].daily += daily;
           rewards[rewardTokenId].weekly += daily * 7;
           rewards[rewardTokenId].yearly += daily * 365;
         });
       }
     });
-    
+
     // Calculate APY if user has a balance
     const userBalance = parseFloat(data.supplied.balance) / 1e24;
     if (userBalance > 0) {
-      Object.keys(rewards).forEach(tokenId => {
+      Object.keys(rewards).forEach((tokenId) => {
         rewards[tokenId].apy = (rewards[tokenId].yearly / userBalance) * 100;
       });
     }
-    
+
     return rewards;
   }
   const handlePoolClick = (pool: PoolItem) => {
-  
     const rewards = getTokenRewards(pool);
 
     const params = new URLSearchParams({
       token_id: pool.token_id,
       token_name: pool.token_name,
       apy: rewards["wrap.near"]?.apy.toFixed(2),
-      yearly: rewards["wrap.near"]?.yearly.toFixed(6)
+      yearly: rewards["wrap.near"]?.yearly.toFixed(6),
     });
-    
+
     router.push(`/finance/burrow/${params.toString()}`);
-  
-   
   };
 
   return (

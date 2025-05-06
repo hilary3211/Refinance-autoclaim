@@ -203,11 +203,10 @@ const Page = () => {
               <p>Fee </p>
               <p>{(pool?.total_fee ? pool.total_fee / 100 : 0).toFixed(2)}%</p>
             </div>
-            <div className="w-[100px] text-white">
-                <p className="font-semibold text-sm">Farm APR</p>
-                <p className="text-sm">12.87%</p> <p className="font-semibold text-sm text-white">$2.26k/week</p>
-              </div>
-              
+            <div className="w-[130px] text-white">
+              <p className="font-semibold text-sm">Farm APR / 12.87%</p>
+              <p className="font-semibold text-sm text-white">$2.26k/week</p>
+            </div>
           </div>
           <div className="py-4">
             <p className="text-[#4f5f64] text-xl font-semibold py-4">
@@ -316,10 +315,8 @@ const Page = () => {
             >
               <div className="w-[200px] items-center text-white">
                 <p className="font-semibold text-sm">Stake and Earn! </p>
-               
               </div>
               <div className="w-[150px] items-center mt-4 space-y-2 text-white">
-             
                 <Button
                   style={{ backgroundColor: "black" }}
                   className="w-full text-white p-3"
