@@ -74,7 +74,6 @@ export function Stake({
   const [toBal, settoBal] = useState<string>("");
   const [amountA, setAmountA] = useState<string>("");
   const [amountB, setAmountB] = useState<string>("");
-  const [lastChanged, setLastChanged] = useState<string>("A");
   const [fromToken, setFromToken] = useState<any>(null);
   const [toToken, setToToken] = useState<any>(null);
   const [loaded, setloaded] = useState<boolean>(false);
@@ -96,7 +95,7 @@ export function Stake({
         gas: "300000000000000",
         deposit: "0",
       });
-  
+
       const getbal1 = await wallet.viewMethod({
         contractId: `v2.ref-finance.near`,
         method: "storage_balance_of",
@@ -121,7 +120,7 @@ export function Stake({
         contractId: `contract.main.burrow.near`,
         method: "storage_balance_of",
         args: {
-          account_id:`${getUserData.subaccount_id}`,
+          account_id: `${getUserData.subaccount_id}`,
         },
         gas: "300000000000000",
         deposit: "0",
@@ -174,7 +173,7 @@ export function Stake({
       deposit: "0",
     });
 
-    const preferences = {
+    const preference = {
       smart_contract_name: `${getUserData.subaccount_id}`,
       is_active: true,
       invested_in: {
@@ -271,7 +270,7 @@ export function Stake({
             type: "FunctionCall",
             params: {
               methodName: "update_preference",
-              args: preferences,
+              args: { preference: preference },
               gas: "300000000000000",
               deposit: "0",
             },
@@ -406,7 +405,7 @@ export function Stake({
                 </div>
                 <div className=" rounded-md flex ">
                   <div className="flex-1 flex-col items-center justify-start">
-                    <p className="font-neuton">Balance: {poolType1}</p>
+                    {/* <p className="font-neuton">Balance: {poolType1}</p> */}
                   </div>
                   <Input
                     id="first"
@@ -485,9 +484,9 @@ export function Stake({
                 </div>
                 <div className=" rounded-md flex ">
                   <div className="flex-1 flex-col items-center justify-start">
-                    <p className="font-neuton">
+                    {/* <p className="font-neuton">
                       Balance: {toHumanReadable(poolType2)}
-                    </p>
+                    </p> */}
                   </div>
                   <Input
                     id="first"

@@ -12,6 +12,8 @@ import Link from "next/link";
 import { useState, useEffect, useContext } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Burrow } from "@/components/Burrow";
+import { Withdrawburrow } from "@/components/Withdrawburrow";
+
 import { RemoveLiq } from "@/components/RemoveLiq";
 import { Grid } from "react-loader-spinner";
 import Header from "@/components/Header";
@@ -42,40 +44,40 @@ const page = () => {
 
   const [data, setData] = useState<TokenData | null>(null);
   const decoded = decodeURIComponent(id);
-  const values = decoded.split('&').map(pair => pair.split('=')[1]);
+  const values = decoded.split("&").map((pair) => pair.split("=")[1]);
   const [tokenId, tokenName, apy, yearly] = values;
- 
 
   function formatRewards(apy: any, yearly: any) {
- 
     const apyValue = parseFloat(apy);
     const yearlyValue = parseFloat(yearly);
-  
 
-    const saneAPY = apyValue > 1000000 
-      ? apyValue / 1000000 // Handle possible decimal error
-      : apyValue;
-  
+    const saneAPY =
+      apyValue > 1000000
+        ? apyValue / 1000000 // Handle possible decimal error
+        : apyValue;
+
     // Format with reasonable limits
     return {
-      apy1: Math.min(saneAPY, 10000).toLocaleString('en', { 
-        maximumFractionDigits: 2 
-      }) + '%',
-      yearly1: yearlyValue > 1000
-        ? (yearlyValue / 1000).toLocaleString('en', {
-            maximumFractionDigits: 2
-          }) + 'K'
-        : yearlyValue.toFixed(2)
+      apy1:
+        Math.min(saneAPY, 10000).toLocaleString("en", {
+          maximumFractionDigits: 2,
+        }) + "%",
+      yearly1:
+        yearlyValue > 1000
+          ? (yearlyValue / 1000).toLocaleString("en", {
+              maximumFractionDigits: 2,
+            }) + "K"
+          : yearlyValue.toFixed(2),
     };
   }
 
   // console.log(tokenId, tokenName, apy, yearly)
-  
+
   // Usage
   const { apy1, yearly1 } = formatRewards(apy, yearly);
 
-  console.log(apy1, yearly1 )
- 
+  console.log(apy1, yearly1);
+
   const formatCurrency = (value: any): string => {
     const numericValue = Number(value);
 
@@ -110,7 +112,7 @@ const page = () => {
       if (!matchingToken.token_name) {
         matchingToken.token_name = tokenName;
       }
-      // Update state with the matching token.
+
       setData(matchingToken);
       setLoading(false);
     }
@@ -227,7 +229,7 @@ const page = () => {
                 </div>
               )}
             </div>
-            <div>
+            <div className="flex flex-col gap-5">
               <Card className="w-[250px]">
                 <CardHeader>
                   <CardTitle>Deposit Into Burrow pool</CardTitle>
@@ -241,7 +243,40 @@ const page = () => {
                   <Burrow tokenId={tokenId} tokenName={tokenName} Data={data} />
                 </CardFooter>
               </Card>
+              <Card className="w-[250px]">
+                <CardHeader>
+                  <CardTitle>Withdraw from Burrow pool</CardTitle>
+                  <CardDescription>
+                    CLick the button below to withdraw token into burrow pool
+                    and earn rewards
+                  </CardDescription>
+                </CardHeader>
+
+                <CardFooter className="flex justify-between">
+                  <Withdrawburrow
+                    tokenId={tokenId}
+                    tokenName={tokenName}
+                    Data={data}
+                  />
+                </CardFooter>
+              </Card>
             </div>
+
+            {/* <div>
+              <Card className="w-[250px]">
+                <CardHeader>
+                  <CardTitle>Withdraw from Burrow pool</CardTitle>
+                  <CardDescription>
+                    CLick the button below to withdraw token into burrow pool and
+                    earn rewards
+                  </CardDescription>
+                </CardHeader>
+
+                <CardFooter className="flex justify-between">
+                  <Withdrawburrow tokenId={tokenId} tokenName={tokenName} Data={data} />
+                </CardFooter>
+              </Card>
+            </div> */}
           </div>
         </div>
       )}

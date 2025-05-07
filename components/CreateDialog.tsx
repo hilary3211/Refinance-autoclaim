@@ -20,14 +20,10 @@ export function CreateDialog() {
   const { signedAccountId, wallet } = useContext(NearContext);
   const [loading, setLoading] = useState(false);
 
-  // function convertNearFormat(username: string) {
-  //   return username.replace(/\.near\b/g, "-near").replace(/\.tg\b/g, "-tg");
-  // }
-
   function convertNearFormat(username: string) {
-    return username ? username.replace(/\./g, '-') : '';
+    return username ? username.replace(/\./g, "-") : "";
   }
-  
+
   async function Createaccount(username: string) {
     try {
       const getUserData = await wallet.viewMethod({
@@ -52,8 +48,7 @@ export function CreateDialog() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  username:username ,
-             
+                  username: username,
                 }),
               }
             );

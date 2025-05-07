@@ -66,7 +66,6 @@ export function TransferLp({
 
   const [loading, setLoading] = useState<boolean>(false);
 
-
   const [share1, setshare1] = useState<string | null>(null);
 
   const handleChangeA = (e: React.ChangeEvent<HTMLInputElement>) => {

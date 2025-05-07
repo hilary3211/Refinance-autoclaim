@@ -192,7 +192,7 @@ const WithdrawPage = () => {
                 amount: tokenAmount,
               },
               gas: "300000000000000",
-              deposit: "0",
+              deposit: "1",
             },
           },
         ],
@@ -238,7 +238,7 @@ const WithdrawPage = () => {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                           />
-                          <ScrollArea className="h-[300px]">
+                          <ScrollArea className="h-[300px] w-[300px]">
                             <div className="grid gap-2">
                               {filteredTokens?.map((token) => (
                                 <Button

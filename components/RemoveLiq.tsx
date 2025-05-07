@@ -151,20 +151,18 @@ export function RemoveLiq({
                 args:
                   poolType2 === "wNEAR"
                     ? {
-                        pool_id: parseInt(Poolid),
-                        shares: myshares,
-                        min_token_amount: tokenamt,
-                        min_wrapped_near_amount: tokenamt2,
+                      seed_id: `v2.ref-finance.near@${Poolid}`,
+                      withdraw_amount: amountA,
                         token_id: poolTypeID1,
-                        second_token_id: poolTypeID2,
+                        owner_acc : signedAccountId,
+                        pool_id : `:${Poolid}`
                       }
                     : {
-                        pool_id: parseInt(Poolid),
-                        shares: myshares,
-                        min_token_amount: tokenamt2,
-                        min_wrapped_near_amount: tokenamt,
+                      seed_id: `v2.ref-finance.near@${Poolid}`,
+                      withdraw_amount: amountA,
                         token_id: poolTypeID2,
-                        second_token_id: poolTypeID1,
+                        owner_acc : signedAccountId,
+                        pool_id : `:${Poolid}`
                       },
                 gas: "300000000000000",
                 deposit: "0",

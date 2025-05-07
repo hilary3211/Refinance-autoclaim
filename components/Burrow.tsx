@@ -36,6 +36,8 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
   const [amountA, setAmountA] = useState("");
   const [fromToken, setFromToken] = useState<string | null>(null);
   const [subal1, setsubal] = useState<boolean>(false);
+  const [subal12, setsuba2] = useState<boolean>(false);
+  const [subal3, setsuba3] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [userbalance, setuserbalance] = useState("");
   const [selected, setSelected] = useState("");
@@ -77,7 +79,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
       const getbal = await wallet.viewMethod({
         contractId: tokenId,
         method: "ft_balance_of",
-        args: { account_id: `${getUserData.subaccount_id}` },
+        args: { account_id: signedAccountId },
       });
 
       const getbal1 = await wallet.viewMethod({
@@ -90,8 +92,32 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
         deposit: "0",
       });
 
-      setsubal(getbal1.total === "0");
+      const getbal2 = await wallet.viewMethod({
+        contractId: tokenId,
+        method: "storage_balance_of",
+        args: {
+          account_id: `${getUserData.subaccount_id}`,
+        },
+        gas: "300000000000000",
+        deposit: "0",
+      });
+
+      const getbal3 = await wallet.viewMethod({
+        contractId: "wrap.near",
+        method: "storage_balance_of",
+        args: {
+          account_id: `${getUserData.subaccount_id}`,
+        },
+        gas: "300000000000000",
+        deposit: "0",
+      });
+
+      setsubal(getbal1.total === "0" || !getbal1);
+      setsuba2(!getbal2 || getbal2.total === "0");
+      setsuba3(!getbal3 || getbal3.total === "0");
+
       setuserbalance(toHumanReadable(getbal, "token"));
+      console.log(getbal);
     };
 
     getsubbalance();
@@ -106,15 +132,32 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
       deposit: "0",
     });
 
-    const preferences = [
-      {
-        seed_id: `nill`,
-        token_id: tokenId,
-        smart_contract_name: `${getUserData.subaccount_id}`,
-        is_active: "true",
-        reinvest_to: selected,
+    // const preferences = [
+    //   {
+    //     seed_id: `nill`,
+    //     token_id: tokenId,
+    //     smart_contract_name: `${getUserData.subaccount_id}`,
+    //     is_active: "true",
+    //     reinvest_to: selected,
+    //   },
+    // ];
+
+    const preference = {
+      smart_contract_name: `${getUserData.subaccount_id}`,
+      is_active: true,
+      invested_in: {
+        Burrow: {
+          seed_id: `v2.ref-finance.near@79`,
+          token_id: tokenId,
+        },
       },
-    ];
+      reinvest_to: {
+        Burrow: {
+          seed_id: `v2.ref-finance.near@79`,
+          token_id: tokenId,
+        },
+      },
+    };
 
     const transactions: any = [
       subal1 && {
@@ -134,6 +177,61 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
           },
         ],
       },
+      subal12 && {
+        receiverId: tokenId,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit",
+              args: {
+                account_id: `${getUserData.subaccount_id}`,
+                registration_only: true,
+              },
+              gas: "300000000000000",
+              deposit: "100000000000000000000000",
+            },
+          },
+        ],
+      },
+      subal3 && {
+        receiverId: "wrap.near",
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit",
+              args: {
+                account_id: `${getUserData.subaccount_id}`,
+                registration_only: true,
+              },
+              gas: "300000000000000",
+              deposit: "100000000000000000000000",
+            },
+          },
+        ],
+      },
+
+      {
+        receiverId: tokenId,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "ft_transfer",
+              args: {
+                receiver_id: `${getUserData.subaccount_id}`,
+                amount:
+                  tokenId === "wrap.near"
+                    ? toSmallestUnit(amountA, "near")
+                    : toSmallestUnit(amountA),
+              },
+              gas: "85000000000000",
+              deposit: "1",
+            },
+          },
+        ],
+      },
       {
         receiverId: `${getUserData.subaccount_id}`,
         actions: [
@@ -149,7 +247,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
                     : toSmallestUnit(amountA),
               },
               gas: "100000000000000",
-              deposit: "0",
+              deposit: "1",
             },
           },
         ],
@@ -160,8 +258,8 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
           {
             type: "FunctionCall",
             params: {
-              methodName: "update_preferences",
-              args: { prefs: preferences },
+              methodName: "update_preference",
+              args: { preference: preference },
               gas: "300000000000000",
               deposit: "0",
             },
@@ -237,7 +335,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
           <DialogFooter>
             <Button
               onClick={depositinburrow}
-             // disabled={isSwapDisabled}
+              disabled={isSwapDisabled}
               type="submit"
               className="w-full"
             >
