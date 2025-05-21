@@ -10,6 +10,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -221,8 +228,11 @@ const WithdrawPage = () => {
                 Pick a token and then select the amount you want to withdraw.
               </p>
             </div>
+            
             <div className="max-w-2xl mx-auto">
+           
               <div className="flex gap-4 my-5 items-center w-full max-w-2xl mx-auto">
+             
                 <div className="text-white flex-1">
                   <Select>
                     <SelectTrigger className="w-full">
@@ -301,11 +311,13 @@ const WithdrawPage = () => {
                     </SelectContent>
                   </Select>
                 </div>
+           
                 <div className="max-w-[20rem] w-full text-white bg-[#03080ae6]/70 py-2 text-center">
                   <p className="text-sm">{token2} Balance</p>
                   <p className="text-2xl font-bold">{fromToken}</p>
                 </div>
               </div>
+     
               <div className="flex gap-4 my-5 items-center max-w-2xl mx-auto">
                 <Input
                   onChange={handleChange}

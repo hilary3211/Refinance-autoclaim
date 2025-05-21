@@ -85,7 +85,7 @@ const Page = () => {
         contractId: "v2.ref-finance.near",
         method: "get_pool_shares",
         args: {
-          pool_id: 79, // Pool ID
+          pool_id: id,
           account_id: `${getUserData.subaccount_id}`,
         },
       });
