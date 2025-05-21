@@ -36,7 +36,7 @@ const Page = () => {
   const id = params.id as string;
   const [pool, setPool] = useState<Pool | null>(null);
   const [showStake, setShowStake] = useState<boolean | null>(null);
-  const [pool2, setPool2] = useState<any>(null); // Couldn't determine type from usage
+  const [pool2, setPool2] = useState<any>(null);
   const [share1, setShare1] = useState<string>("0");
   const [share2, setShare2] = useState<string>("0");
 
@@ -85,7 +85,7 @@ const Page = () => {
         contractId: "v2.ref-finance.near",
         method: "get_pool_shares",
         args: {
-          pool_id: id,
+          pool_id: parseInt(id),
           account_id: `${getUserData.subaccount_id}`,
         },
       });
@@ -104,7 +104,7 @@ const Page = () => {
       const isStakeValid =
         mySharesInt > 0 ||
         (totalStakedTokens !== null && parseInt(totalStakedTokens) > 0);
-
+      console.log(myShares);
       setShowStake(isStakeValid);
 
       setShare1(mySharesInt > 0 ? myShares : "0");

@@ -137,9 +137,28 @@ export function Withdrawburrow({ tokenId, tokenName, Data }: BurrowProps) {
           </DialogHeader>
           <div className="grid gap-1 py-4">
             <div className="flex flex-col space-y-2">
+              {/* <Label htmlFor="first" className="text-left">
+                {tokenName}
+              </Label> */}
+                    <div className="flex flex-row justify-between">
               <Label htmlFor="first" className="text-left">
                 {tokenName}
               </Label>
+              <button
+                    style={{
+                      padding: "2px 4px",
+                      fontSize: "10px",
+                      border: "1px solid #ccc",
+                      borderRadius: "3px",
+                      backgroundColor: "#f0f0f0",
+                    }}
+                    onClick={() => {
+                      setAmountA(userbalance);
+                    }}
+                  >
+                    Max
+                  </button>
+                  </div>
               <div className="rounded-md flex">
                 <div className="flex-1 flex-col items-center justify-start"></div>
                 <Input

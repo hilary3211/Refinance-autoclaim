@@ -132,15 +132,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
       deposit: "0",
     });
 
-    // const preferences = [
-    //   {
-    //     seed_id: `nill`,
-    //     token_id: tokenId,
-    //     smart_contract_name: `${getUserData.subaccount_id}`,
-    //     is_active: "true",
-    //     reinvest_to: selected,
-    //   },
-    // ];
+  
 
     const preference = {
       smart_contract_name: `${getUserData.subaccount_id}`,
@@ -293,9 +285,25 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
           </DialogHeader>
           <div className="grid gap-1 py-4">
             <div className="flex flex-col space-y-2">
+            <div className="flex flex-row justify-between">
               <Label htmlFor="first" className="text-left">
                 {tokenName}
               </Label>
+              <button
+                    style={{
+                      padding: "2px 4px",
+                      fontSize: "10px",
+                      border: "1px solid #ccc",
+                      borderRadius: "3px",
+                      backgroundColor: "#f0f0f0",
+                    }}
+                    onClick={() => {
+                      setAmountA(userbalance);
+                    }}
+                  >
+                    Max
+                  </button>
+                  </div>
               <div className="rounded-md flex">
                 <div className="flex-1 flex-col items-center justify-start">
                   {/* <p className="font-neuton">Balance: ${userbalance}</p> */}
@@ -335,7 +343,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
           <DialogFooter>
             <Button
               onClick={depositinburrow}
-              disabled={isSwapDisabled}
+             disabled={isSwapDisabled}
               type="submit"
               className="w-full"
             >

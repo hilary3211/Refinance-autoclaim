@@ -58,7 +58,7 @@ const Pools2 = () => {
     });
 
     const filteredData = enrichedData.filter((token) => {
-      if (Array.isArray(token.farms)) {
+      if (Array.isArray(token.farms)  && token.token_name !== "BRRR") {
         return token.farms.some(
           (farm) => farm.rewards && Object.keys(farm.rewards).length > 0
         );

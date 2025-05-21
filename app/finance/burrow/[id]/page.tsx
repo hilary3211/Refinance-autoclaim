@@ -56,7 +56,7 @@ const page = () => {
         ? apyValue / 1000000 // Handle possible decimal error
         : apyValue;
 
-    // Format with reasonable limits
+
     return {
       apy1:
         Math.min(saneAPY, 10000).toLocaleString("en", {
@@ -71,12 +71,10 @@ const page = () => {
     };
   }
 
-  // console.log(tokenId, tokenName, apy, yearly)
 
-  // Usage
   const { apy1, yearly1 } = formatRewards(apy, yearly);
 
-  console.log(apy1, yearly1);
+  // console.log(apy1, yearly1);
 
   const formatCurrency = (value: any): string => {
     const numericValue = Number(value);
@@ -221,9 +219,15 @@ const page = () => {
                   </div>
 
                   <div>
-                    <p>APY / Rewards</p>
+                    <p>Supply APR </p>
                     <p>
-                      {apy1} / {yearly1}
+                      {apy1} 
+                    </p>
+                  </div>
+                  <div>
+                    <p> Borrow APR</p>
+                    <p>
+                      {yearly1}%
                     </p>
                   </div>
                 </div>
