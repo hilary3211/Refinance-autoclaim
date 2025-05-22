@@ -260,7 +260,7 @@ export function Stake({
                 lp_token_amount: amountA,
               },
               gas: "300000000000000",
-              deposit: "1000000000000000000000000",
+              deposit: "1",
             },
           },
         ],

@@ -34,16 +34,45 @@ export function Withdrawburrow({ tokenId, tokenName, Data }: BurrowProps) {
   const [loading, setLoading] = useState(false);
   const [userbalance, setuserbalance] = useState("");
   const [selected, setSelected] = useState("");
-
+  const [dec, setdec] = useState("");
+  // function toHumanReadable(amount: string, tokenType = "token") {
+  //   const power = tokenType.toLowerCase() === "near" ? 24 : 18;
+  //   const amountStr = String(amount).padStart(power + 1, "0");
+  //   const integerPart = amountStr.slice(0, -power);
+  //   const fractionalPart = amountStr.slice(-power);
+  //   const humanReadable = `${integerPart}.${fractionalPart}`;
+  //   const formattedAmount = parseFloat(humanReadable).toFixed(2);
+  //   return formattedAmount;
+  // }
   function toHumanReadable(amount: string, tokenType = "token") {
-    const power = tokenType.toLowerCase() === "near" ? 24 : 18;
-    const amountStr = String(amount).padStart(power + 1, "0");
+    const power = dec
+    const amountStr = String(amount).padStart(parseInt(power) + 1, "0");
     const integerPart = amountStr.slice(0, -power);
     const fractionalPart = amountStr.slice(-power);
     const humanReadable = `${integerPart}.${fractionalPart}`;
-    const formattedAmount = parseFloat(humanReadable).toFixed(2);
+    const formattedAmount = parseFloat(humanReadable);
     return formattedAmount;
   }
+
+
+
+function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
+    let humanReadable: string;
+
+    if (amount.includes(".")) {
+        const [integerPart, fractionalPart = ""] = amount.split(".");
+        const paddedFractional = fractionalPart.padEnd(dec, "0").slice(0, dec);
+        humanReadable = `${integerPart}.${paddedFractional}`;
+    } else {
+        const paddedAmount = amount.padStart(dec + 1, "0");
+        const integerPart = paddedAmount.slice(0, -dec) || "0";
+        const fractionalPart = paddedAmount.slice(-dec);
+        humanReadable = `${integerPart}.${fractionalPart}`;
+    }
+
+    // Convert to number, trimming trailing zeros
+    return parseFloat(humanReadable);
+}
 
   const handleChangeA = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -74,8 +103,22 @@ export function Withdrawburrow({ tokenId, tokenName, Data }: BurrowProps) {
         method: "ft_balance_of",
         args: { account_id: `${getUserData.subaccount_id}` },
       });
+      
+      const getbal4 = await wallet.viewMethod({
+        contractId: tokenId,
+        method: "ft_metadata",
+        args: {  },
+      });
 
-      setuserbalance(toHumanReadable(getbal, "token"));
+      console.log(getbal)
+
+      // setuserbalance(toHumanReadable(getbal, "token"));
+      if(getbal4.decimals === 8){
+        setuserbalance(toHumanReadable2(getbal, "token",8));
+      }else{
+        setuserbalance(toHumanReadable(getbal, "token"));
+      }
+      setdec(getbal4.decimals)
     };
 
     getsubbalance();
