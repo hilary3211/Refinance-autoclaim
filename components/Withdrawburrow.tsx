@@ -73,6 +73,10 @@ function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
     // Convert to number, trimming trailing zeros
     return parseFloat(humanReadable);
 }
+function getCollateralBalance(data : any, tokenId : string) {
+  const collateral = data.collateral.find(item => item.token_id === tokenId);
+  return collateral ? collateral.balance : 0;
+}
 
   const handleChangeA = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -80,10 +84,10 @@ function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
   };
 
   function toSmallestUnit(amount: string, tokenType = "token") {
-    const power = tokenType.toLowerCase() === "near" ? 24 : 18;
+    const power = dec
     const amountStr = String(amount);
     const [integerPart, fractionalPart = ""] = amountStr.split(".");
-    const paddedFractionalPart = fractionalPart.padEnd(power, "0");
+    const paddedFractionalPart = fractionalPart.padEnd(parseInt(power), "0");
     const smallestUnit = BigInt(integerPart + paddedFractionalPart);
     return smallestUnit.toString();
   }
@@ -99,11 +103,11 @@ function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
       });
 
       const getbal = await wallet.viewMethod({
-        contractId: tokenId,
-        method: "ft_balance_of",
+        contractId:  'contract.main.burrow.near',
+        method: "get_account",
         args: { account_id: `${getUserData.subaccount_id}` },
       });
-      
+
       const getbal4 = await wallet.viewMethod({
         contractId: tokenId,
         method: "ft_metadata",
@@ -112,11 +116,14 @@ function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
 
       console.log(getbal)
 
+      const getbals = getCollateralBalance(getbal,tokenId )
+      
+      console.log(getbals)
       // setuserbalance(toHumanReadable(getbal, "token"));
       if(getbal4.decimals === 8){
-        setuserbalance(toHumanReadable2(getbal, "token",8));
+        setuserbalance(toHumanReadable2(getbals, "token",8));
       }else{
-        setuserbalance(toHumanReadable(getbal, "token"));
+        setuserbalance(toHumanReadable(getbals, "token"));
       }
       setdec(getbal4.decimals)
     };

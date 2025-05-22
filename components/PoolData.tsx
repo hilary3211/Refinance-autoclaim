@@ -97,11 +97,13 @@ const PoolData: React.FC<PoolDataProps> = ({ data }) => {
       ) : (
         <>
           {currentItems.map((item) => (
+            
             <div
               key={item.id}
               onClick={() => handlePoolClick(item.id)}
               className="bg-[#0c171f] px-5 p-5 text-sm hover:bg-[#0c171f]/60 text-white cursor-pointer rounded-md grid grid-cols-5 gap-2 my-2"
             >
+
               <h1 className="col-span-3 font-semibold">
                 {item.token_symbols.join(" / ")}
               </h1>

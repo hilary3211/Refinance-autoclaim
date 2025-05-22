@@ -2,11 +2,13 @@
 import React, { useEffect, useState } from "react";
 import PoolData from "./PoolData";
 import { AreaChartData } from "./AreaChart";
+import { ChevronsRightLeft } from "lucide-react";
 
 interface Pool {
   token_id: string;
   token_name: string;
   tvl: number;
+  farming: boolean,
   supplied: { balance: string };
   borrowed: { balance: string };
 }
@@ -20,10 +22,11 @@ const Pools = () => {
       const data = await pools.json();
 
       const filteredPools = data.filter((pool: Pool) => {
-        return pool.tvl > 500;
+        return pool.tvl > 500
       });
 
       setData(filteredPools);
+      console.log(filteredPools)
     } catch (error) {
       console.log(error);
     }
