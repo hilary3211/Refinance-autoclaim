@@ -104,7 +104,7 @@ const Page = () => {
       const isStakeValid =
         mySharesInt > 0 ||
         (totalStakedTokens !== null && parseInt(totalStakedTokens) > 0);
-      console.log(myShares);
+
       setShowStake(isStakeValid);
 
       setShare1(mySharesInt > 0 ? myShares : "0");

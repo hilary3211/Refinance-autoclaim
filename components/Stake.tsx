@@ -89,18 +89,17 @@ export function Stake({
       const getUserData = await wallet.viewMethod({
         contractId: "compoundx.near",
         method: "get_user",
-        args: {
-          wallet_id: signedAccountId,
-        },
+        args: { wallet_id: signedAccountId },
         gas: "300000000000000",
         deposit: "0",
       });
+
 
       const getbal1 = await wallet.viewMethod({
         contractId: `v2.ref-finance.near`,
         method: "storage_balance_of",
         args: {
-          account_id: `${getUserData.subaccount_id}`,
+          account_id:  `${getUserData.subaccount_id}`,
         },
         gas: "300000000000000",
         deposit: "0",
@@ -110,7 +109,7 @@ export function Stake({
         contractId: `boostfarm.ref-labs.near`,
         method: "storage_balance_of",
         args: {
-          account_id: `${getUserData.subaccount_id}`,
+          account_id:  `${getUserData.subaccount_id}`,
         },
         gas: "300000000000000",
         deposit: "0",
@@ -120,15 +119,19 @@ export function Stake({
         contractId: `contract.main.burrow.near`,
         method: "storage_balance_of",
         args: {
-          account_id: `${getUserData.subaccount_id}`,
+          account_id : `${getUserData.subaccount_id}`,
         },
         gas: "300000000000000",
         deposit: "0",
       });
 
-      setsubal(getbal1.total === "0");
-      setsubal2(getbal2.total === "0");
-      setsubal3(getbal3.total === "0");
+
+
+      // console.log(getbal1, getbal2, getbal3)
+
+      setsubal(!getbal1 || getbal1.total === "0");
+      setsubal2(!getbal2 || getbal2.total === "0");
+      setsubal3(!getbal3 || getbal3.total === "0");
     };
 
     getsubbalance();
@@ -445,7 +448,7 @@ export function Stake({
                 onClick={() => {
                   Stake();
                 }}
-                disabled={isSwapDisabled}
+               // disabled={isSwapDisabled}
                 type="submit"
                 className="w-full"
               >

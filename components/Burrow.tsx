@@ -32,7 +32,7 @@ interface BurrowProps {
 export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
   const { signedAccountId, wallet } = useContext(NearContext);
   const [fromBal, setfromBal] = useState("");
-  const [toBal, settoBal] = useState("");
+  const [dec, setdec] = useState("");
   const [amountA, setAmountA] = useState("");
   const [fromToken, setFromToken] = useState<string | null>(null);
   const [subal1, setsubal] = useState<boolean>(false);
@@ -58,10 +58,10 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
   };
 
   function toSmallestUnit(amount: string, tokenType = "token") {
-    const power = tokenType.toLowerCase() === "near" ? 24 : 18;
+    const power = dec
     const amountStr = String(amount);
     const [integerPart, fractionalPart = ""] = amountStr.split(".");
-    const paddedFractionalPart = fractionalPart.padEnd(power, "0");
+    const paddedFractionalPart = fractionalPart.padEnd(parseInt(power), "0");
     const smallestUnit = BigInt(integerPart + paddedFractionalPart);
     return smallestUnit.toString();
   }
@@ -82,6 +82,13 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
         args: { account_id: signedAccountId },
       });
 
+      const getbal4 = await wallet.viewMethod({
+        contractId: tokenId,
+        method: "ft_metadata",
+        args: {  },
+      });
+
+     
       const getbal1 = await wallet.viewMethod({
         contractId: `contract.main.burrow.near`,
         method: "storage_balance_of",
@@ -112,12 +119,13 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
         deposit: "0",
       });
 
-      setsubal(getbal1.total === "0" || !getbal1);
+      setsubal(!getbal1 || getbal1.total === "0");
       setsuba2(!getbal2 || getbal2.total === "0");
       setsuba3(!getbal3 || getbal3.total === "0");
 
       setuserbalance(toHumanReadable(getbal, "token"));
-      console.log(getbal);
+      setdec(getbal4.decimals)
+
     };
 
     getsubbalance();
