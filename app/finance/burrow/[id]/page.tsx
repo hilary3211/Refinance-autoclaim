@@ -13,7 +13,7 @@ import { useState, useEffect, useContext } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Burrow } from "@/components/Burrow";
 import { Withdrawburrow } from "@/components/Withdrawburrow";
-
+import { usePathname, useSearchParams } from "next/navigation";
 import { RemoveLiq } from "@/components/RemoveLiq";
 import { Grid } from "react-loader-spinner";
 import Header from "@/components/Header";
@@ -41,21 +41,24 @@ const page = () => {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const [data, setData] = useState<TokenData | null>(null);
+  const [userdata, setuserdata] = useState<any>();
   const decoded = decodeURIComponent(id);
   const values = decoded.split("&").map((pair) => pair.split("=")[1]);
-  const [tokenId, tokenName, apy, yearly] = values;
-
+  const [tokenId, tokenName, apy, yearly, signerid] = values;
+  const [dec, setdec] = useState<any>();
+  const [showdepo, setshowdepo] = useState<any>(true);
   function formatRewards(apy: any, yearly: any) {
     const apyValue = parseFloat(apy);
     const yearlyValue = parseFloat(yearly);
 
     const saneAPY =
       apyValue > 1000000
-        ? apyValue / 1000000 // Handle possible decimal error
+        ? apyValue / 1000000 
         : apyValue;
-
 
     return {
       apy1:
@@ -72,35 +75,92 @@ const page = () => {
   }
 
 
+
   const { apy1, yearly1 } = formatRewards(apy, yearly);
 
-  // console.log(apy1, yearly1);
+  function getCollateralAndRewards(data: any, tokenId: string) {
+    const collateral = data.collateral.find(
+      (item) => item.token_id === tokenId
+    );
+    const collateralBalance = collateral ? collateral.balance : 0;
 
-  const formatCurrency = (value: any): string => {
-    const numericValue = Number(value);
+    console.log(`dhcbjkd ${collateralBalance}`);
 
-    if (isNaN(numericValue)) {
-      return "$0.00";
-    }
+    const farm = data.farms.find(
+      (farm) =>
+        farm.farm_id.Supplied === tokenId ||
+        farm.farm_id.TokenNetBalance === tokenId
+    );
+    const unclaimedAmount =
+      farm && farm.rewards.length > 0 ? farm.rewards[0].unclaimed_amount : 0;
 
-    if (numericValue >= 1_000_000) {
-      return `$${(numericValue / 1_000_000).toFixed(2)}M`;
-    } else if (numericValue >= 1_000) {
-      return `$${(numericValue / 1_000).toFixed(2)}K`;
+    return {
+      collateralBalance,
+      unclaimedAmount,
+    };
+  }
+
+  function toHumanReadable(
+    amount: string,
+    tokenType: "token" | "near" = "token"
+  ): string {
+    const power = tokenType.toLowerCase() === "near" ? 24 : 18;
+    const amountStr = String(amount).padStart(power + 1, "0");
+    const integerPart = amountStr.slice(0, -power);
+    const fractionalPart = amountStr.slice(-power);
+    const humanReadable = `${integerPart}.${fractionalPart}`;
+    if (humanReadable === `0.000000000000000000`) {
+      return `0`;
     } else {
-      return `$${numericValue.toFixed(2)}`;
+      return humanReadable;
     }
-  };
+  }
+
+  function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
+    let humanReadable: string;
+    const paddedAmount = amount.padStart(dec + 1, "0");
+    const integerPart = paddedAmount.slice(0, -dec) || "0";
+    const fractionalPart = paddedAmount.slice(-dec);
+    humanReadable = `${integerPart}.${fractionalPart}`;
+
+    return parseFloat(humanReadable);
+  }
 
   async function PoolData(): Promise<TokenData | null> {
-    // Retrieve token data from the contract's view method.
     const getPoolData: TokenData[] = await wallet.viewMethod({
       contractId: "contract.main.burrow.near",
       method: "get_assets_paged_detailed",
       args: {},
     });
+    const getUserData = await wallet.viewMethod({
+      contractId: "compoundx.near",
+      method: "get_user",
+      args: { wallet_id: signerid },
+      gas: "300000000000000",
+      deposit: "0",
+    });
 
-    // Find the token with a matching token_id.
+    const getbal = await wallet.viewMethod({
+      contractId: "contract.main.burrow.near",
+      method: "get_account",
+      args: { account_id: `${getUserData.subaccount_id}` },
+    });
+    const getbals = getCollateralAndRewards(getbal, tokenId);
+
+    if (getbals.collateralBalance > 0) {
+      setshowdepo(false);
+    } else {
+      setshowdepo(true);
+    }
+    setuserdata(getbals);
+
+    const getbal4 = await wallet.viewMethod({
+      contractId: tokenId,
+      method: "ft_metadata",
+      args: {},
+    });
+    setdec(getbal4.decimals);
+
     const matchingToken = getPoolData.find(
       (token) => token.token_id === tokenId
     );
@@ -220,67 +280,82 @@ const page = () => {
 
                   <div>
                     <p>Supply APR </p>
-                    <p>
-                      {apy1} 
-                    </p>
+                    <p>{apy1}</p>
                   </div>
+
                   <div>
                     <p> Borrow APR</p>
+                    <p>{yearly1}%</p>
+                  </div>
+
+                  <div>
+                    <p>Staked Balance</p>
                     <p>
-                      {yearly1}%
+                      {dec === 8
+                        ? toHumanReadable2(
+                            `${userdata.collateralBalance}`,
+                            "token",
+                            8
+                          )
+                        : toHumanReadable(
+                            `${userdata.collateralBalance}`,
+                            "token"
+                          )}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p>Unclaimed rewards</p>
+                    <p>
+                      {toHumanReadable(`${userdata.unclaimedAmount}`, "token")}
                     </p>
                   </div>
                 </div>
               )}
             </div>
             <div className="flex flex-col gap-5">
-              <Card className="w-[250px]">
-                <CardHeader>
-                  <CardTitle>Deposit Into Burrow pool</CardTitle>
-                  <CardDescription>
-                    CLick the button below to add token into burrow pool and
-                    earn rewards
-                  </CardDescription>
-                </CardHeader>
+              {showdepo && (
+                <Card className="w-[250px]">
+                  <CardHeader>
+                    <CardTitle>Deposit Into Burrow pool</CardTitle>
+                    <CardDescription>
+                      CLick the button below to add token into burrow pool and
+                      earn rewards
+                    </CardDescription>
+                  </CardHeader>
 
-                <CardFooter className="flex justify-between">
-                  <Burrow tokenId={tokenId} tokenName={tokenName} Data={data} />
-                </CardFooter>
-              </Card>
-              <Card className="w-[250px]">
-                <CardHeader>
-                  <CardTitle>Withdraw from Burrow pool</CardTitle>
-                  <CardDescription>
-                    CLick the button below to withdraw token into burrow pool
-                    and earn rewards
-                  </CardDescription>
-                </CardHeader>
+                  <CardFooter className="flex justify-between">
+                    <Burrow
+                      tokenId={tokenId}
+                      tokenName={tokenName}
+                      Data={data}
+                     
+                    />
+                  </CardFooter>
+                </Card>
+              )}
 
-                <CardFooter className="flex justify-between">
-                  <Withdrawburrow
-                    tokenId={tokenId}
-                    tokenName={tokenName}
-                    Data={data}
-                  />
-                </CardFooter>
-              </Card>
+              {!showdepo && (
+                <Card className="w-[250px]">
+                  <CardHeader>
+                    <CardTitle>Withdraw from Burrow pool</CardTitle>
+                    <CardDescription>
+                      CLick the button below to withdraw token into burrow pool
+                      and earn rewards
+                    </CardDescription>
+                  </CardHeader>
+
+                  <CardFooter className="flex justify-between">
+                    <Withdrawburrow
+                      tokenId={tokenId}
+                      tokenName={tokenName}
+                      Data={data}
+                      
+                    />
+                  </CardFooter>
+                </Card>
+              )}
             </div>
-
-            {/* <div>
-              <Card className="w-[250px]">
-                <CardHeader>
-                  <CardTitle>Withdraw from Burrow pool</CardTitle>
-                  <CardDescription>
-                    CLick the button below to withdraw token into burrow pool and
-                    earn rewards
-                  </CardDescription>
-                </CardHeader>
-
-                <CardFooter className="flex justify-between">
-                  <Withdrawburrow tokenId={tokenId} tokenName={tokenName} Data={data} />
-                </CardFooter>
-              </Card>
-            </div> */}
           </div>
         </div>
       )}

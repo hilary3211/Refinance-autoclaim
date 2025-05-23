@@ -35,7 +35,7 @@ const WithdrawPage = () => {
   const [tokensymbol, setmainbal] = useState<any>("");
   const [tokenid, setmainbal2] = useState<any>("");
   const [amount, setAmount] = useState(0);
-
+  const [dec, setdec] = useState("");
   const nextItem = () => {
     setCurrentIndex(
       (prevIndex) => (prevIndex + 1) % (totalItems - itemsToShow + 1)
@@ -76,6 +76,7 @@ const WithdrawPage = () => {
             price: priceData[contractId] ? priceData[contractId].price : null,
           };
         });
+  
 
         return tokensArray;
       } catch (error) {
@@ -109,6 +110,13 @@ const WithdrawPage = () => {
         },
       });
 
+      const getbal4 = await wallet.viewMethod({
+        contractId: tokenContractId,
+        method: "ft_metadata",
+        args: {  },
+      });
+      setdec(getbal4.decimals)
+
       if (tokenSym === "wNEAR") {
         setmainbal(tokenSym);
         setmainbal2(tokenContractId);
@@ -117,7 +125,11 @@ const WithdrawPage = () => {
       } else {
         setmainbal2(tokenContractId);
         setmainbal(tokenSym);
-        setFromToken(toHumanReadable(balance, "token"));
+        if(getbal4.decimals === 8){
+        setFromToken(toHumanReadable2(balance, "token"));
+        }else{
+          setFromToken(toHumanReadable2(balance, "token"));
+        }
       }
 
       return balance;
@@ -137,10 +149,28 @@ const WithdrawPage = () => {
 
     const humanReadable = `${integerPart}.${fractionalPart}`;
 
-    const formattedAmount = parseFloat(humanReadable).toFixed(2);
+    const formattedAmount = humanReadable
 
     return formattedAmount;
   }
+
+  function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
+    let humanReadable: string;
+
+    if (amount.includes(".")) {
+        const [integerPart, fractionalPart = ""] = amount.split(".");
+        const paddedFractional = fractionalPart.padEnd(dec, "0").slice(0, dec);
+        humanReadable = `${integerPart}.${paddedFractional}`;
+    } else {
+        const paddedAmount = amount.padStart(dec + 1, "0");
+        const integerPart = paddedAmount.slice(0, -dec) || "0";
+        const fractionalPart = paddedAmount.slice(-dec);
+        humanReadable = `${integerPart}.${fractionalPart}`;
+    }
+
+    
+    return parseFloat(humanReadable);
+}
 
   const handleChange = (e: any) => {
     const value = e.target.value;
@@ -152,20 +182,35 @@ const WithdrawPage = () => {
     parseFloat(amount) === 0 ||
     parseFloat(fromToken) === 0;
 
-  function toSmallestUnit(amount: any, tokenType = "token") {
-    const power = tokenType.toLowerCase() === "near" ? 24 : 18;
+  // function toSmallestUnit(amount: any, tokenType = "token") {
+  //   const power = tokenType.toLowerCase() === "near" ? 24 : 18;
 
-    const amountStr = String(amount);
+  //   const amountStr = String(amount);
 
+  //   const [integerPart, fractionalPart = ""] = amountStr.split(".");
+
+  //   const paddedFractionalPart = fractionalPart.padEnd(power, "0");
+
+  //   const smallestUnit = BigInt(integerPart + paddedFractionalPart);
+
+  //   return smallestUnit.toString();
+  // }
+
+  function toSmallestUnit(amount: string, tokenType = "token") {
+
+    const power = tokenType.toLowerCase() === "near" ? 24 : parseInt(dec);
+  
+    const amountWithSlippage = parseFloat(amount).toString() 
+    const amountStr = amountWithSlippage;
+  
     const [integerPart, fractionalPart = ""] = amountStr.split(".");
-
+  
     const paddedFractionalPart = fractionalPart.padEnd(power, "0");
-
+  
     const smallestUnit = BigInt(integerPart + paddedFractionalPart);
-
+  
     return smallestUnit.toString();
   }
-
   async function Withdraw() {
     const getUserData = await wallet.viewMethod({
       contractId: "compoundx.near",
@@ -267,6 +312,7 @@ const WithdrawPage = () => {
                                           gas: "300000000000000",
                                           deposit: "0",
                                         });
+                                       
                                       const accountId = `${getUserData.subaccount_id}`;
                                       getTokenBalance(
                                         accountId,
@@ -314,8 +360,22 @@ const WithdrawPage = () => {
            
                 <div className="max-w-[20rem] w-full text-white bg-[#03080ae6]/70 py-2 text-center">
                   <p className="text-sm">{token2} Balance</p>
-                  <p className="text-2xl font-bold">{fromToken}</p>
+                  <p className="text-xl max-w-2xl  font-bold">{fromToken}</p>
                 </div>
+                <button
+                    style={{
+                      padding: "2px 4px",
+                      fontSize: "10px",
+                      border: "1px solid #ccc",
+                      borderRadius: "3px",
+                      backgroundColor: "#f0f0f0",
+                    }}
+                    onClick={() => {
+                      setAmount(fromToken);
+                    }}
+                  >
+                    Max
+                  </button>
               </div>
      
               <div className="flex gap-4 my-5 items-center max-w-2xl mx-auto">

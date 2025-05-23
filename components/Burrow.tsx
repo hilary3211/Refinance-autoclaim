@@ -22,14 +22,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NearContext } from "../wallets/near";
-import BigNumber from "bignumber.js";
+import { usePathname, useSearchParams } from "next/navigation";
 interface BurrowProps {
   tokenId: string;
   tokenName: string;
   Data: any;
+
 }
 
-export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
+export function Burrow({ tokenId, tokenName, Data,  }: BurrowProps) {
   const { signedAccountId, wallet } = useContext(NearContext);
   const [fromBal, setfromBal] = useState("");
   const [dec, setdec] = useState("");
@@ -42,6 +43,17 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
   const [userbalance, setuserbalance] = useState("");
   const [selected, setSelected] = useState("");
 
+
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const resetAllModals = () => {
+    setsubal(false)
+  };
+
+  useEffect(() => {
+    resetAllModals();
+  }, [pathname, searchParams]);
   function toHumanReadable(amount: string, tokenType = "token") {
     const power = dec
     const amountStr = String(amount).padStart(parseInt(power) + 1, "0");
@@ -303,7 +315,7 @@ function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
     selected === "";
 
   return (
-    <Dialog>
+    <Dialog open={subal1} onOpenChange={() => {setsubal(!subal1)}}  >
       <DialogTrigger asChild>
         <Button className="w-full text-white p-3">Deposit</Button>
       </DialogTrigger>

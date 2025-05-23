@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
+import { usePathname, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NearContext } from "../wallets/near";
@@ -20,9 +20,10 @@ interface BurrowProps {
   tokenId: string;
   tokenName: string;
   Data: any;
+
 }
 
-export function Withdrawburrow({ tokenId, tokenName, Data }: BurrowProps) {
+export function Withdrawburrow({ tokenId, tokenName, Data,  }: BurrowProps) {
   const { signedAccountId, wallet } = useContext(NearContext);
   const [fromBal, setfromBal] = useState("");
   const [toBal, settoBal] = useState("");
@@ -35,6 +36,16 @@ export function Withdrawburrow({ tokenId, tokenName, Data }: BurrowProps) {
   const [userbalance, setuserbalance] = useState("");
   const [selected, setSelected] = useState("");
   const [dec, setdec] = useState("");
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const resetAllModals = () => {
+    setsubal(false)
+  };
+
+  useEffect(() => {
+    resetAllModals();
+  }, [pathname, searchParams]);
   // function toHumanReadable(amount: string, tokenType = "token") {
   //   const power = tokenType.toLowerCase() === "near" ? 24 : 18;
   //   const amountStr = String(amount).padStart(power + 1, "0");
@@ -70,7 +81,7 @@ function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
         humanReadable = `${integerPart}.${fractionalPart}`;
     }
 
-    // Convert to number, trimming trailing zeros
+    
     return parseFloat(humanReadable);
 }
 function getCollateralBalance(data : any, tokenId : string) {
@@ -83,12 +94,39 @@ function getCollateralBalance(data : any, tokenId : string) {
     setAmountA(value);
   };
 
+  // function toSmallestUnit(amount: string, tokenType = "token") {
+  //   const power = dec
+  //   const amountStr = String(amount);
+  //   const [integerPart, fractionalPart = ""] = amountStr.split(".");
+  //   const paddedFractionalPart = fractionalPart.padEnd(parseInt(power), "0");
+  //   const smallestUnit = BigInt(integerPart + paddedFractionalPart);
+  //   return smallestUnit.toString();
+  // }
+
+  // function toSmallestUnit(amount : string, tokenType = "token") {
+  //   const SLIPPAGE = 0.99995; 
+  //   const power = tokenType === "token" ? "18" : tokenType; 
+  //   const amountWithSlippage = (parseFloat(amount) * SLIPPAGE).toString();
+  //   const amountStr = amountWithSlippage;
+  //   const [integerPart, fractionalPart = ""] = amountStr.split(".");
+  //   const paddedFractionalPart = fractionalPart.padEnd(parseInt(power), "0");
+  //   const smallestUnit = BigInt(integerPart + paddedFractionalPart);
+  //   return smallestUnit.toString();
+  // }
+  
   function toSmallestUnit(amount: string, tokenType = "token") {
-    const power = dec
-    const amountStr = String(amount);
+
+    const power = tokenType.toLowerCase() === "near" ? 24 : parseInt(dec);
+  
+    const amountWithSlippage = parseFloat(amount).toString() 
+    const amountStr = amountWithSlippage;
+  
     const [integerPart, fractionalPart = ""] = amountStr.split(".");
-    const paddedFractionalPart = fractionalPart.padEnd(parseInt(power), "0");
+  
+    const paddedFractionalPart = fractionalPart.padEnd(power, "0");
+  
     const smallestUnit = BigInt(integerPart + paddedFractionalPart);
+  
     return smallestUnit.toString();
   }
 
@@ -114,11 +152,11 @@ function getCollateralBalance(data : any, tokenId : string) {
         args: {  },
       });
 
-      console.log(getbal)
+
 
       const getbals = getCollateralBalance(getbal,tokenId )
       
-      console.log(getbals)
+
       // setuserbalance(toHumanReadable(getbal, "token"));
       if(getbal4.decimals === 8){
         setuserbalance(toHumanReadable2(getbals, "token",8));
@@ -173,7 +211,7 @@ function getCollateralBalance(data : any, tokenId : string) {
     parseFloat(amountA) > parseFloat(userbalance) ||
     parseFloat(amountA) === 0;
   return (
-    <Dialog>
+    <Dialog open={subal1} onOpenChange={() => {setsubal(!subal1)}}>
       <DialogTrigger asChild>
         <Button className="w-full text-white p-3">Withdraw</Button>
       </DialogTrigger>

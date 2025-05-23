@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NearContext } from "../wallets/near";
-
+import { usePathname, useSearchParams } from "next/navigation";
 interface Wallet {
   viewMethod: (args: {
     contractId: string;
@@ -76,13 +76,25 @@ export function Stake({
   const [amountB, setAmountB] = useState<string>("");
   const [fromToken, setFromToken] = useState<any>(null);
   const [toToken, setToToken] = useState<any>(null);
-  const [loaded, setloaded] = useState<boolean>(false);
+  const [modasl, setmodasl] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [subal1, setsubal] = useState<boolean>(false);
   const [subal2, setsubal2] = useState<boolean>(false);
   const [subal3, setsubal3] = useState<boolean>(false);
   const [stakepage, setstakepage] = useState<boolean>(true);
   const [selected, setSelected] = useState<string>("");
+
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const resetAllModals = () => {
+    setmodasl(false)
+  };
+
+  useEffect(() => {
+    resetAllModals();
+  }, [pathname, searchParams]);
+
 
   useEffect(() => {
     const getsubbalance = async () => {
@@ -353,7 +365,7 @@ export function Stake({
     parseInt(amountB) === 0;
 
   return (
-    <Dialog>
+    <Dialog open={modasl} onOpenChange={() => {setmodasl(!modasl)}}>
       <DialogTrigger asChild>
         <Button className="w-full text-white p-3">Staking</Button>
       </DialogTrigger>

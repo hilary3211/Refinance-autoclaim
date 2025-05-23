@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/pagination";
 import SkeletonLoader from "./SkeletonLoader";
 import { useRouter } from "next/navigation";
-
+import { NearContext } from "@/wallets/near";
 interface PoolItem {
   token_id: string;
   token_name: string;
@@ -69,6 +69,7 @@ function formatSuppliedAmount(amount: string): string {
 }
 
 const PoolData = ({ data }: { data: PoolItem[] }) => {
+  const { signedAccountId, wallet } = useContext(NearContext);
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -98,63 +99,7 @@ const PoolData = ({ data }: { data: PoolItem[] }) => {
     pageNumbers.push(i);
   }
 
-//   function getTokenRewards(data: any) {
-//     const rewards: any = {};
 
-//     // Loop through all farms (both Supplied and Borrowed positions)
-//     data.farms.forEach((farm) => {
-      // const farmType = farm.farm_id.Supplied ? "Supplied" : "Borrowed";
-      // const tokenId = farm.farm_id[farmType];
-
-//       // Check if rewards exist for this farm
-//       if (farm.rewards) {
-//         Object.entries(farm.rewards).forEach(([rewardTokenId, rewardData]) => {
-//           if (!rewards[rewardTokenId]) {
-//             rewards[rewardTokenId] = {
-//               daily: 0,
-//               weekly: 0,
-//               yearly: 0,
-//               apy: 0,
-//               farmType,
-//             };
-//           }
-
-//           // Convert from yoctoNEAR (1e-24) to readable units
-//           const daily = rewardData?.reward_per_day / 1e24;
-
-//           rewards[rewardTokenId].daily += daily;
-//           rewards[rewardTokenId].weekly += daily * 7;
-//           rewards[rewardTokenId].yearly += daily * 365;
-//         });
-//       }
-//     });
-
-//     // Calculate APY if user has a balance
-//     const userBalance = parseFloat(data.supplied.balance) / 1e24;
-//     if (userBalance > 0) {
-//       Object.keys(rewards).forEach((tokenId) => {
-//         rewards[tokenId].apy = (rewards[tokenId].yearly / userBalance) * 100;
-//       });
-//     }
-
-//     return rewards;
-//   }
-
-//   async function fetchPrice(contractId : any) {
-//     try {
-//         const response = await fetch('https://api.ref.finance/list-token-price');
-//         const priceData = await response.json();
-//         const tokenPrice = priceData[contractId]?.price;
-//         if (!tokenPrice) {
-//             console.warn(`Price for ${contractId} not found in API response. Using fallback price.`);
-//             return 41.78; // Fallback price
-//         }
-//         return parseFloat(tokenPrice);
-//     } catch (error) {
-//         console.error('Error fetching price from Ref Finance API:', error);
-//         return 41.78; 
-//     }
-// }
 async function fetchPrice(contractId : any) {
   try {
       const response = await fetch(`https://api.data-service.burrow.finance/burrow/get_token_detail/${contractId}`);
@@ -243,18 +188,13 @@ async function getTokenRewards(data : any, contractId: any) {
   const handlePoolClick = async (pool: PoolItem) => {
     
     const rewards : any = await getTokenRewards(pool,pool.token_id );
-console.log(rewards)
-    // const params = new URLSearchParams({
-    //   token_id: pool.token_id,
-    //   token_name: pool.token_name,
-    //   apy: rewards["wrap.near"]?.apy.toFixed(2),
-    //   yearly: rewards["wrap.near"]?.yearly.toFixed(6),
-    // });
+
     const params = new URLSearchParams({
       token_id: pool.token_id,
       token_name: pool.token_name,
       apy: `${rewards[0] * 100}`,
       yearly: `${rewards[1] * 100}`,
+      signerid : signedAccountId
     });
 
     router.push(`/finance/burrow/${params.toString()}`);
