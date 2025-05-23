@@ -301,8 +301,9 @@ const WithdrawPage = () => {
                                         token.contractId,
                                         token.tokenSymbol
                                       );
-                                      setOpen(false);
+                                    
                                       settoken2(token.tokenSymbol);
+                                      setOpen(false);
                                     }
 
                                     gettokbal();

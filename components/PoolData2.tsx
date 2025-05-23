@@ -81,7 +81,7 @@ const PoolData = ({ data }: { data: PoolItem[] }) => {
   const filteredData = data.filter((item) =>
     item.token_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
+console.log(data)
 
 
   const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
@@ -104,7 +104,7 @@ async function fetchPrice(contractId : any) {
   try {
       const response = await fetch(`https://api.data-service.burrow.finance/burrow/get_token_detail/${contractId}`);
       const priceData = await response.json();
-      console.log(priceData)
+      // console.log(priceData)
       const tokenPrice = priceData[0]?.token_supply_apr;
       const tokenPrice2 = priceData[0]?.token_borrow_apr;
       if (!tokenPrice) {
