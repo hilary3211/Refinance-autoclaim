@@ -84,7 +84,7 @@ const page = () => {
     );
     const collateralBalance = collateral ? collateral.balance : 0;
 
-    console.log(`dhcbjkd ${collateralBalance}`);
+
 
     const farm = data.farms.find(
       (farm) =>
@@ -145,9 +145,22 @@ const page = () => {
       method: "get_account",
       args: { account_id: `${getUserData.subaccount_id}` },
     });
-    const getbals = getCollateralAndRewards(getbal, tokenId);
 
-    if (getbals.collateralBalance > 0) {
+    let getbals : any
+    if ( getbal === null) {
+
+       getbals = {
+        collateralBalance: 0,
+        unclaimedAmount: 0,
+      };
+      
+     
+    }else{
+       getbals =  getCollateralAndRewards(getbal, tokenId);
+    }
+
+
+    if (getbals?.collateralBalance > 0) {
       setshowdepo(false);
     } else {
       setshowdepo(true);
