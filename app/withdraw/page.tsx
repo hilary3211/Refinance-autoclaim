@@ -10,13 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -182,19 +176,7 @@ const WithdrawPage = () => {
     parseFloat(amount) === 0 ||
     parseFloat(fromToken) === 0;
 
-  // function toSmallestUnit(amount: any, tokenType = "token") {
-  //   const power = tokenType.toLowerCase() === "near" ? 24 : 18;
 
-  //   const amountStr = String(amount);
-
-  //   const [integerPart, fractionalPart = ""] = amountStr.split(".");
-
-  //   const paddedFractionalPart = fractionalPart.padEnd(power, "0");
-
-  //   const smallestUnit = BigInt(integerPart + paddedFractionalPart);
-
-  //   return smallestUnit.toString();
-  // }
 
   function toSmallestUnit(amount: string, tokenType = "token") {
 
@@ -280,10 +262,10 @@ const WithdrawPage = () => {
              
                 <div className="text-white flex-1">
                   <Select>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger onClick={() => {setOpen(true)}}  className="w-full">
                       <SelectValue placeholder="Select Token to withdraw" />
                     </SelectTrigger>
-                    <SelectContent>
+              { open && <SelectContent  >
                       <SelectGroup>
                         <SelectLabel>Token to withdraw</SelectLabel>
 
@@ -293,7 +275,7 @@ const WithdrawPage = () => {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                           />
-                          <ScrollArea className="h-[300px] w-[300px]">
+                          <ScrollArea  className="h-[300px] w-[300px]">
                             <div className="grid gap-2">
                               {filteredTokens?.map((token) => (
                                 <Button
@@ -354,7 +336,7 @@ const WithdrawPage = () => {
                           </ScrollArea>
                         </div>
                       </SelectGroup>
-                    </SelectContent>
+                    </SelectContent>}
                   </Select>
                 </div>
            

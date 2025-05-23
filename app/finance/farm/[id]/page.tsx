@@ -137,31 +137,28 @@ const Page = () => {
           {pool?.token_symbols?.[0]}-{pool?.token_symbols?.[1]}{" "}
           {pool?.farm && <span>Farms</span>}
         </p>
-        <div>
+        {/* <div>
           <p className=" text-[#4f5f64]">Fee</p>
           <p className="font-semibold">0.30%</p>
-        </div>
-        <div>
+        </div> */}
+        {/* <div>
           <p className=" text-[#4f5f64]">Current Price</p>
           <p className="font-semibold">1 USDC = 1 NEAR</p>
-        </div>
+        </div> */}
       </div>
       <div className="flex max-w-3xl pt-6 ">
         <div className="max-w-xl w-full mr-3 space-y-4">
           <div className=" bg-[#0c171f] p-3 rounded-md">
             <div className="space-y-3 p-4">
-              <p className="text-sm text-[#4f5f64]">Total Lp shares</p>
-              <p className="text-2xl font-semibold">0</p>
+              <p className="text-sm text-[#4f5f64]">Staked Share</p>
+              <p className="text-2xl font-semibold">{share2}</p>
             </div>
             <div className="flex justify-between max-w-sm p-4">
               <div className="space-y-3">
-                <p className="text-sm text-[#4f5f64]">Staked Share</p>
-                <p className="text-2xl font-semibold">$0</p>
-              </div>
-              <div className="space-y-3">
                 <p className="text-sm text-[#4f5f64]">Unstaked Share</p>
-                <p className="text-2xl font-semibold">0%</p>
+                <p className="text-2xl font-semibold">{share1}</p>
               </div>
+              
             </div>
           </div>
         </div>

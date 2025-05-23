@@ -307,7 +307,7 @@ const page = () => {
                   <div>
                     <p>Unclaimed rewards</p>
                     <p>
-                      {toHumanReadable(`${userdata.unclaimedAmount}`, "token")}
+                      {toHumanReadable(`${userdata.unclaimedAmount}`, "near")}
                     </p>
                   </div>
                 </div>
