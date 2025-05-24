@@ -22,22 +22,6 @@ interface PoolItem {
   supply_apr: string;
 }
 
-const formatCurrency = (value: number | string): string => {
-  const numericValue = Number(value);
-
-  if (isNaN(numericValue)) {
-    return "$0.00";
-  }
-
-  if (numericValue >= 1_000_000) {
-    return `$${(numericValue / 1_000_000).toFixed(2)}M`;
-  } else if (numericValue >= 1_000) {
-    return `$${(numericValue / 1_000).toFixed(2)}K`;
-  } else {
-    return `$${numericValue.toFixed(2)}`;
-  }
-};
-
 function formatSuppliedAmount(amount: string): string {
   if (!amount) return "0";
 
@@ -81,8 +65,6 @@ const PoolData = ({ data }: { data: PoolItem[] }) => {
   const filteredData = data.filter((item) =>
     item.token_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-console.log(data)
-
 
   const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
@@ -99,102 +81,44 @@ console.log(data)
     pageNumbers.push(i);
   }
 
-
-async function fetchPrice(contractId : any) {
-  try {
-      const response = await fetch(`https://api.data-service.burrow.finance/burrow/get_token_detail/${contractId}`);
+  async function fetchPrice(contractId: any) {
+    try {
+      const response = await fetch(
+        `https://api.data-service.burrow.finance/burrow/get_token_detail/${contractId}`
+      );
       const priceData = await response.json();
-      // console.log(priceData)
+
       const tokenPrice = priceData[0]?.token_supply_apr;
       const tokenPrice2 = priceData[0]?.token_borrow_apr;
       if (!tokenPrice) {
-          console.warn(`Price for ${contractId} not found. Using fallback price.`);
-          return 41.78; // Fallback
+        console.warn(
+          `Price for ${contractId} not found. Using fallback price.`
+        );
+        return 41.78;
       }
-      return [tokenPrice, tokenPrice2]
-  } catch (error) {
-      console.error('Error fetching price:', error);
-      return 41.78; // Fallback
+      return [tokenPrice, tokenPrice2];
+    } catch (error) {
+      console.error("Error fetching price:", error);
+      return 41.78;
+    }
   }
-}
 
-// Function to fetch NEAR price (optional, for reward conversion)
-async function fetchNearPrice() {
-  try {
-      const response = await fetch('https://api.ref.finance/list-token-price');
-      const priceData = await response.json();
-      const nearPrice = priceData['wrap.near']?.price;
-      if (!nearPrice) {
-          console.warn('NEAR price not found. Using fallback price.');
-          return 5; 
-      }
-      return parseFloat(nearPrice);
-  } catch (error) {
-      console.error('Error fetching NEAR price:', error);
-      return 5; 
+  async function getTokenRewards(data: any, contractId: any) {
+    const rewards: any = {};
+    const zecPrice = await fetchPrice(contractId);
+
+    return zecPrice;
   }
-}
-
-// Corrected getTokenRewards function
-async function getTokenRewards(data : any, contractId: any) {
-  const rewards : any = {};
-  const zecPrice = await fetchPrice(contractId);
-  //   const nearPrice = await fetchNearPrice();
-  // const extraDecimals = data.config.extra_decimals;
-  // const decimals = Math.pow(10, extraDecimals);
-
-  // // Process farms
-  // data.farms.forEach((farm) => {
-  //   const farmType = farm.farm_id.Supplied ? "Supplied" : "Borrowed";
-  //   const tokenId = farm.farm_id[farmType];
-
-  //     if (farm.rewards) {
-  //         Object.entries(farm.rewards).forEach(([rewardTokenId, rewardData]) => {
-  //             if (!rewards[rewardTokenId]) {
-  //                 rewards[rewardTokenId] = {
-  //                     daily: 0,
-  //                     weekly: 0,
-  //                     yearly: 0,
-  //                     apy: 0,
-  //                     farmType
-  //                 };
-  //             }
-
-  //             // Convert reward_per_day from yoctoNEAR (1e24) to readable units
-  //             const daily = parseInt(rewardData.reward_per_day) / Math.pow(10, 24);
-  //             rewards[rewardTokenId].daily += daily;
-  //             rewards[rewardTokenId].weekly += daily * 7;
-  //             rewards[rewardTokenId].yearly += daily * 365;
-  //         });
-  //     }
-  // });
-
-  // // Calculate APY with correct balance and price conversion
-  // const userBalance = parseInt(data.supplied.balance) / decimals; // Use extra_decimals
-  // const userBalanceUsd = userBalance * zecPrice;
-
-  // if (userBalance > 0) {
-  //     Object.keys(rewards).forEach((tokenId) => {
-  //         // Convert rewards to USD (assuming rewards are in NEAR)
-  //         const yearlyUsd = rewards[tokenId].yearly * nearPrice;
-  //         rewards[tokenId].apy = (yearlyUsd / userBalanceUsd) * 100;
-  //     });
-  // }
-
-  return zecPrice;
-}
-
 
   const handlePoolClick = async (pool: PoolItem) => {
-    
-    const rewards : any = await getTokenRewards(pool,pool.token_id );
+    const rewards: any = await getTokenRewards(pool, pool.token_id);
 
     const params = new URLSearchParams({
       token_id: pool.token_id,
       token_name: pool.token_name,
       apy: `${rewards[0] * 100}`,
       yearly: `${rewards[1] * 100}`,
-      signerid : signedAccountId
+      signerid: signedAccountId,
     });
 
     router.push(`/finance/burrow/${params.toString()}`);

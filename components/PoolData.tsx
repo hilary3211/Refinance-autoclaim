@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/pagination";
 import SkeletonLoader from "./SkeletonLoader";
 import { useRouter } from "next/navigation";
-
+import { useContext } from "react";
+import { NearContext } from "@/wallets/near";
 const formatCurrency = (value: number | string): string => {
   const numericValue = Number(value);
 
@@ -36,6 +37,7 @@ type PoolDataProps = {
 };
 
 const PoolData: React.FC<PoolDataProps> = ({ data }) => {
+  const { signedAccountId, wallet } = useContext(NearContext);
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -70,7 +72,7 @@ const PoolData: React.FC<PoolDataProps> = ({ data }) => {
   };
 
   const handlePoolClick = (poolId: string) => {
-    router.push(`/finance/pool/${poolId}`);
+    router.push(`/finance/pool/${poolId}&${signedAccountId}`);
   };
 
   return (
@@ -97,13 +99,11 @@ const PoolData: React.FC<PoolDataProps> = ({ data }) => {
       ) : (
         <>
           {currentItems.map((item) => (
-            
             <div
               key={item.id}
               onClick={() => handlePoolClick(item.id)}
               className="bg-[#0c171f] px-5 p-5 text-sm hover:bg-[#0c171f]/60 text-white cursor-pointer rounded-md grid grid-cols-5 gap-2 my-2"
             >
-
               <h1 className="col-span-3 font-semibold">
                 {item.token_symbols.join(" / ")}
               </h1>

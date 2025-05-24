@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState, useEffect, useContext } from "react";
 import { useParams } from "next/navigation";
-import { AddLiquidity } from "@/components/AddLiquidity";
+
 import { Stake } from "@/components/Stake";
 import { NearContext } from "@/wallets/near";
 import Header from "@/components/Header";
@@ -33,13 +33,16 @@ interface FarmerSeeds {
 const Page = () => {
   const { signedAccountId, wallet } = useContext(NearContext);
   const params = useParams();
-  const id = params.id as string;
+
+  const decodedId = decodeURIComponent(`${params.id}` || "");
+  const [id, signed_AccountId] = decodedId.split("&");
   const [pool, setPool] = useState<Pool | null>(null);
   const [showStake, setShowStake] = useState<boolean | null>(null);
   const [pool2, setPool2] = useState<any>(null);
   const [share1, setShare1] = useState<string>("0");
   const [share2, setShare2] = useState<string>("0");
-
+  const [userdata, setuserdata] = useState<any>([]);
+  const [dec, setdec] = useState<any>();
   const fetchPoolById = async (id: string): Promise<void> => {
     if (!id) return;
     try {
@@ -48,6 +51,32 @@ const Page = () => {
       );
       const data: Pool[] = await res.json();
       setPool(data[0]);
+      const getUserData = await wallet.viewMethod<{ username: string }>({
+        contractId: "compoundx.near",
+        method: "get_user",
+        args: {
+          wallet_id: signed_AccountId,
+        },
+        gas: "300000000000000",
+        deposit: "0",
+      });
+      const myShares3 = await wallet.viewMethod<FarmerSeeds>({
+        contractId: "boostfarm.ref-labs.near",
+        method: "get_unclaimed_rewards",
+        args: {
+          farmer_id: `${getUserData.subaccount_id}`,
+          seed_id: `v2.ref-finance.near@${id}`,
+        },
+      });
+
+      setuserdata(myShares3);
+      const getbal4 = await wallet.viewMethod({
+        contractId: data[0]?.token_account_ids?.[0],
+        method: "ft_metadata",
+        args: {},
+      });
+
+      setdec(getbal4.decimals);
     } catch (error) {
       console.log(error);
     }
@@ -55,6 +84,7 @@ const Page = () => {
 
   function findPoolById(data: FarmerSeeds, poolId: string): string | null {
     const poolKeyFragment = `@${poolId}`;
+
     for (const key in data) {
       if (key.includes(poolKeyFragment)) {
         return data[key].free_amount;
@@ -68,6 +98,22 @@ const Page = () => {
     fetchPoolById(id);
   }, [pool2]);
 
+  function toHumanReadable(amount: any, tokenType = "token") {
+    const power = tokenType === "wNEAR" ? 24 : dec;
+
+    const amountStr = String(amount).padStart(power + 1, "0");
+
+    const integerPart = amountStr.slice(0, -power);
+    const fractionalPart = amountStr.slice(-power);
+
+    const humanReadable = `${integerPart}.${fractionalPart}`;
+
+    const formattedAmount = humanReadable;
+
+    return parseFloat(formattedAmount)
+  }
+
+
   async function checkShares(): Promise<void> {
     count++;
     try {
@@ -75,7 +121,7 @@ const Page = () => {
         contractId: "compoundx.near",
         method: "get_user",
         args: {
-          wallet_id: signedAccountId,
+          wallet_id: signed_AccountId,
         },
         gas: "300000000000000",
         deposit: "0",
@@ -94,7 +140,7 @@ const Page = () => {
         contractId: "boostfarm.ref-labs.near",
         method: "list_farmer_seeds",
         args: {
-          farmer_id: `${getUserData.subaccount_id}`, // Pool ID
+          farmer_id: `${getUserData.subaccount_id}`,
         },
       });
 
@@ -129,7 +175,10 @@ const Page = () => {
       <div className="h-[20vh]">
         <Header />
       </div>
-      <Link href={`/finance/pool/${id}`} className="text-sm font-semibold">
+      <Link
+        href={`/finance/pool/${id}&${signedAccountId}`}
+        className="text-sm font-semibold"
+      >
         {"< Farms"}
       </Link>
       <div className="flex justify-between max-w-xl py-3 items-center">
@@ -158,8 +207,39 @@ const Page = () => {
                 <p className="text-sm text-[#4f5f64]">Unstaked Share</p>
                 <p className="text-2xl font-semibold">{share1}</p>
               </div>
-              
             </div>
+
+            {userdata[`${pool?.token_account_ids?.[0] ?? ""}`] && (
+              <>
+                <div className="flex justify-between max-w-sm p-4">
+                  <div className="space-y-3">
+                    <p className="text-sm text-[#4f5f64]">
+                      {pool?.token_symbols?.[0]}
+                    </p>
+                    <p className="text-2xl font-semibold">
+                      {toHumanReadable(
+                        userdata[`${pool?.token_account_ids?.[0] ?? ""}`],
+                        pool?.token_symbols?.[0]
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex justify-between max-w-sm p-4">
+                  <div className="space-y-3">
+                    <p className="text-sm text-[#4f5f64]">
+                      {pool?.token_symbols?.[1]}
+                    </p>
+                    <p className="text-2xl font-semibold">
+                      {toHumanReadable(
+                        userdata[`${pool?.token_account_ids?.[1] ?? ""}`],
+                        pool?.token_symbols?.[1]
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
         <div>

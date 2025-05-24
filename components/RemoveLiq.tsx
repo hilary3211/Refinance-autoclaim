@@ -49,6 +49,7 @@ export function RemoveLiq({
   const [subal1, setSubal1] = useState<string>("");
   const [subal2, setSubal2] = useState<string>("");
   const [selected, setSelected] = useState<string>("");
+  const [dec, setdec] = useState<any>();
 
   const getTokenAmounts = async () => {
     if (!amountA) return;
@@ -61,6 +62,14 @@ export function RemoveLiq({
           pool_id: parseInt(Poolid),
         },
       });
+
+      const getbal4 = await wallet.viewMethod({
+        contractId: poolTypeID1,
+        method: "ft_metadata",
+        args: {},
+      });
+
+      setdec(getbal4.decimals);
 
       const userShares = new BigNumber(amountA);
       const totalShares = new BigNumber(poolInfo.shares_total_supply);
@@ -108,7 +117,7 @@ export function RemoveLiq({
     amount: string,
     tokenType: "token" | "near" = "token"
   ): string {
-    const power = tokenType === "near" ? 24 : 18;
+    const power = tokenType === "near" ? 24 : dec;
     const amountStr = String(amount).padStart(power + 1, "0");
     const integerPart = amountStr.slice(0, -power);
     const fractionalPart = amountStr.slice(-power);
@@ -116,7 +125,7 @@ export function RemoveLiq({
     return parseFloat(humanReadable).toString();
   }
 
-  function toSmallestUnits(amount: string, decimals: number = 18): string {
+  function toSmallestUnits(amount: string, decimals: number = dec): string {
     const amountStr = String(amount);
     const [integerPart, fractionalPart = ""] = amountStr.split(".");
     const paddedFractionalPart = fractionalPart.padEnd(decimals, "0");
@@ -136,10 +145,6 @@ export function RemoveLiq({
         deposit: "0",
       });
 
-      const myshares = toSmallestUnits(amountA);
-      const tokenamt = toSmallestUnits(subal1);
-      const tokenamt2 = toSmallestUnits(subal2);
-
       const transactions = [
         {
           receiverId: `${getUserData.subaccount_id}`,
@@ -151,18 +156,18 @@ export function RemoveLiq({
                 args:
                   poolType2 === "wNEAR"
                     ? {
-                      seed_id: `v2.ref-finance.near@${Poolid}`,
-                      withdraw_amount: amountA,
+                        seed_id: `v2.ref-finance.near@${Poolid}`,
+                        withdraw_amount: amountA,
                         token_id: poolTypeID1,
-                        owner_acc : signedAccountId,
-                        pool_id : `:${Poolid}`
+                        owner_acc: signedAccountId,
+                        pool_id: `:${Poolid}`,
                       }
                     : {
-                      seed_id: `v2.ref-finance.near@${Poolid}`,
-                      withdraw_amount: amountA,
+                        seed_id: `v2.ref-finance.near@${Poolid}`,
+                        withdraw_amount: amountA,
                         token_id: poolTypeID2,
-                        owner_acc : signedAccountId,
-                        pool_id : `:${Poolid}`
+                        owner_acc: signedAccountId,
+                        pool_id: `:${Poolid}`,
                       },
                 gas: "300000000000000",
                 deposit: "0",

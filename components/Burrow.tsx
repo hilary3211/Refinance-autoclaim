@@ -27,10 +27,9 @@ interface BurrowProps {
   tokenId: string;
   tokenName: string;
   Data: any;
-
 }
 
-export function Burrow({ tokenId, tokenName, Data,  }: BurrowProps) {
+export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
   const { signedAccountId, wallet } = useContext(NearContext);
   const [fromBal, setfromBal] = useState("");
   const [dec, setdec] = useState("");
@@ -40,22 +39,21 @@ export function Burrow({ tokenId, tokenName, Data,  }: BurrowProps) {
   const [subal12, setsuba2] = useState<boolean>(false);
   const [subal3, setsuba3] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
-  const [userbalance, setuserbalance] = useState("");
+  const [userbalance, setuserbalance] = useState<any>("");
   const [selected, setSelected] = useState("");
-
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const resetAllModals = () => {
-    setsubal(false)
+    setsubal(false);
   };
 
   useEffect(() => {
     resetAllModals();
   }, [pathname, searchParams]);
   function toHumanReadable(amount: string, tokenType = "token") {
-    const power = dec
+    const power = dec;
     const amountStr = String(amount).padStart(parseInt(power) + 1, "0");
     const integerPart = amountStr.slice(0, -power);
     const fractionalPart = amountStr.slice(-power);
@@ -64,32 +62,29 @@ export function Burrow({ tokenId, tokenName, Data,  }: BurrowProps) {
     return formattedAmount;
   }
 
-
-
-function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
+  function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
     let humanReadable: string;
 
     if (amount.includes(".")) {
-        const [integerPart, fractionalPart = ""] = amount.split(".");
-        const paddedFractional = fractionalPart.padEnd(dec, "0").slice(0, dec);
-        humanReadable = `${integerPart}.${paddedFractional}`;
+      const [integerPart, fractionalPart = ""] = amount.split(".");
+      const paddedFractional = fractionalPart.padEnd(dec, "0").slice(0, dec);
+      humanReadable = `${integerPart}.${paddedFractional}`;
     } else {
-        const paddedAmount = amount.padStart(dec + 1, "0");
-        const integerPart = paddedAmount.slice(0, -dec) || "0";
-        const fractionalPart = paddedAmount.slice(-dec);
-        humanReadable = `${integerPart}.${fractionalPart}`;
+      const paddedAmount = amount.padStart(dec + 1, "0");
+      const integerPart = paddedAmount.slice(0, -dec) || "0";
+      const fractionalPart = paddedAmount.slice(-dec);
+      humanReadable = `${integerPart}.${fractionalPart}`;
     }
 
-    // Convert to number, trimming trailing zeros
     return parseFloat(humanReadable);
-}
+  }
   const handleChangeA = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setAmountA(value);
   };
 
   function toSmallestUnit(amount: string, tokenType = "token") {
-    const power = dec
+    const power = dec;
     const amountStr = String(amount);
     const [integerPart, fractionalPart = ""] = amountStr.split(".");
     const paddedFractionalPart = fractionalPart.padEnd(parseInt(power), "0");
@@ -116,10 +111,9 @@ function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
       const getbal4 = await wallet.viewMethod({
         contractId: tokenId,
         method: "ft_metadata",
-        args: {  },
+        args: {},
       });
 
-     
       const getbal1 = await wallet.viewMethod({
         contractId: `contract.main.burrow.near`,
         method: "storage_balance_of",
@@ -154,14 +148,13 @@ function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
       setsuba2(!getbal2 || getbal2.total === "0");
       setsuba3(!getbal3 || getbal3.total === "0");
 
-      if(getbal4.decimals === 8){
-        setuserbalance(toHumanReadable2(getbal, "token",8));
-      }else{
-        setuserbalance(toHumanReadable(getbal, "token"));
+      if (getbal4.decimals === 8) {
+        setuserbalance(toHumanReadable2(`${getbal}`, "token", 8));
+      } else {
+        setuserbalance(toHumanReadable(`${getbal}`, "token"));
       }
-     
-      setdec(getbal4.decimals)
 
+      setdec(getbal4.decimals);
     };
 
     getsubbalance();
@@ -175,8 +168,6 @@ function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
       gas: "300000000000000",
       deposit: "0",
     });
-
-  
 
     const preference = {
       smart_contract_name: `${getUserData.subaccount_id}`,
@@ -315,7 +306,12 @@ function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
     selected === "";
 
   return (
-    <Dialog open={subal1} onOpenChange={() => {setsubal(!subal1)}}  >
+    <Dialog
+      open={subal1}
+      onOpenChange={() => {
+        setsubal(!subal1);
+      }}
+    >
       <DialogTrigger asChild>
         <Button className="w-full text-white p-3">Deposit</Button>
       </DialogTrigger>
@@ -329,29 +325,27 @@ function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
           </DialogHeader>
           <div className="grid gap-1 py-4">
             <div className="flex flex-col space-y-2">
-            <div className="flex flex-row justify-between">
-              <Label htmlFor="first" className="text-left">
-                {tokenName}
-              </Label>
-              <button
-                    style={{
-                      padding: "2px 4px",
-                      fontSize: "10px",
-                      border: "1px solid #ccc",
-                      borderRadius: "3px",
-                      backgroundColor: "#f0f0f0",
-                    }}
-                    onClick={() => {
-                      setAmountA(userbalance);
-                    }}
-                  >
-                    Max
-                  </button>
-                  </div>
+              <div className="flex flex-row justify-between">
+                <Label htmlFor="first" className="text-left">
+                  {tokenName}
+                </Label>
+                <button
+                  style={{
+                    padding: "2px 4px",
+                    fontSize: "10px",
+                    border: "1px solid #ccc",
+                    borderRadius: "3px",
+                    backgroundColor: "#f0f0f0",
+                  }}
+                  onClick={() => {
+                    setAmountA(userbalance);
+                  }}
+                >
+                  Max
+                </button>
+              </div>
               <div className="rounded-md flex">
-                <div className="flex-1 flex-col items-center justify-start">
-                  {/* <p className="font-neuton">Balance: ${userbalance}</p> */}
-                </div>
+                <div className="flex-1 flex-col items-center justify-start"></div>
                 <Input
                   id="first"
                   type="number"
@@ -373,7 +367,6 @@ function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        {/* <SelectItem value="Stake">Stake xRef</SelectItem> */}
                         <SelectItem value={tokenId}>
                           Deposit in {tokenName} Pool & Compound
                         </SelectItem>
@@ -387,7 +380,7 @@ function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
           <DialogFooter>
             <Button
               onClick={depositinburrow}
-             disabled={isSwapDisabled}
+              disabled={isSwapDisabled}
               type="submit"
               className="w-full"
             >

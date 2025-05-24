@@ -70,7 +70,6 @@ const WithdrawPage = () => {
             price: priceData[contractId] ? priceData[contractId].price : null,
           };
         });
-  
 
         return tokensArray;
       } catch (error) {
@@ -107,9 +106,9 @@ const WithdrawPage = () => {
       const getbal4 = await wallet.viewMethod({
         contractId: tokenContractId,
         method: "ft_metadata",
-        args: {  },
+        args: {},
       });
-      setdec(getbal4.decimals)
+      setdec(getbal4.decimals);
 
       if (tokenSym === "wNEAR") {
         setmainbal(tokenSym);
@@ -119,9 +118,9 @@ const WithdrawPage = () => {
       } else {
         setmainbal2(tokenContractId);
         setmainbal(tokenSym);
-        if(getbal4.decimals === 8){
-        setFromToken(toHumanReadable2(balance, "token"));
-        }else{
+        if (getbal4.decimals === 8) {
+          setFromToken(toHumanReadable2(balance, "token"));
+        } else {
           setFromToken(toHumanReadable2(balance, "token"));
         }
       }
@@ -134,7 +133,7 @@ const WithdrawPage = () => {
   }
 
   function toHumanReadable(amount: any, tokenType = "token") {
-    const power = tokenType.toLowerCase() === "near" ? 24 : 18;
+    const power = tokenType.toLowerCase() === "near" ? 24 : parseInt(dec);
 
     const amountStr = String(amount).padStart(power + 1, "0");
 
@@ -143,7 +142,7 @@ const WithdrawPage = () => {
 
     const humanReadable = `${integerPart}.${fractionalPart}`;
 
-    const formattedAmount = humanReadable
+    const formattedAmount = humanReadable;
 
     return formattedAmount;
   }
@@ -152,19 +151,18 @@ const WithdrawPage = () => {
     let humanReadable: string;
 
     if (amount.includes(".")) {
-        const [integerPart, fractionalPart = ""] = amount.split(".");
-        const paddedFractional = fractionalPart.padEnd(dec, "0").slice(0, dec);
-        humanReadable = `${integerPart}.${paddedFractional}`;
+      const [integerPart, fractionalPart = ""] = amount.split(".");
+      const paddedFractional = fractionalPart.padEnd(dec, "0").slice(0, dec);
+      humanReadable = `${integerPart}.${paddedFractional}`;
     } else {
-        const paddedAmount = amount.padStart(dec + 1, "0");
-        const integerPart = paddedAmount.slice(0, -dec) || "0";
-        const fractionalPart = paddedAmount.slice(-dec);
-        humanReadable = `${integerPart}.${fractionalPart}`;
+      const paddedAmount = amount.padStart(dec + 1, "0");
+      const integerPart = paddedAmount.slice(0, -dec) || "0";
+      const fractionalPart = paddedAmount.slice(-dec);
+      humanReadable = `${integerPart}.${fractionalPart}`;
     }
 
-    
     return parseFloat(humanReadable);
-}
+  }
 
   const handleChange = (e: any) => {
     const value = e.target.value;
@@ -172,25 +170,22 @@ const WithdrawPage = () => {
   };
 
   const isWithdrawDisabled =
-    parseFloat(amount) > parseFloat(fromToken) ||
-    parseFloat(amount) === 0 ||
+    parseFloat(`${amount}`) > parseFloat(fromToken) ||
+    parseFloat(`${amount}`) === 0 ||
     parseFloat(fromToken) === 0;
 
-
-
   function toSmallestUnit(amount: string, tokenType = "token") {
-
     const power = tokenType.toLowerCase() === "near" ? 24 : parseInt(dec);
-  
-    const amountWithSlippage = parseFloat(amount).toString() 
+
+    const amountWithSlippage = parseFloat(amount).toString();
     const amountStr = amountWithSlippage;
-  
+
     const [integerPart, fractionalPart = ""] = amountStr.split(".");
-  
+
     const paddedFractionalPart = fractionalPart.padEnd(power, "0");
-  
+
     const smallestUnit = BigInt(integerPart + paddedFractionalPart);
-  
+
     return smallestUnit.toString();
   }
   async function Withdraw() {
@@ -207,9 +202,9 @@ const WithdrawPage = () => {
     let tokenAmount;
 
     if (tokensymbol === "wNEAR") {
-      tokenAmount = toSmallestUnit(amount, "near");
+      tokenAmount = toSmallestUnit(`${amount}`, "near");
     } else {
-      tokenAmount = toSmallestUnit(amount, "token");
+      tokenAmount = toSmallestUnit(`${amount}`, "token");
     }
 
     const transactions = [
@@ -255,112 +250,117 @@ const WithdrawPage = () => {
                 Pick a token and then select the amount you want to withdraw.
               </p>
             </div>
-            
+
             <div className="max-w-2xl mx-auto">
-           
               <div className="flex gap-4 my-5 items-center w-full max-w-2xl mx-auto">
-             
                 <div className="text-white flex-1">
                   <Select>
-                    <SelectTrigger onClick={() => {setOpen(true)}}  className="w-full">
+                    <SelectTrigger
+                      onClick={() => {
+                        setOpen(true);
+                      }}
+                      className="w-full"
+                    >
                       <SelectValue placeholder="Select Token to withdraw" />
                     </SelectTrigger>
-              { open && <SelectContent  >
-                      <SelectGroup>
-                        <SelectLabel>Token to withdraw</SelectLabel>
+                    {open && (
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Token to withdraw</SelectLabel>
 
-                        <div className="grid gap-4">
-                          <Input
-                            placeholder="Search by name or symbol"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                          />
-                          <ScrollArea  className="h-[300px] w-[300px]">
-                            <div className="grid gap-2">
-                              {filteredTokens?.map((token) => (
-                                <Button
-                                  key={token.symbol}
-                                  variant="ghost"
-                                  className="w-full justify-start gap-12"
-                                  onClick={() => {
-                                    async function gettokbal() {
-                                      const getUserData =
-                                        await wallet.viewMethod({
-                                          contractId: "compoundx.near",
-                                          method: "get_user",
-                                          args: {
-                                            wallet_id: signedAccountId,
-                                          },
-                                          gas: "300000000000000",
-                                          deposit: "0",
-                                        });
-                                       
-                                      const accountId = `${getUserData.subaccount_id}`;
-                                      getTokenBalance(
-                                        accountId,
-                                        token.contractId,
-                                        token.tokenSymbol
-                                      );
-                                    
-                                      settoken2(token.tokenSymbol);
-                                      setOpen(false);
-                                    }
+                          <div className="grid gap-4">
+                            <Input
+                              placeholder="Search by name or symbol"
+                              value={search}
+                              onChange={(e) => setSearch(e.target.value)}
+                            />
+                            <ScrollArea className="h-[300px] w-[300px]">
+                              <div className="grid gap-2">
+                                {filteredTokens?.map((token) => (
+                                  <Button
+                                    key={token.symbol}
+                                    variant="ghost"
+                                    className="w-full justify-start gap-12"
+                                    onClick={() => {
+                                      async function gettokbal() {
+                                        const getUserData =
+                                          await wallet.viewMethod({
+                                            contractId: "compoundx.near",
+                                            method: "get_user",
+                                            args: {
+                                              wallet_id: signedAccountId,
+                                            },
+                                            gas: "300000000000000",
+                                            deposit: "0",
+                                          });
 
-                                    gettokbal();
-                                  }}
-                                >
-                                  <img
-                                    src={token.icon || "/toks.png"}
-                                    alt={token.tokenSymbol}
-                                    width={32}
-                                    height={32}
-                                    className="rounded-full"
-                                  />
-                                  <div className="flex flex-col items-start">
-                                    <span className="text-sm font-medium">
-                                      {token.tokenSymbol}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">
-                                      {token.tokenName}
-                                    </span>
-                                  </div>
-                                  {token.price && (
-                                    <div className="ml-auto text-right">
+                                        const accountId = `${getUserData.subaccount_id}`;
+                                        getTokenBalance(
+                                          accountId,
+                                          token.contractId,
+                                          token.tokenSymbol
+                                        );
+
+                                        settoken2(token.tokenSymbol);
+                                        setOpen(false);
+                                      }
+
+                                      gettokbal();
+                                    }}
+                                  >
+                                    <img
+                                      src={token.icon || "/toks.png"}
+                                      alt={token.tokenSymbol}
+                                      width={32}
+                                      height={32}
+                                      className="rounded-full"
+                                    />
+                                    <div className="flex flex-col items-start">
                                       <span className="text-sm font-medium">
-                                        ${token.price}
+                                        {token.tokenSymbol}
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {token.tokenName}
                                       </span>
                                     </div>
-                                  )}
-                                </Button>
-                              ))}
-                            </div>
-                          </ScrollArea>
-                        </div>
-                      </SelectGroup>
-                    </SelectContent>}
+                                    {token.price && (
+                                      <div className="ml-auto text-right">
+                                        <span className="text-sm font-medium">
+                                          ${token.price}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </Button>
+                                ))}
+                              </div>
+                            </ScrollArea>
+                          </div>
+                        </SelectGroup>
+                      </SelectContent>
+                    )}
                   </Select>
                 </div>
-           
+
                 <div className="max-w-[20rem] w-full text-white bg-[#03080ae6]/70 py-2 text-center">
                   <p className="text-sm">{token2} Balance</p>
                   <p className="text-xl max-w-2xl  font-bold">{fromToken}</p>
                 </div>
                 <button
-                    style={{
-                      padding: "2px 4px",
-                      fontSize: "10px",
-                      border: "1px solid #ccc",
-                      borderRadius: "3px",
-                      backgroundColor: "#f0f0f0",
-                    }}
-                    onClick={() => {
-                      setAmount(fromToken);
-                    }}
-                  >
-                    Max
-                  </button>
+                  style={{
+                    padding: "2px 4px",
+                    fontSize: "10px",
+                    border: "1px solid #ccc",
+                    borderRadius: "3px",
+                    backgroundColor: "#f0f0f0",
+                  }}
+                  onClick={() => {
+                    setAmount(fromToken);
+                  }}
+                >
+                  Max
+                </button>
               </div>
-     
+
               <div className="flex gap-4 my-5 items-center max-w-2xl mx-auto">
                 <Input
                   onChange={handleChange}

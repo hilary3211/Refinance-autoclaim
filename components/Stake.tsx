@@ -53,7 +53,6 @@ interface NearContextType {
   wallet: Wallet;
 }
 
-// Define props interface
 interface StakeProps {
   poolType1: string;
   poolType2: string;
@@ -70,8 +69,6 @@ export function Stake({
   Poolid,
 }: StakeProps) {
   const { signedAccountId, wallet } = useContext<NearContextType>(NearContext);
-  const [fromBal, setfromBal] = useState<string>("");
-  const [toBal, settoBal] = useState<string>("");
   const [amountA, setAmountA] = useState<string>("");
   const [amountB, setAmountB] = useState<string>("");
   const [fromToken, setFromToken] = useState<any>(null);
@@ -83,18 +80,17 @@ export function Stake({
   const [subal3, setsubal3] = useState<boolean>(false);
   const [stakepage, setstakepage] = useState<boolean>(true);
   const [selected, setSelected] = useState<string>("");
-
+  const [dec, setdec] = useState("");
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const resetAllModals = () => {
-    setmodasl(false)
+    setmodasl(false);
   };
 
   useEffect(() => {
     resetAllModals();
   }, [pathname, searchParams]);
-
 
   useEffect(() => {
     const getsubbalance = async () => {
@@ -106,12 +102,11 @@ export function Stake({
         deposit: "0",
       });
 
-
       const getbal1 = await wallet.viewMethod({
         contractId: `v2.ref-finance.near`,
         method: "storage_balance_of",
         args: {
-          account_id:  `${getUserData.subaccount_id}`,
+          account_id: `${getUserData.subaccount_id}`,
         },
         gas: "300000000000000",
         deposit: "0",
@@ -121,7 +116,7 @@ export function Stake({
         contractId: `boostfarm.ref-labs.near`,
         method: "storage_balance_of",
         args: {
-          account_id:  `${getUserData.subaccount_id}`,
+          account_id: `${getUserData.subaccount_id}`,
         },
         gas: "300000000000000",
         deposit: "0",
@@ -131,15 +126,19 @@ export function Stake({
         contractId: `contract.main.burrow.near`,
         method: "storage_balance_of",
         args: {
-          account_id : `${getUserData.subaccount_id}`,
+          account_id: `${getUserData.subaccount_id}`,
         },
         gas: "300000000000000",
         deposit: "0",
       });
 
+      const getbal4 = await wallet.viewMethod({
+        contractId: poolType1,
+        method: "ft_metadata",
+        args: {},
+      });
 
-
-      // console.log(getbal1, getbal2, getbal3)
+      setdec(getbal4.decimals);
 
       setsubal(!getbal1 || getbal1.total === "0");
       setsubal2(!getbal2 || getbal2.total === "0");
@@ -148,24 +147,6 @@ export function Stake({
 
     getsubbalance();
   }, []);
-
-  function toHumanReadable(
-    amount: string | number,
-    tokenType: string = "token"
-  ): string {
-    const power = tokenType.toLowerCase() === "near" ? 24 : 18;
-
-    const amountStr = String(amount).padStart(power + 1, "0");
-
-    const integerPart = amountStr.slice(0, -power);
-    const fractionalPart = amountStr.slice(-power);
-
-    const humanReadable = `${integerPart}.${fractionalPart}`;
-
-    const formattedAmount = parseFloat(humanReadable).toFixed(2);
-
-    return formattedAmount;
-  }
 
   const handleChangeA = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -365,7 +346,12 @@ export function Stake({
     parseInt(amountB) === 0;
 
   return (
-    <Dialog open={modasl} onOpenChange={() => {setmodasl(!modasl)}}>
+    <Dialog
+      open={modasl}
+      onOpenChange={() => {
+        setmodasl(!modasl);
+      }}
+    >
       <DialogTrigger asChild>
         <Button className="w-full text-white p-3">Staking</Button>
       </DialogTrigger>
@@ -460,7 +446,7 @@ export function Stake({
                 onClick={() => {
                   Stake();
                 }}
-               // disabled={isSwapDisabled}
+                disabled={isSwapDisabled}
                 type="submit"
                 className="w-full"
               >
@@ -498,11 +484,6 @@ export function Stake({
                   </button>
                 </div>
                 <div className=" rounded-md flex ">
-                  <div className="flex-1 flex-col items-center justify-start">
-                    {/* <p className="font-neuton">
-                      Balance: {toHumanReadable(poolType2)}
-                    </p> */}
-                  </div>
                   <Input
                     id="first"
                     type="number"

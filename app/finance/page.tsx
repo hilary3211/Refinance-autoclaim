@@ -32,8 +32,6 @@ const Finance: React.FC = () => {
       deposit: "0",
     });
 
-   
-
     if (getUserData !== null) {
       try {
         const getuserbalance = await wallet.viewMethod({

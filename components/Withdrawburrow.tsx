@@ -20,43 +20,29 @@ interface BurrowProps {
   tokenId: string;
   tokenName: string;
   Data: any;
-
 }
 
-export function Withdrawburrow({ tokenId, tokenName, Data,  }: BurrowProps) {
+export function Withdrawburrow({ tokenId, tokenName, Data }: BurrowProps) {
   const { signedAccountId, wallet } = useContext(NearContext);
-  const [fromBal, setfromBal] = useState("");
-  const [toBal, settoBal] = useState("");
   const [amountA, setAmountA] = useState("");
   const [fromToken, setFromToken] = useState<string | null>(null);
   const [subal1, setsubal] = useState<boolean>(false);
-  const [subal12, setsuba2] = useState<boolean>(false);
-  const [subal3, setsuba3] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
-  const [userbalance, setuserbalance] = useState("");
-  const [selected, setSelected] = useState("");
+  const [userbalance, setuserbalance] = useState<any>("");
   const [dec, setdec] = useState("");
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const resetAllModals = () => {
-    setsubal(false)
+    setsubal(false);
   };
 
   useEffect(() => {
     resetAllModals();
   }, [pathname, searchParams]);
-  // function toHumanReadable(amount: string, tokenType = "token") {
-  //   const power = tokenType.toLowerCase() === "near" ? 24 : 18;
-  //   const amountStr = String(amount).padStart(power + 1, "0");
-  //   const integerPart = amountStr.slice(0, -power);
-  //   const fractionalPart = amountStr.slice(-power);
-  //   const humanReadable = `${integerPart}.${fractionalPart}`;
-  //   const formattedAmount = parseFloat(humanReadable).toFixed(2);
-  //   return formattedAmount;
-  // }
+
   function toHumanReadable(amount: string, tokenType = "token") {
-    const power = dec
+    const power = dec;
     const amountStr = String(amount).padStart(parseInt(power) + 1, "0");
     const integerPart = amountStr.slice(0, -power);
     const fractionalPart = amountStr.slice(-power);
@@ -65,68 +51,63 @@ export function Withdrawburrow({ tokenId, tokenName, Data,  }: BurrowProps) {
     return formattedAmount;
   }
 
+  function toHumanReadable2(
+    amount: string,
+    tokenType = "token",
+    dec = 8
+  ): number {
+    try {
+      if (typeof amount !== "string") {
+        throw new Error(`Amount must be a string, got ${typeof amount}`);
+      }
+      if (typeof dec !== "number" || dec < 0) {
+        throw new Error(`dec must be a positive number, got ${dec}`);
+      }
 
+      if (amount.trim() === "") {
+        return 0;
+      }
 
-function toHumanReadable2(amount: string, tokenType = "token", dec = 8) {
-    let humanReadable: string;
+      const paddedAmount = amount.padStart(dec + 1, "0");
+      const integerPart = paddedAmount.slice(0, -dec) || "0";
+      const fractionalPart = paddedAmount.slice(-dec);
+      const humanReadable = `${integerPart}.${fractionalPart}`;
 
-    if (amount.includes(".")) {
-        const [integerPart, fractionalPart = ""] = amount.split(".");
-        const paddedFractional = fractionalPart.padEnd(dec, "0").slice(0, dec);
-        humanReadable = `${integerPart}.${paddedFractional}`;
-    } else {
-        const paddedAmount = amount.padStart(dec + 1, "0");
-        const integerPart = paddedAmount.slice(0, -dec) || "0";
-        const fractionalPart = paddedAmount.slice(-dec);
-        humanReadable = `${integerPart}.${fractionalPart}`;
+      const result = parseFloat(humanReadable);
+      if (isNaN(result)) {
+        throw new Error(`Failed to parse ${humanReadable} to number`);
+      }
+
+      return result;
+    } catch (error) {
+      return 0;
     }
+  }
 
-    
-    return parseFloat(humanReadable);
-}
-function getCollateralBalance(data : any, tokenId : string) {
-  const collateral = data.collateral.find(item => item.token_id === tokenId);
-  return collateral ? collateral.balance : 0;
-}
+  function getCollateralBalance(data: any, tokenId: string) {
+    const collateral = data.collateral.find(
+      (item: any) => item.token_id === tokenId
+    );
+    return collateral ? collateral.balance : 0;
+  }
 
   const handleChangeA = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setAmountA(value);
   };
 
-  // function toSmallestUnit(amount: string, tokenType = "token") {
-  //   const power = dec
-  //   const amountStr = String(amount);
-  //   const [integerPart, fractionalPart = ""] = amountStr.split(".");
-  //   const paddedFractionalPart = fractionalPart.padEnd(parseInt(power), "0");
-  //   const smallestUnit = BigInt(integerPart + paddedFractionalPart);
-  //   return smallestUnit.toString();
-  // }
-
-  // function toSmallestUnit(amount : string, tokenType = "token") {
-  //   const SLIPPAGE = 0.99995; 
-  //   const power = tokenType === "token" ? "18" : tokenType; 
-  //   const amountWithSlippage = (parseFloat(amount) * SLIPPAGE).toString();
-  //   const amountStr = amountWithSlippage;
-  //   const [integerPart, fractionalPart = ""] = amountStr.split(".");
-  //   const paddedFractionalPart = fractionalPart.padEnd(parseInt(power), "0");
-  //   const smallestUnit = BigInt(integerPart + paddedFractionalPart);
-  //   return smallestUnit.toString();
-  // }
-  
   function toSmallestUnit(amount: string, tokenType = "token") {
-
     const power = tokenType.toLowerCase() === "near" ? 24 : parseInt(dec);
-  
-    const amountWithSlippage = parseFloat(amount).toString() 
+
+    const amountWithSlippage = parseFloat(amount).toString();
     const amountStr = amountWithSlippage;
-  
+
     const [integerPart, fractionalPart = ""] = amountStr.split(".");
-  
+
     const paddedFractionalPart = fractionalPart.padEnd(power, "0");
-  
+
     const smallestUnit = BigInt(integerPart + paddedFractionalPart);
-  
+
     return smallestUnit.toString();
   }
 
@@ -141,7 +122,7 @@ function getCollateralBalance(data : any, tokenId : string) {
       });
 
       const getbal = await wallet.viewMethod({
-        contractId:  'contract.main.burrow.near',
+        contractId: "contract.main.burrow.near",
         method: "get_account",
         args: { account_id: `${getUserData.subaccount_id}` },
       });
@@ -149,21 +130,17 @@ function getCollateralBalance(data : any, tokenId : string) {
       const getbal4 = await wallet.viewMethod({
         contractId: tokenId,
         method: "ft_metadata",
-        args: {  },
+        args: {},
       });
 
+      const getbals = getCollateralBalance(getbal, tokenId);
 
-
-      const getbals = getCollateralBalance(getbal,tokenId )
-      
-
-      // setuserbalance(toHumanReadable(getbal, "token"));
-      if(getbal4.decimals === 8){
-        setuserbalance(toHumanReadable2(getbals, "token",8));
-      }else{
-        setuserbalance(toHumanReadable(getbals, "token"));
+      if (getbal4.decimals === 8) {
+        setuserbalance(toHumanReadable2(`${getbals}`, "token", 8));
+      } else {
+        setuserbalance(toHumanReadable(`${getbals}`, "token"));
       }
-      setdec(getbal4.decimals)
+      setdec(getbal4.decimals);
     };
 
     getsubbalance();
@@ -211,7 +188,12 @@ function getCollateralBalance(data : any, tokenId : string) {
     parseFloat(amountA) > parseFloat(userbalance) ||
     parseFloat(amountA) === 0;
   return (
-    <Dialog open={subal1} onOpenChange={() => {setsubal(!subal1)}}>
+    <Dialog
+      open={subal1}
+      onOpenChange={() => {
+        setsubal(!subal1);
+      }}
+    >
       <DialogTrigger asChild>
         <Button className="w-full text-white p-3">Withdraw</Button>
       </DialogTrigger>
@@ -225,28 +207,25 @@ function getCollateralBalance(data : any, tokenId : string) {
           </DialogHeader>
           <div className="grid gap-1 py-4">
             <div className="flex flex-col space-y-2">
-              {/* <Label htmlFor="first" className="text-left">
-                {tokenName}
-              </Label> */}
-                    <div className="flex flex-row justify-between">
-              <Label htmlFor="first" className="text-left">
-                {tokenName}
-              </Label>
-              <button
-                    style={{
-                      padding: "2px 4px",
-                      fontSize: "10px",
-                      border: "1px solid #ccc",
-                      borderRadius: "3px",
-                      backgroundColor: "#f0f0f0",
-                    }}
-                    onClick={() => {
-                      setAmountA(userbalance);
-                    }}
-                  >
-                    Max
-                  </button>
-                  </div>
+              <div className="flex flex-row justify-between">
+                <Label htmlFor="first" className="text-left">
+                  {tokenName}
+                </Label>
+                <button
+                  style={{
+                    padding: "2px 4px",
+                    fontSize: "10px",
+                    border: "1px solid #ccc",
+                    borderRadius: "3px",
+                    backgroundColor: "#f0f0f0",
+                  }}
+                  onClick={() => {
+                    setAmountA(userbalance);
+                  }}
+                >
+                  Max
+                </button>
+              </div>
               <div className="rounded-md flex">
                 <div className="flex-1 flex-col items-center justify-start"></div>
                 <Input

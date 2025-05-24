@@ -413,7 +413,7 @@ export function SwapCard() {
           </div>
         )}
       </CardContent>
-      <CardFooter>
+      {/* <CardFooter>
         <Button
           className="w-full"
           size="lg"
@@ -427,7 +427,7 @@ export function SwapCard() {
             ? "Select tokens"
             : "Transfer"}
         </Button>
-      </CardFooter>
+      </CardFooter> */}
 
       <CardFooter>
         <Button

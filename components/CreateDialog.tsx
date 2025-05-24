@@ -63,10 +63,6 @@ export function CreateDialog() {
           {
             receiverId: "compoundx.near",
             actions: [
-              // {
-              //   type: "Transfer",
-              //   params: { deposit: "2000000000000000000000000" },
-              // },
               {
                 type: "FunctionCall",
                 params: {

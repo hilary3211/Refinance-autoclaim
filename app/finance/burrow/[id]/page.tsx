@@ -13,8 +13,6 @@ import { useState, useEffect, useContext } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Burrow } from "@/components/Burrow";
 import { Withdrawburrow } from "@/components/Withdrawburrow";
-import { usePathname, useSearchParams } from "next/navigation";
-import { RemoveLiq } from "@/components/RemoveLiq";
 import { Grid } from "react-loader-spinner";
 import Header from "@/components/Header";
 import { NearContext } from "@/wallets/near";
@@ -38,11 +36,9 @@ interface Farm {
 const page = () => {
   const { signedAccountId, wallet } = useContext(NearContext);
   const [loading, setLoading] = useState<boolean>(true);
-  const router = useRouter();
+
   const params = useParams();
   const id = params.id as string;
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const [data, setData] = useState<TokenData | null>(null);
   const [userdata, setuserdata] = useState<any>();
@@ -55,10 +51,7 @@ const page = () => {
     const apyValue = parseFloat(apy);
     const yearlyValue = parseFloat(yearly);
 
-    const saneAPY =
-      apyValue > 1000000
-        ? apyValue / 1000000 
-        : apyValue;
+    const saneAPY = apyValue > 1000000 ? apyValue / 1000000 : apyValue;
 
     return {
       apy1:
@@ -74,20 +67,16 @@ const page = () => {
     };
   }
 
-
-
   const { apy1, yearly1 } = formatRewards(apy, yearly);
 
   function getCollateralAndRewards(data: any, tokenId: string) {
     const collateral = data.collateral.find(
-      (item) => item.token_id === tokenId
+      (item: any) => item.token_id === tokenId
     );
     const collateralBalance = collateral ? collateral.balance : 0;
 
-
-
     const farm = data.farms.find(
-      (farm) =>
+      (farm: any) =>
         farm.farm_id.Supplied === tokenId ||
         farm.farm_id.TokenNetBalance === tokenId
     );
@@ -104,7 +93,7 @@ const page = () => {
     amount: string,
     tokenType: "token" | "near" = "token"
   ): string {
-    const power = tokenType.toLowerCase() === "near" ? 24 : 18;
+    const power = tokenType.toLowerCase() === "near" ? 24 : dec;
     const amountStr = String(amount).padStart(power + 1, "0");
     const integerPart = amountStr.slice(0, -power);
     const fractionalPart = amountStr.slice(-power);
@@ -146,19 +135,15 @@ const page = () => {
       args: { account_id: `${getUserData.subaccount_id}` },
     });
 
-    let getbals : any
-    if ( getbal === null) {
-
-       getbals = {
+    let getbals: any;
+    if (getbal === null) {
+      getbals = {
         collateralBalance: 0,
         unclaimedAmount: 0,
       };
-      
-     
-    }else{
-       getbals =  getCollateralAndRewards(getbal, tokenId);
+    } else {
+      getbals = getCollateralAndRewards(getbal, tokenId);
     }
-
 
     if (getbals?.collateralBalance > 0) {
       setshowdepo(false);
@@ -179,7 +164,6 @@ const page = () => {
     );
 
     if (matchingToken) {
-      // If token_name is not present, attach the tokenName from the URL.
       if (!matchingToken.token_name) {
         matchingToken.token_name = tokenName;
       }
@@ -201,11 +185,10 @@ const page = () => {
     const num = BigInt(amount);
 
     // Define thresholds:
-    const millionThreshold = BigInt("1000000000000000000000000"); // 1e24
+    const millionThreshold = BigInt("1000000000000000000000000");
     const thousandThreshold = BigInt("1000000000000000000000"); // 1e21
     const hundredThreshold = BigInt("1000000000000000000"); // 1e18
 
-    // Helper to format a number using a given divisor and suffix.
     function formatWithDivisor(divisor: bigint, suffix: string): string {
       const wholePart = num / divisor;
       const remainder = num % divisor;
@@ -327,47 +310,37 @@ const page = () => {
               )}
             </div>
             <div className="flex flex-col gap-5">
-              {showdepo && (
-                <Card className="w-[250px]">
-                  <CardHeader>
-                    <CardTitle>Deposit Into Burrow pool</CardTitle>
-                    <CardDescription>
-                      CLick the button below to add token into burrow pool and
-                      earn rewards
-                    </CardDescription>
-                  </CardHeader>
+              <Card className="w-[250px]">
+                <CardHeader>
+                  <CardTitle>Deposit Into Burrow pool</CardTitle>
+                  <CardDescription>
+                    CLick the button below to add token into burrow pool and
+                    earn rewards
+                  </CardDescription>
+                </CardHeader>
 
-                  <CardFooter className="flex justify-between">
-                    <Burrow
-                      tokenId={tokenId}
-                      tokenName={tokenName}
-                      Data={data}
-                     
-                    />
-                  </CardFooter>
-                </Card>
-              )}
+                <CardFooter className="flex justify-between">
+                  <Burrow tokenId={tokenId} tokenName={tokenName} Data={data} />
+                </CardFooter>
+              </Card>
 
-              {!showdepo && (
-                <Card className="w-[250px]">
-                  <CardHeader>
-                    <CardTitle>Withdraw from Burrow pool</CardTitle>
-                    <CardDescription>
-                      CLick the button below to withdraw token into burrow pool
-                      and earn rewards
-                    </CardDescription>
-                  </CardHeader>
+              <Card className="w-[250px]">
+                <CardHeader>
+                  <CardTitle>Withdraw from Burrow pool</CardTitle>
+                  <CardDescription>
+                    CLick the button below to withdraw token into burrow pool
+                    and earn rewards
+                  </CardDescription>
+                </CardHeader>
 
-                  <CardFooter className="flex justify-between">
-                    <Withdrawburrow
-                      tokenId={tokenId}
-                      tokenName={tokenName}
-                      Data={data}
-                      
-                    />
-                  </CardFooter>
-                </Card>
-              )}
+                <CardFooter className="flex justify-between">
+                  <Withdrawburrow
+                    tokenId={tokenId}
+                    tokenName={tokenName}
+                    Data={data}
+                  />
+                </CardFooter>
+              </Card>
             </div>
           </div>
         </div>

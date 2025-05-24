@@ -90,7 +90,7 @@ export function TransferLp({
       contractId: "v2.ref-finance.near",
       method: "get_pool_shares",
       args: {
-        pool_id: parseInt(Poolid), // Pool ID
+        pool_id: parseInt(Poolid), 
         account_id: signedAccountId,
       },
     });
@@ -238,9 +238,7 @@ export function TransferLp({
               </div>
 
               <div className=" rounded-md flex ">
-                <div className="flex-1 flex-col items-center justify-start">
-                  {/* <p className="font-neuton">Balance: {share1}</p> */}
-                </div>
+               
                 <Input
                   id="first"
                   type="number"

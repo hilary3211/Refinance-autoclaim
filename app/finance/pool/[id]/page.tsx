@@ -48,7 +48,9 @@ const Page = () => {
 
   const router = useRouter();
   const params = useParams();
-  const id = params.id as string;
+
+  const decodedId = decodeURIComponent(`${params.id}` || "");
+  const [id, signed_AccountId] = decodedId.split("&");
   const [pool, setPool] = useState<Pool | null>(null);
 
   const formatCurrency = (value: any): string => {
@@ -204,10 +206,9 @@ const Page = () => {
               <p>{(pool?.total_fee ? pool.total_fee / 100 : 0).toFixed(2)}%</p>
             </div>
             <div className="w-[130px] text-white">
-                <p className="font-semibold text-sm">Farm APR / 12.87%</p>
-                <p className="font-semibold text-sm text-white">$2.26k/week</p>
-              </div>
-              
+              <p className="font-semibold text-sm">Farm APR / 12.87%</p>
+              <p className="font-semibold text-sm text-white">$2.26k/week</p>
+            </div>
           </div>
           <div className="py-4">
             <p className="text-[#4f5f64] text-xl font-semibold py-4">
@@ -316,15 +317,13 @@ const Page = () => {
             >
               <div className="w-[200px] items-center text-white">
                 <p className="font-semibold text-sm">Stake and Earn! </p>
-               
               </div>
               <div className="w-[150px] items-center mt-4 space-y-2 text-white">
-             
                 <Button
                   style={{ backgroundColor: "black" }}
                   className="w-full text-white p-3"
                   onClick={() => {
-                    router.push(`/finance/farm/${id}`);
+                    router.push(`/finance/farm/${id}&${signedAccountId}`);
                   }}
                 >
                   <p>Farm Now!</p>
