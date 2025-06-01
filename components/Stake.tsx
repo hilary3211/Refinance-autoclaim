@@ -431,7 +431,7 @@ export function Stake({
                         <SelectGroup>
                           {/* <SelectItem value="Stake">Stake xRef</SelectItem> */}
                           <SelectItem value="Burrow">
-                            Deposit into Burrow Pool
+                            Deposit into Near Burrow Pool
                           </SelectItem>
                         </SelectGroup>
                       </SelectContent>

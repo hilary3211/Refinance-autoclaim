@@ -368,7 +368,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
                     <SelectContent>
                       <SelectGroup>
                         <SelectItem value={tokenId}>
-                          Deposit in {tokenName} Pool & Compound
+                          Deposit in Near Pool & Compound
                         </SelectItem>
                       </SelectGroup>
                     </SelectContent>

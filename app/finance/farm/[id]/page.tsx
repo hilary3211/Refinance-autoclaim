@@ -99,8 +99,7 @@ const Page = () => {
   }, [pool2]);
 
   function toHumanReadable(amount: any, tokenType = "token") {
-    const power = tokenType === "wNEAR" ? 24 : dec;
-
+    const power = tokenType === "wNEAR" ? 24 : dec; // Ensure `dec` is defined
     const amountStr = String(amount).padStart(power + 1, "0");
 
     const integerPart = amountStr.slice(0, -power);
@@ -108,11 +107,15 @@ const Page = () => {
 
     const humanReadable = `${integerPart}.${fractionalPart}`;
 
-    const formattedAmount = humanReadable;
+    if (/^0\.0+$/.test(humanReadable)) {
+      return "0";
+    }
 
-    return parseFloat(formattedAmount)
+    if (humanReadable.includes("undefined")) {
+      return "0";
+    }
+    return humanReadable;
   }
-
 
   async function checkShares(): Promise<void> {
     count++;
@@ -186,14 +189,7 @@ const Page = () => {
           {pool?.token_symbols?.[0]}-{pool?.token_symbols?.[1]}{" "}
           {pool?.farm && <span>Farms</span>}
         </p>
-        {/* <div>
-          <p className=" text-[#4f5f64]">Fee</p>
-          <p className="font-semibold">0.30%</p>
-        </div> */}
-        {/* <div>
-          <p className=" text-[#4f5f64]">Current Price</p>
-          <p className="font-semibold">1 USDC = 1 NEAR</p>
-        </div> */}
+      
       </div>
       <div className="flex max-w-3xl pt-6 ">
         <div className="max-w-xl w-full mr-3 space-y-4">
@@ -214,7 +210,7 @@ const Page = () => {
                 <div className="flex justify-between max-w-sm p-4">
                   <div className="space-y-3">
                     <p className="text-sm text-[#4f5f64]">
-                      {pool?.token_symbols?.[0]}
+                      {pool?.token_symbols?.[0]} Reward
                     </p>
                     <p className="text-2xl font-semibold">
                       {toHumanReadable(
@@ -228,7 +224,7 @@ const Page = () => {
                 <div className="flex justify-between max-w-sm p-4">
                   <div className="space-y-3">
                     <p className="text-sm text-[#4f5f64]">
-                      {pool?.token_symbols?.[1]}
+                      {pool?.token_symbols?.[1]} Reward
                     </p>
                     <p className="text-2xl font-semibold">
                       {toHumanReadable(

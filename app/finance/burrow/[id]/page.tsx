@@ -73,7 +73,13 @@ const page = () => {
     const collateral = data.collateral.find(
       (item: any) => item.token_id === tokenId
     );
+
+    const collateral2 = data.collateral.find(
+      (item: any) => item.token_id === "wrap.near"
+    );
     const collateralBalance = collateral ? collateral.balance : 0;
+
+    const collateralBalance2 = collateral2 ? collateral2.balance : 0;
 
     const farm = data.farms.find(
       (farm: any) =>
@@ -85,6 +91,7 @@ const page = () => {
 
     return {
       collateralBalance,
+      collateralBalance2,
       unclaimedAmount,
     };
   }
@@ -98,8 +105,9 @@ const page = () => {
     const integerPart = amountStr.slice(0, -power);
     const fractionalPart = amountStr.slice(-power);
     const humanReadable = `${integerPart}.${fractionalPart}`;
-    if (humanReadable === `0.000000000000000000`) {
-      return `0`;
+
+    if (/^0\.0+$/.test(humanReadable)) {
+      return "0";
     } else {
       return humanReadable;
     }
@@ -134,6 +142,8 @@ const page = () => {
       method: "get_account",
       args: { account_id: `${getUserData.subaccount_id}` },
     });
+
+
 
     let getbals: any;
     if (getbal === null) {
@@ -184,15 +194,15 @@ const page = () => {
 
     const num = BigInt(amount);
 
-    // Define thresholds:
+   
     const millionThreshold = BigInt("1000000000000000000000000");
-    const thousandThreshold = BigInt("1000000000000000000000"); // 1e21
-    const hundredThreshold = BigInt("1000000000000000000"); // 1e18
+    const thousandThreshold = BigInt("1000000000000000000000"); 
+    const hundredThreshold = BigInt("1000000000000000000");
 
     function formatWithDivisor(divisor: bigint, suffix: string): string {
       const wholePart = num / divisor;
       const remainder = num % divisor;
-      // Calculate two decimal places.
+
       const decimals = (remainder * BigInt(100)) / divisor;
       return `${wholePart.toString()}.${decimals
         .toString()
@@ -285,7 +295,7 @@ const page = () => {
                   </div>
 
                   <div>
-                    <p>Staked Balance</p>
+                    <p> {tokenName} Staked Balance</p>
                     <p>
                       {dec === 8
                         ? toHumanReadable2(
@@ -299,12 +309,32 @@ const page = () => {
                           )}
                     </p>
                   </div>
+                  <div className="flex flex-col gap-4">
+                    <div>
+                      <p>Unclaimed rewards</p>
+                      <div className="flex items-center space-x-1">
+                        <span>
+                          {toHumanReadable(
+                            `${userdata.unclaimedAmount}`,
+                            "near"
+                          )}
+                        </span>
+                        <span>Near</span>
+                      </div>
+                    </div>
 
-                  <div>
-                    <p>Unclaimed rewards</p>
-                    <p>
-                      {toHumanReadable(`${userdata.unclaimedAmount}`, "near")}
-                    </p>
+                    <div>
+                      <p>Reinvestment stake</p>
+                      <div className="flex items-center space-x-1">
+                        <span>
+                          {toHumanReadable(
+                            `${userdata.collateralBalance2}`,
+                            "near"
+                          )}
+                        </span>
+                        <span>Near</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

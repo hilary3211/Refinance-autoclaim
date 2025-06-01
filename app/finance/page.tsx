@@ -39,7 +39,7 @@ const Finance: React.FC = () => {
           method: "get_contract_balance",
           args: {},
         });
-        // console.log("Balance:", getuserbalance);
+       
       } catch (error: any) {
         if (error.message.includes("doesn't exist")) {
           const response = await fetch(
