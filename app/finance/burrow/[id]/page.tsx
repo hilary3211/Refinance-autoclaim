@@ -36,7 +36,7 @@ interface Farm {
 const page = () => {
   const { signedAccountId, wallet } = useContext(NearContext);
   const [loading, setLoading] = useState<boolean>(true);
-
+  const [apydata, setapydata] = useState<any>();
   const params = useParams();
   const id = params.id as string;
 
@@ -47,6 +47,7 @@ const page = () => {
   const [tokenId, tokenName, apy, yearly, signerid] = values;
   const [dec, setdec] = useState<any>();
   const [showdepo, setshowdepo] = useState<any>(true);
+
   function formatRewards(apy: any, yearly: any) {
     const apyValue = parseFloat(apy);
     const yearlyValue = parseFloat(yearly);
@@ -143,8 +144,6 @@ const page = () => {
       args: { account_id: `${getUserData.subaccount_id}` },
     });
 
-
-
     let getbals: any;
     if (getbal === null) {
       getbals = {
@@ -179,7 +178,6 @@ const page = () => {
       }
 
       setData(matchingToken);
-      setLoading(false);
     }
 
     return matchingToken || null;
@@ -187,6 +185,7 @@ const page = () => {
 
   useEffect(() => {
     PoolData();
+    fetchAPYData();
   }, []);
 
   function formatSuppliedAmount(amount: string): string {
@@ -194,9 +193,8 @@ const page = () => {
 
     const num = BigInt(amount);
 
-   
     const millionThreshold = BigInt("1000000000000000000000000");
-    const thousandThreshold = BigInt("1000000000000000000000"); 
+    const thousandThreshold = BigInt("1000000000000000000000");
     const hundredThreshold = BigInt("1000000000000000000");
 
     function formatWithDivisor(divisor: bigint, suffix: string): string {
@@ -217,6 +215,34 @@ const page = () => {
       return formatWithDivisor(hundredThreshold, "H");
     } else {
       return num.toString();
+    }
+  }
+
+  async function fetchAPYData() {
+    try {
+      const response = await fetch(
+        "https://us-central1-almond-1b205.cloudfunctions.net/claimauto/getAPY",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            tokenId: tokenId,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setapydata(data.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching APY data:", error);
+      throw error; 
     }
   }
 
@@ -286,12 +312,12 @@ const page = () => {
 
                   <div>
                     <p>Supply APR </p>
-                    <p>{apy1}</p>
+                    <p>{apydata.supplyApy}</p>
                   </div>
 
                   <div>
                     <p> Borrow APR</p>
-                    <p>{yearly1}%</p>
+                    <p>{apydata.borrowApy}</p>
                   </div>
 
                   <div>
