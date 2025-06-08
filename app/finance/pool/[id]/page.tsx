@@ -198,11 +198,17 @@ const Page = () => {
           {pool?.token_symbols?.[0]}-{pool?.token_symbols?.[1]}{" "}
           {pool?.farm && <span>Farms</span>}
         </p>
+        
       
         <div>
+          
          
         </div>
+        
       </div>
+      <p className="text-sm font w-[367]">
+      Note : Each investment is tied to a subaccount account. Use a new account for each investment
+        </p>
       <div className="flex max-w-3xl pt-6 flex-wrap">
         <div className="max-w-xl w-full mr-3">
           <div className="grid grid-cols-3 gap-2 bg-[#0c171f] p-3 rounded-md">

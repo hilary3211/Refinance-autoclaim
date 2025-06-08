@@ -282,6 +282,10 @@ const page = () => {
           <div className="flex justify-between max-w-xl py-3 items-center">
             <p className="text-3xl font-semibold">{tokenName}</p>
           </div>
+          <p className="text-sm font w-[367]">
+            Note : Each investment is tied to a subaccount account. Use a new
+            account for each investment
+          </p>
           <div className="flex max-w-3xl pt-6 flex-wrap">
             <div className="max-w-xl w-full mr-3 mb-10">
               {data?.token_id && (

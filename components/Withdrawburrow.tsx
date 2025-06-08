@@ -43,7 +43,7 @@ export function Withdrawburrow({ tokenId, tokenName, Data }: BurrowProps) {
   }, [pathname, searchParams]);
 
   function toHumanReadable(amount: string, tokenType = "token") {
-    const power =  dec ;
+    const power = dec;
     const amountStr = String(amount).padStart(parseInt(power) + 1, "0");
     const integerPart = amountStr.slice(0, -power);
     const fractionalPart = amountStr.slice(-power);
@@ -95,10 +95,8 @@ export function Withdrawburrow({ tokenId, tokenName, Data }: BurrowProps) {
     );
     return [
       collateral ? collateral.balance : 0,
-      collateral2 ? collateral2.balance : 0
-    ]
-    
-    
+      collateral2 ? collateral2.balance : 0,
+    ];
   }
 
   const handleChangeA = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,18 +145,16 @@ export function Withdrawburrow({ tokenId, tokenName, Data }: BurrowProps) {
 
       if (getbal4.decimals === 8) {
         setuserbalance(toHumanReadable2(`${getbals[0]}`, "token", 8));
-        setuserbalance2(getbals[1])
+        setuserbalance2(getbals[1]);
       } else {
         setuserbalance(toHumanReadable(`${getbals[0]}`, "token"));
-        setuserbalance2(getbals[1])
+        setuserbalance2(getbals[1]);
       }
       setdec(getbal4.decimals);
     };
 
     getsubbalance();
   }, []);
-
-
 
   const Withdrawburrow = async () => {
     const getUserData = await wallet.viewMethod({
@@ -168,6 +164,8 @@ export function Withdrawburrow({ tokenId, tokenName, Data }: BurrowProps) {
       gas: "300000000000000",
       deposit: "0",
     });
+
+    setsubal(!subal1);
 
     const transactions: any = [
       {
@@ -192,19 +190,17 @@ export function Withdrawburrow({ tokenId, tokenName, Data }: BurrowProps) {
         ],
       },
 
-
       userbalance2 > 0 && {
         receiverId: `${getUserData.subaccount_id}`,
         actions: [
-           {
+          {
             type: "FunctionCall",
             params: {
               methodName: "withdraw_from_borrow_pool",
               args: {
                 token_id: "wrap.near",
                 receiver_id: signedAccountId,
-                withdraw_amount: userbalance2
-
+                withdraw_amount: userbalance2,
               },
               gas: "300000000000000",
               deposit: "1",
@@ -212,29 +208,6 @@ export function Withdrawburrow({ tokenId, tokenName, Data }: BurrowProps) {
           },
         ],
       },
-
-      //  {
-      //   receiverId: `${getUserData.subaccount_id}`,
-      //   actions: [
-      //      {
-      //       type: "FunctionCall",
-      //       params: {
-      //         methodName: "withdraw_from_borrow_pool",
-      //         args: {
-      //           token_id: "wrap.near",
-      //           receiver_id: signedAccountId,
-      //           withdraw_amount:userbalance2
-      //          // toSmallestUnit(userbalance2, "near")
-      //         },
-      //         gas: "300000000000000",
-      //         deposit: "1",
-      //       },
-      //     },
-      //   ],
-      // },
-
-
- 
     ].filter(Boolean);
 
     const transfer = await wallet.signAndSendTransactions({ transactions });
@@ -299,7 +272,7 @@ export function Withdrawburrow({ tokenId, tokenName, Data }: BurrowProps) {
           <DialogFooter>
             <Button
               onClick={Withdrawburrow}
-            //  disabled={isSwapDisabled}
+              // disabled={isSwapDisabled}
               type="submit"
               className="w-full"
             >

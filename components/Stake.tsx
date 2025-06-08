@@ -78,6 +78,7 @@ export function Stake({
   const [subal1, setsubal] = useState<boolean>(false);
   const [subal2, setsubal2] = useState<boolean>(false);
   const [subal3, setsubal3] = useState<boolean>(false);
+  const [subal5, setsubal5] = useState<boolean>(false);
   const [stakepage, setstakepage] = useState<boolean>(true);
   const [selected, setSelected] = useState<string>("");
   const [dec, setdec] = useState("");
@@ -159,6 +160,7 @@ export function Stake({
   };
 
   async function Stake(): Promise<void> {
+
     const getUserData = await wallet.viewMethod({
       contractId: "compoundx.near",
       method: "get_user",
@@ -168,7 +170,7 @@ export function Stake({
       gas: "300000000000000",
       deposit: "0",
     });
-
+    setmodasl(!modasl);
     const preference = {
       smart_contract_name: `${getUserData.subaccount_id}`,
       is_active: true,
@@ -281,6 +283,7 @@ export function Stake({
   }
 
   async function unStake(): Promise<void> {
+  
     const getUserData = await wallet.viewMethod({
       contractId: "compoundx.near",
       method: "get_user",
@@ -290,6 +293,8 @@ export function Stake({
       gas: "300000000000000",
       deposit: "0",
     });
+
+    setmodasl(!modasl);
 
     const transactions = [
       {

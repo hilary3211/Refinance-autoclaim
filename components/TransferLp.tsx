@@ -63,7 +63,7 @@ export function TransferLp({
   const { signedAccountId, wallet } = useContext<NearContextType>(NearContext);
   const [amountA, setAmountA] = useState<any>("");
   const [fromToken, setFromToken] = useState<any>(null);
-
+  const [subal1, setsubal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
   const [share1, setshare1] = useState<string | null>(null);
@@ -105,6 +105,7 @@ export function TransferLp({
   }
 
   async function Tranfertoken(): Promise<void> {
+
     const getUserData = await wallet.viewMethod({
       contractId: "compoundx.near",
       method: "get_user",
@@ -114,7 +115,7 @@ export function TransferLp({
       gas: "300000000000000",
       deposit: "0",
     });
-
+    setsubal(!subal1);
     const status: boolean = await wallet.viewMethod({
       contractId: "v2.ref-finance.near",
       method: "mft_has_registered",
@@ -198,7 +199,12 @@ export function TransferLp({
     parseInt(amountA) === 0;
 
   return (
-    <Dialog>
+    <Dialog 
+    open={subal1}
+    onOpenChange={() => {
+      setsubal(!subal1);
+    }}
+    >
       <DialogTrigger asChild>
         <Button
           style={{ backgroundColor: "black" }}

@@ -48,6 +48,7 @@ export function RemoveLiq({
   const [loading, setLoading] = useState<boolean>(false);
   const [subal1, setSubal1] = useState<string>("");
   const [subal2, setSubal2] = useState<string>("");
+  const [subal3, setsubal] = useState<boolean>(false);
   const [selected, setSelected] = useState<string>("");
   const [dec, setdec] = useState<any>();
 
@@ -135,6 +136,7 @@ export function RemoveLiq({
   async function removeLiquidity(): Promise<void> {
     try {
       setLoading(true);
+     
       const getUserData = await wallet.viewMethod<UserData>({
         contractId: "compoundx.near",
         method: "get_user",
@@ -144,6 +146,7 @@ export function RemoveLiq({
         gas: "300000000000000",
         deposit: "0",
       });
+      setsubal(!subal3);
 
       const transactions = [
         {
@@ -192,7 +195,12 @@ export function RemoveLiq({
     parseFloat(amountA) === 0;
 
   return (
-    <Dialog>
+    <Dialog
+    open={subal3}
+    onOpenChange={() => {
+      setsubal(!subal3);
+    }}
+    >
       <DialogTrigger asChild>
         <Button
           style={{ backgroundColor: "black" }}

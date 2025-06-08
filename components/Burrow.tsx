@@ -161,6 +161,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
   }, []);
 
   const depositinburrow = async () => {
+  
     const getUserData = await wallet.viewMethod({
       contractId: "compoundx.near",
       method: "get_user",
@@ -168,7 +169,7 @@ export function Burrow({ tokenId, tokenName, Data }: BurrowProps) {
       gas: "300000000000000",
       deposit: "0",
     });
-
+    setsubal(!subal1);
     const preference = {
       smart_contract_name: `${getUserData.subaccount_id}`,
       is_active: true,

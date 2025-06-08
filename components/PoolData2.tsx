@@ -22,23 +22,62 @@ interface PoolItem {
   supply_apr: string;
 }
 
+// function formatSuppliedAmount(amount: string): string {
+//   if (!amount) return "0";
+
+//   const num = BigInt(amount);
+
+//   const millionThreshold = BigInt("1000000000000000000000000");
+//   const thousandThreshold = BigInt("1000000000000000000000");
+//   const hundredThreshold = BigInt("1000000000000000000");
+
+//   function formatWithDivisor(divisor: bigint, suffix: string): string {
+//     const wholePart = num / divisor;
+//     const remainder = num % divisor;
+
+//     const decimals = (remainder * BigInt(100)) / divisor;
+//     return `${wholePart.toString()}.${decimals
+//       .toString()
+//       .padStart(2, "0")}${suffix}`;
+//   }
+
+//   if (num >= millionThreshold) {
+//     return formatWithDivisor(millionThreshold, "M");
+//   } else if (num >= thousandThreshold) {
+//     return formatWithDivisor(thousandThreshold, "K");
+//   } else if (num >= hundredThreshold) {
+//     return formatWithDivisor(hundredThreshold, "H");
+//   } else {
+//     return num.toString()
+//   }
+// }
+
+
 function formatSuppliedAmount(amount: string): string {
   if (!amount) return "0";
 
   const num = BigInt(amount);
+  const decimals = 18; // Assuming ETH-like decimals
 
-  const millionThreshold = BigInt("1000000000000000000000000");
-  const thousandThreshold = BigInt("1000000000000000000000");
-  const hundredThreshold = BigInt("1000000000000000000");
+  // Thresholds in wei/atto units
+  const millionThreshold = BigInt("1000000000000000000000000"); // 1M ETH
+  const thousandThreshold = BigInt("1000000000000000000000");   // 1K ETH
+  const hundredThreshold = BigInt("1000000000000000000");       // 1 ETH
+  const baseThreshold = BigInt("1000000000000000");             // 0.001 ETH
 
   function formatWithDivisor(divisor: bigint, suffix: string): string {
     const wholePart = num / divisor;
     const remainder = num % divisor;
-
+    
+    // Calculate 2 decimal places
     const decimals = (remainder * BigInt(100)) / divisor;
-    return `${wholePart.toString()}.${decimals
-      .toString()
-      .padStart(2, "0")}${suffix}`;
+    return `${wholePart}.${decimals.toString().padStart(2, "0")}${suffix}`;
+  }
+
+  function formatSmallNumber(): string {
+    // Convert to ETH units and format with 2 decimal places
+    const ethValue = Number(num) / 1e18;
+    return ethValue.toFixed(2);
   }
 
   if (num >= millionThreshold) {
@@ -46,11 +85,94 @@ function formatSuppliedAmount(amount: string): string {
   } else if (num >= thousandThreshold) {
     return formatWithDivisor(thousandThreshold, "K");
   } else if (num >= hundredThreshold) {
-    return formatWithDivisor(hundredThreshold, "H");
+    return formatWithDivisor(hundredThreshold, "");
+  } else if (num >= baseThreshold) {
+    return formatSmallNumber();
   } else {
-    return num.toString();
+    return "0.00"; // Very small amounts
   }
 }
+
+// function formatSuppliedAmount(amount: string, tokenDecimals: number = 24): string {
+//   if (!amount || !/^\d+$/.test(amount)) return "0";
+
+//   const num = BigInt(amount);
+//   const tokenDecimalsBigInt = BigInt("10") ** BigInt(tokenDecimals);
+
+//   const millionThreshold = tokenDecimalsBigInt;
+//   const thousandThreshold = tokenDecimalsBigInt / BigInt("1000");
+//   const hundredThreshold = tokenDecimalsBigInt / BigInt("1000000");
+
+//   function formatWithDivisor(divisor: bigint, suffix: string): string {
+//     const wholePart = num / divisor;
+//     const remainder = num % divisor;
+//     const decimals = (remainder * BigInt(100)) / divisor;
+//     const nextDecimal = (remainder * BigInt(1000)) / divisor;
+//     const roundedDecimals = nextDecimal >= BigInt(500) ? decimals + BigInt(1) : decimals;
+//     return `${wholePart.toString()}.${roundedDecimals.toString().padStart(2, "0")}${suffix}`;
+//   }
+
+//   function formatSmallNumber(): string {
+//     const wholePart = num / tokenDecimalsBigInt;
+//     const remainder = num % tokenDecimalsBigInt;
+//     const decimals = (remainder * BigInt(100)) / tokenDecimalsBigInt;
+//     const nextDecimal = (remainder * BigInt(1000)) / tokenDecimalsBigInt;
+//     const roundedDecimals = nextDecimal >= BigInt(500) ? decimals + BigInt(1) : decimals;
+//     return `${wholePart.toString()}.${roundedDecimals.toString().padStart(2, "0")}`;
+//   }
+
+//   if (num >= millionThreshold) {
+//     return formatWithDivisor(millionThreshold, "M");
+//   } else if (num >= thousandThreshold) {
+//     return formatWithDivisor(thousandThreshold, "K");
+//   } else if (num >= hundredThreshold) {
+//     return formatWithDivisor(hundredThreshold, "H");
+//   } else {
+//     return formatSmallNumber();
+//   }
+// }
+
+
+
+
+
+
+// function formatSuppliedAmount(amount: string): string {
+//   if (!amount || !/^\d+$/.test(amount)) return "0";
+
+//   const num = BigInt(amount);
+//   const tokenDecimals = BigInt("1000000000000000000000000"); // 10^24
+
+//   const millionThreshold = BigInt("1000000000000000000000000"); // 10^24
+//   const thousandThreshold = BigInt("1000000000000000000000"); // 10^21
+//   const hundredThreshold = BigInt("1000000000000000000"); // 10^18
+
+//   function formatWithDivisor(divisor: bigint, suffix: string): string {
+//     const wholePart = num / divisor;
+//     const remainder = num % divisor;
+//     const decimals = (remainder * BigInt(100)) / divisor;
+//     return `${wholePart.toString()}.${decimals
+//       .toString()
+//       .padStart(2, "0")}${suffix}`;
+//   }
+
+//   function formatSmallNumber(): string {
+//     const wholePart = num / tokenDecimals;
+//     const remainder = num % tokenDecimals;
+//     const decimals = (remainder * BigInt(100)) / tokenDecimals;
+//     return `${wholePart.toString()}.${decimals.toString().padStart(2, "0")}`;
+//   }
+
+//   if (num >= millionThreshold) {
+//     return formatWithDivisor(millionThreshold, "M");
+//   } else if (num >= thousandThreshold) {
+//     return formatWithDivisor(thousandThreshold, "K");
+//   } else if (num >= hundredThreshold) {
+//     return formatWithDivisor(hundredThreshold, "H");
+//   } else {
+//     return formatSmallNumber();
+//   }
+// }
 
 const PoolData = ({ data }: { data: PoolItem[] }) => {
   const { signedAccountId, wallet } = useContext(NearContext);
