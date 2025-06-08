@@ -25,6 +25,7 @@ interface Pool {
   total_fee?: number;
   farm?: boolean;
   [key: string]: any;
+  token0_ref_price: any;
 }
 
 interface FarmerSeeds {
@@ -52,7 +53,7 @@ const Page = () => {
   const decodedId = decodeURIComponent(`${params.id}` || "");
   const [id, signed_AccountId] = decodedId.split("&");
   const [pool, setPool] = useState<Pool | null>(null);
-
+  const [pool2, setPool2] = useState<any | null>(null);
   const formatCurrency = (value: any): string => {
     const numericValue = Number(value);
 
@@ -76,14 +77,33 @@ const Page = () => {
         `https://api.ref.finance/list-pools-by-ids?ids=${id}`
       );
       const data: Pool[] = await res.json();
+      console.log(data)
       setPool(data[0]);
     } catch (error) {
       console.log(error);
     }
   };
 
+  const fetchPoolDetailsById = async (id: string): Promise<void> => {
+    if (!id) return;
+    try {
+      const res = await fetch(
+        `https://api.ref.finance/pool/detail?pool_id=${id}`
+      );
+      const data: any = await res.json();
+      console.log(data)
+      setPool2(data?.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+
+
   useEffect(() => {
     fetchPoolById(id);
+    fetchPoolDetailsById(id)
   }, [id]);
 
   function findPoolById2(data: FarmerSeeds, poolId: string): string | null {
@@ -178,16 +198,9 @@ const Page = () => {
           {pool?.token_symbols?.[0]}-{pool?.token_symbols?.[1]}{" "}
           {pool?.farm && <span>Farms</span>}
         </p>
+      
         <div>
-          <p className=" text-[#4f5f64]">Fee</p>
-          <p className="font-semibold">
-            {" "}
-            {(pool?.total_fee ? pool.total_fee / 100 : 0).toFixed(2)}%
-          </p>
-        </div>
-        <div>
-          <p className=" text-[#4f5f64]">Current Price</p>
-          <p className="font-semibold">1 USDC = 1 NEAR</p>
+         
         </div>
       </div>
       <div className="flex max-w-3xl pt-6 flex-wrap">
@@ -198,16 +211,16 @@ const Page = () => {
               <p>{formatCurrency(pool?.tvl)}</p>
             </div>
             <div>
-              <p>Volume</p>
-              <p>{formatCurrency(pool?.volume)}</p>
+              <p>Apy</p>
+              <p>{parseFloat(pool2?.apy).toFixed(4)}%</p>
             </div>
             <div>
               <p>Fee </p>
               <p>{(pool?.total_fee ? pool.total_fee / 100 : 0).toFixed(2)}%</p>
             </div>
             <div className="w-[130px] text-white">
-              <p className="font-semibold text-sm">Farm APR / 12.87%</p>
-              <p className="font-semibold text-sm text-white">$2.26k/week</p>
+              <p className="font-semibold text-sm">Farm APY </p>
+              <p className="font-semibold text-sm text-white">{parseFloat(pool2?.farm_apy).toFixed(4)}%</p>
             </div>
           </div>
           <div className="py-4">
@@ -215,20 +228,20 @@ const Page = () => {
               Pool Composition
             </p>
             <div className="space-y-5 bg-[#0c171f] p-3 rounded-md">
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <p className="text-[#4f5f64]">Pair</p>
-                <p className="text-[#4f5f64]">Amount</p>
-                <p className="text-[#4f5f64]">Value</p>
+                <p className="text-[#4f5f64]">24H Volume / Fee</p>
+               
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <p>{pool?.token_symbols?.[0]}</p>
-                <p>100%</p>
-                <p>100%</p>
+                <p>{  formatCurrency(pool2?.volume_24h) }</p>
+
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <p>{pool?.token_symbols?.[1]}</p>
-                <p>0%</p>
-                <p>0%</p>
+                <p>{parseFloat(pool2?.fee_volume_24h).toFixed(4)}%</p>
+               
               </div>
             </div>
           </div>

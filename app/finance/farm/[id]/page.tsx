@@ -189,7 +189,6 @@ const Page = () => {
           {pool?.token_symbols?.[0]}-{pool?.token_symbols?.[1]}{" "}
           {pool?.farm && <span>Farms</span>}
         </p>
-      
       </div>
       <div className="flex max-w-3xl pt-6 ">
         <div className="max-w-xl w-full mr-3 space-y-4">
@@ -210,7 +209,7 @@ const Page = () => {
                 <div className="flex justify-between max-w-sm p-4">
                   <div className="space-y-3">
                     <p className="text-sm text-[#4f5f64]">
-                      {pool?.token_symbols?.[0]} Reward
+                      Unclaimed {pool?.token_symbols?.[0]} Reward
                     </p>
                     <p className="text-2xl font-semibold">
                       {toHumanReadable(
@@ -224,7 +223,7 @@ const Page = () => {
                 <div className="flex justify-between max-w-sm p-4">
                   <div className="space-y-3">
                     <p className="text-sm text-[#4f5f64]">
-                      {pool?.token_symbols?.[1]} Reward
+                      Unclaimed {pool?.token_symbols?.[1]} Reward
                     </p>
                     <p className="text-2xl font-semibold">
                       {toHumanReadable(

@@ -242,7 +242,7 @@ const page = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching APY data:", error);
-      throw error; 
+      throw error;
     }
   }
 
